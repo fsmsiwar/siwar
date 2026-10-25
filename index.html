@@ -263,6 +263,9 @@ body.mx .qdc{border-radius:10px}body.mx .qpv,body.mx .qcl{border-radius:10px}
 .spinbox{display:flex;align-items:center;justify-content:center;padding:70px 0}.spinbox.sm{padding:18px 0}.spinbox.sm .spin{width:22px;height:22px;border-width:2px}
 #gspin{position:fixed;top:14px;left:14px;z-index:9999;width:42px;height:42px;border-radius:50%;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.25);display:none;align-items:center;justify-content:center}#gspin.on{display:flex}#gspin .spin{width:24px;height:24px;border-width:3px}
 @keyframes swsp{to{transform:rotate(360deg)}}
+.qt.stk thead tr:first-child th{height:50px}.qt.stk thead tr.qtotr th{top:50px;background:linear-gradient(180deg,#fff6c9,#f2c94c 55%,#e0a800);color:#3b2a00;font-weight:800;border-bottom:2px solid #b88700;height:42px}.qt.stk thead tr.qtotr .s1,.qt.stk thead tr.qtotr .s2,.qt.stk thead tr.qtotr .s3,.qt.stk thead tr.qtotr .s4{z-index:9}.qtt{display:inline-block;font-size:17px;font-weight:900;letter-spacing:.2px;text-shadow:0 1px 0 rgba(255,255,255,.7);padding:1px 6px;border-radius:6px;background:rgba(255,255,255,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 1px 3px rgba(120,80,0,.3)}.qtp{display:block;font-size:10px;font-weight:700;color:#6b4a00}
+.qt.stk th small{font-size:12px;font-weight:700}.qt.stk thead tr:first-child th:not(.s1):not(.s2):not(.s3):not(.s4){min-width:78px}.qt.stk{font-size:13px}.qt.stk .qc{min-width:78px}
+.qpv{height:82vh}
 </style>
 </head>
 <body>
@@ -2445,7 +2448,10 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     rows.forEach(function (r) { var k = String(r.code).toUpperCase(); var it = items[k]; if (!it) { it = items[k] = { code: r.code, name: r.name, unit: r.unit, kind: r.kind, q: {}, tot: 0, mx: 0 }; order.push(k); } it.q[r.date] = (it.q[r.date] || 0) + r.qty; it.tot += r.qty; if (!it.name) it.name = r.name; });
     order.sort(function (a, b) { return String(items[a].code).localeCompare(String(items[b].code)); });
     order.forEach(function (k) { var it = items[k]; dates.forEach(function (x) { if ((it.q[x] || 0) > it.mx) it.mx = it.q[x]; }); });
-    var head = '<tr><th class="s1">الكود</th><th class="s2">الصنف</th><th class="s3">الوحدة</th><th class="s4">الإجمالي</th>' + dates.map(function (x) { return '<th onclick="qtyDay(\'' + x + '\',\'p\')" style="cursor:pointer" title="تفاصيل اليوم">' + h(dayLbl(x)) + '<br><small>' + h(wdOf(x).slice(0, 3)) + '</small></th>'; }).join('') + '</tr>';
+    var head = '<tr><th class="s1">الكود</th><th class="s2">الصنف</th><th class="s3">الوحدة</th><th class="s4">الإجمالي</th>' + dates.map(function (x) { return '<th onclick="qtyDay(\'' + x + '\',\'p\')" style="cursor:pointer" title="تفاصيل اليوم">' + h(dayLbl(x)) + '<br><small>' + h(wdOf(x)) + '</small></th>'; }).join('') + '</tr>';
+    var dk = {}, dp = {}; order.forEach(function (k) { var it = items[k], kc = kcls(it); if (kc === 'sv') return; dates.forEach(function (x) { var q = it.q[x] || 0; if (!q) return; if (kc === 'pt' && !isGram(it.unit)) dp[x] = (dp[x] || 0) + q; else if (isGram(it.unit)) dk[x] = (dk[x] || 0) + q / 1000; }); });
+    var gk = 0; dates.forEach(function (x) { gk += dk[x] || 0; });
+    head += '<tr class="qtotr"><th class="s1">إجمالي اليوم</th><th class="s2">كجم (بدون الحبات)</th><th class="s3"></th><th class="s4"><span class="qtt">' + fmtKg(gk) + '</span></th>' + dates.map(function (x) { return '<th><span class="qtt">' + (dk[x] ? fmtKg(dk[x]) : '–') + '</span>' + (dp[x] ? '<small class="qtp">' + n0q(dp[x]) + ' حبة بيتي</small>' : '') + '</th>'; }).join('') + '</tr>';
     var body = order.map(function (k) {
       var it = items[k], kc = kcls(it), rgb = KRGB[kc];
       return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + '</td><td class="s3">' + h(isGram(it.unit) ? 'جرام' : 'حبة') + '</td><td class="s4"><b>' + n0q(it.tot) + '</b></td>' + dates.map(function (x) { var q = it.q[x]; return '<td class="qc"' + (q && rgb ? ' style="background:rgba(' + rgb + ',' + (.14 + .6 * q / (it.mx || 1)).toFixed(2) + ')"' : '') + '>' + (q ? n0q(q) : '') + '</td>'; }).join('') + '</tr>';
