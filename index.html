@@ -442,7 +442,6 @@ R.home = function (m) {
       kpi('ملاحظات اليوم', d.notesToday) + kpi('تنبيهات غير مقروءة', d.alerts.unread, d.alerts.unread ? 'warn' : '') + '</div>';
     html += '<div class="grid">' + kpi('أخطاء مفتوحة', d.issuesOpen, d.issuesHigh ? 'bad' : d.issuesOpen ? 'warn' : 'ok') + kpi('أصناف منتهية الصلاحية', d.shelfExpired, d.shelfExpired ? 'bad' : 'ok') + kpi('تنتهي صلاحيتها قريباً', d.shelfSoon, d.shelfSoon ? 'warn' : 'ok') + kpi('مقترحات جديدة', d.suggNew) + kpi('تذوق اليوم (جم)', d.taste && d.taste.used !== null ? d.taste.used : '—') + '</div>';
     html += '<div class="card"><h3>الجرد النقدي اليوم</h3>' + (d.cash ? 'مُقفل — الفرق: <b>' + money(d.cash['الفرق']) + '</b> ' + tag(d.cash['حالة_الفرق']) : '<span class="muted">لم يُقفل بعد</span> <button class="s" onclick="go(\'cash\')">إقفال الجرد</button>') + '</div>';
-    html += '<div class="card"><h3>الطاقة الاستيعابية — الأيام القادمة</h3>' + capTable(d.capacityNext) + '</div>';
     html += '<div class="card"><h3>الإجازات</h3>' + (d.onLeave.length ? 'في إجازة اليوم: ' + d.onLeave.map(h).join('، ') : '<span class="muted">لا أحد في إجازة اليوم</span>') + (d.upcomingLeaves.length ? '<br>خلال 14 يوماً: ' + d.upcomingLeaves.map(function (l) { return h(l.name) + ' (' + h(l.from) + ')'; }).join('، ') : '') + '</div>';
     html += '<div class="card"><h3>آخر التنبيهات</h3>' + alertList(d.alerts.rows) + '<p class="muted">آخر تشغيل للمشغّل التلقائي: ' + h(d.heartbeat || 'لم يعمل بعد') + '</p></div>';
     m.innerHTML = '<div id="hm_q"></div>' + html;
@@ -1024,7 +1023,7 @@ function xlDate(v) {
 function numv(v) { if (v === '' || v === null || v === undefined) return ''; var s = String(v).replace(/[٠-٩]/g, function (c) { return c.charCodeAt(0) - 1632; }).replace(/[,٬\s]/g, '').replace('٫', '.'); var n = parseFloat(s); return isNaN(n) ? '' : n; }
 function catOf(name, fileCat, p) {
   if (p && p.cat) return p.cat; var n = nrm(name + ' ' + (fileCat || ''));
-  if (/زفه|زفة/.test(n)) return 'بوكس حلى الزفة'; if (/بيتي|بتي|بيتيت|جاتو|gateau|petit/.test(n)) return 'بيتي جاتو';
+  if (/زفه|زفة/.test(n)) return 'بوكس حلى الزفة'; if (/بيتي|بتي|بيتيت|جاتو|gateau|petit/.test(n)) return 'بيتيت كاتو';
   return fileCat || 'غير مصنّف';
 }
 function kgOf(qty, name, unit, p) {
@@ -1071,7 +1070,7 @@ function doExport(csv) {
   }).catch(function () { });
 }
 function dataIn() {
-  $('dtb').innerHTML = '<div class="card"><h3>استيراد من Excel</h3><p class="muted">ارفع ملف الفواتير أو الجرد، ويظهر لك تحليل الملف أولاً (الكميات، الكيلوات المحجوزة، الزفة، البيتي جاتو، حالات الفواتير، الكاش) ولا يُكتب شيء في النظام إلا بعد ضغطك على «اعتماد الاستيراد».</p>' +
+  $('dtb').innerHTML = '<div class="card"><h3>استيراد من Excel</h3><p class="muted">ارفع ملف الفواتير أو الجرد، ويظهر لك تحليل الملف أولاً (الكميات، الكيلوات المحجوزة، الزفة، البيتيت كاتو، حالات الفواتير، الكاش) ولا يُكتب شيء في النظام إلا بعد ضغطك على «اعتماد الاستيراد».</p>' +
     '<div class="sub"><button class="s ' + (DT.type === 'invoices' ? 'on' : '') + '" onclick="DT.type=\'invoices\';dataIn()">فواتير وحجوزات</button><button class="s ' + (DT.type === 'cash' ? 'on' : '') + '" onclick="DT.type=\'cash\';dataIn()">جرد نقدي</button><button class="s ' + (DT.type === 'products' ? 'on' : '') + '" onclick="DT.type=\'products\';dataIn()">الأصناف والأسعار</button></div>' +
     '<input id="dt_file" type="file" accept=".xlsx,.xls,.csv" onchange="dtPick(this)"> <button class="s" onclick="dtTemplate()">تنزيل قالب فارغ</button><div id="dt_body"></div></div>';
   if (DT.wb && DT.rows.length) dtAnalyze();
@@ -1145,7 +1144,7 @@ function dtInvHtml() {
       var p = findProd(l.code, l.product), cat = catOf(l.product, l.cat, p), q = l.qty || 0, kg = kgOf(q, l.product, l.unit, p), pr = l.price !== '' ? l.price : (p ? numv(p.price) : 0), lt = l.total !== '' ? l.total : q * (pr || 0);
       if (!p) unm[l.product || l.code || '؟'] = (unm[l.product || l.code || '؟'] || 0) + 1;
       lines++; amt += lt; tot.qty += q; if (kg === null) noKg++; else { tot.kg += kg; if (live) tot.kgRes += kg; }
-      if (cat === 'بوكس حلى الزفة') { tot.zaffa += q; if (live) tot.zaffaRes += q; } if (cat === 'بيتي جاتو') { tot.petit += q; if (live) tot.petitRes += q; }
+      if (cat === 'بوكس حلى الزفة') { tot.zaffa += q; if (live) tot.zaffaRes += q; } if (cat === 'بيتيت كاتو') { tot.petit += q; if (live) tot.petitRes += q; }
       var c = cats[cat] = cats[cat] || { qty: 0, kg: 0, amt: 0 }; c.qty += q; c.amt += lt; if (kg !== null) c.kg += kg;
       var pn = l.product || l.code || '؟'; prods[pn] = (prods[pn] || 0) + q;
     });
@@ -1157,8 +1156,8 @@ function dtInvHtml() {
   var stKeys = Object.keys(stVals);
   var top = Object.keys(prods).sort(function (a, b) { return prods[b] - prods[a]; }).slice(0, 8);
   var f1 = function (n) { return Math.round(n * 100) / 100; };
-  return '<div class="grid">' + kpi('عدد الفواتير', inv.length) + kpi('إجمالي الكميات', f1(tot.qty)) + kpi('كيلوات محجوزة', f1(tot.kgRes) + ' كجم') + kpi('علب حلى الزفة (محجوزة)', f1(tot.zaffaRes)) + kpi('بيتي جاتو (محجوزة)', f1(tot.petitRes)) + kpi('إجمالي المبالغ', money(tot.amt)) + kpi('المدفوع', money(tot.paid)) + kpi('المتبقي', money(tot.amt - tot.paid), tot.amt - tot.paid > 0 ? 'warn' : '') + '</div>' +
-    '<p class="muted">«محجوزة» تعني فواتير معلّقة أو مؤكدة (غير مسلّمة وغير ملغاة). إجمالي الملف كله: ' + f1(tot.kg) + ' كجم، زفة ' + f1(tot.zaffa) + '، بيتي جاتو ' + f1(tot.petit) + '. فترة الاستلام: ' + h(dmin || '—') + ' إلى ' + h(dmax || '—') + '.</p>' +
+  return '<div class="grid">' + kpi('عدد الفواتير', inv.length) + kpi('إجمالي الكميات', f1(tot.qty)) + kpi('كيلوات محجوزة', f1(tot.kgRes) + ' كجم') + kpi('علب حلى الزفة (محجوزة)', f1(tot.zaffaRes)) + kpi('بيتيت كاتو (محجوزة)', f1(tot.petitRes)) + kpi('إجمالي المبالغ', money(tot.amt)) + kpi('المدفوع', money(tot.paid)) + kpi('المتبقي', money(tot.amt - tot.paid), tot.amt - tot.paid > 0 ? 'warn' : '') + '</div>' +
+    '<p class="muted">«محجوزة» تعني فواتير معلّقة أو مؤكدة (غير مسلّمة وغير ملغاة). إجمالي الملف كله: ' + f1(tot.kg) + ' كجم، زفة ' + f1(tot.zaffa) + '، بيتيت كاتو ' + f1(tot.petit) + '. فترة الاستلام: ' + h(dmin || '—') + ' إلى ' + h(dmax || '—') + '.</p>' +
     '<div class="msg ok">إجمالي كل فاتورة يُحسب تلقائياً من مجموع أصنافها مع رسوم التوصيل، ويُسجَّل مرة واحدة للفاتورة بدون تكرار.' + (mism ? ' ' + mism + ' فاتورة إجماليها في الملف يختلف عن المحسوب، فاعتُمد المحسوب: ' + h(mismEx.join('، ')) + (mism > mismEx.length ? ' …' : '') : '') + '</div>' + (d.outRange ? '<div class="msg warn">استُبعدت ' + d.outRange + ' فاتورة خارج فترة الفلتر.</div>' : '') +
     (noKg ? '<div class="msg warn">' + noKg + ' سطر بلا وزن معروف فلم يدخل في الكيلوات. أضف وزن الوحدة بالكجم للمنتج من الإعدادات والإدارة ثم المنتجات، أو اكتب الوزن في اسم المنتج (مثل 500 جم).</div>' : '') +
     '<h4>حالات الفواتير</h4><div class="tw"><table><tr><th>الحالة</th><th>العدد</th><th>الإجمالي</th><th>المدفوع</th></tr>' + DATA_ST.filter(function (s) { return sts[s]; }).map(function (s) { return '<tr><td>' + tag(s) + '</td><td>' + sts[s].n + '</td><td>' + money(sts[s].amt) + '</td><td>' + money(sts[s].paid) + '</td></tr>'; }).join('') + '</table></div>' +
@@ -2473,7 +2472,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var head = '<tr><th class="s1">الكود</th><th class="s2">الصنف</th><th class="s3">الوحدة</th><th class="s4">الإجمالي</th>' + dates.map(function (x) { return '<th onclick="qtyDay(\'' + x + '\',\'p\')" style="cursor:pointer" title="تفاصيل اليوم">' + h(dayLbl(x)) + '<br><small>' + h(wdOf(x)) + '</small></th>'; }).join('') + '</tr>';
     var dk = {}, dp = {}; order.forEach(function (k) { var it = items[k], kc = kcls(it); if (kc === 'sv') return; dates.forEach(function (x) { var q = it.q[x] || 0; if (!q) return; if (kc === 'pt' && !isGram(it.unit)) dp[x] = (dp[x] || 0) + q; else if (isGram(it.unit)) dk[x] = (dk[x] || 0) + q / 1000; }); });
     var gk = 0; dates.forEach(function (x) { gk += dk[x] || 0; });
-    head += '<tr class="qtotr"><th class="s1">الإجمالي</th><th class="s2">كيلو كل يوم <small class="qtp2">وتحته حبات البيتي</small></th><th class="s3">كجم</th><th class="s4"><span class="qtt">' + fmtKg(gk) + '</span><small class="qtp">&nbsp;</small></th>' + dates.map(function (x) { return '<th><span class="qtt">' + (dk[x] ? fmtKg(dk[x]) : '–') + '</span><small class="qtp">' + (dp[x] ? n0q(dp[x]) + ' حبة بيتي' : '&nbsp;') + '</small></th>'; }).join('') + '</tr>';
+    head += '<tr class="qtotr"><th class="s1">الإجمالي</th><th class="s2">كيلو كل يوم <small class="qtp2">وتحته حبات البيتيت كاتو</small></th><th class="s3">كجم</th><th class="s4"><span class="qtt">' + fmtKg(gk) + '</span><small class="qtp">&nbsp;</small></th>' + dates.map(function (x) { return '<th><span class="qtt">' + (dk[x] ? fmtKg(dk[x]) : '–') + '</span><small class="qtp">' + (dp[x] ? n0q(dp[x]) + ' حبة بيتيت' : '&nbsp;') + '</small></th>'; }).join('') + '</tr>';
     var body = order.map(function (k) {
       var it = items[k], kc = kcls(it), rgb = KRGB[kc];
       return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + '</td><td class="s3">' + h(isGram(it.unit) ? 'جرام' : 'حبة') + '</td><td class="s4"><b>' + n0q(it.tot) + '</b></td>' + dates.map(function (x) { var q = it.q[x]; return '<td class="qc"' + (q && rgb ? ' style="background:rgba(' + rgb + ',' + (.14 + .6 * q / (it.mx || 1)).toFixed(2) + ')"' : '') + '>' + (q ? n0q(q) : '') + '</td>'; }).join('') + '</tr>';
