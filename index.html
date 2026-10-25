@@ -267,6 +267,8 @@ body.mx .qdc{border-radius:10px}body.mx .qpv,body.mx .qcl{border-radius:10px}
 .qt.stk th small{font-size:12px;font-weight:700}.qt.stk thead tr:first-child th:not(.s1):not(.s2):not(.s3):not(.s4){min-width:78px}.qt.stk{font-size:13px}.qt.stk .qc{min-width:78px}
 .qpv{height:82vh}
 .tag.chon{background:#7a4a2a!important;color:#fff!important;border-color:#7a4a2a!important;box-shadow:0 0 0 2px rgba(122,74,42,.25)}
+.qlg button{border:0;font:inherit;cursor:pointer;border-radius:999px;padding:4px 12px}.qlg button.on{outline:2px solid #3b2a00;font-weight:800}.qlg .qall{background:#eee;color:#333}
+.qt.stk thead tr.qtotr th{height:58px;vertical-align:middle;line-height:1.15;padding-top:4px;padding-bottom:4px}.qtt{display:block;width:fit-content;margin:0 auto}.qtp{display:block;min-height:14px;margin-top:3px;font-size:11px;font-weight:700;color:#6b4a00}.qtp2{display:block;font-size:11px;font-weight:600;color:#6b4a00}
 </style>
 </head>
 <body>
@@ -2142,7 +2144,10 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       var r = aoa[i] || [], code = String(r[H.c] === undefined ? '' : r[H.c]).trim(), d = parseDay(r[H.d], year); if (code && !d && r[H.d] !== undefined && String(r[H.d]).trim() !== '' && numOf(r[H.q]) > 0 && !/^(total|المجموع)/i.test(code)) { st.badDate = (st.badDate || 0) + 1; st.badDateQty = (st.badDateQty || 0) + numOf(r[H.q]); if (!st.badDateEx) st.badDateEx = String(r[H.d]); } var xq = numOf(r[H.q]), xi = H.inv !== undefined ? String(r[H.inv] === undefined ? '' : r[H.inv]).trim() : '', xs = H.st !== undefined ? String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' ') : '', XP = function (w) { xr.push({ d: d || '', i: xi, s: xs, code: code, q: xq, w: w }); };
       if (code && !d) XP('nodate'); if (!code || !d) continue; st.lines++;
       var q = numOf(r[H.q]), s0 = ''; if (q <= 0) { XP('qty0'); continue; }
-      if (H.st !== undefined) { s0 = String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' '); if (!OK_STATE[s0.toLowerCase()]) { var kk = s0 || '(بدون حالة)'; st.exState[kk] = (st.exState[kk] || 0) + 1; st.exStateN++; XP('state'); continue; } }
+      if (H.st !== undefined) { s0 = String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' '); if (!OK_STATE[s0.toLowerCase()]) { var kk = s0 || '(بدون حالة)'; st.exState[kk] = (st.exState[kk] || 0) + 1; st.exStateN++; XP('state');
+        /* v3.7: الأسطر الملغاة/المسودة تُحفظ للعرض بفلتر مستقل ولا تدخل الكميات */
+        if (!NONPROD.test(code) && !(H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim()))) lines.push({ d: d, i: xi, s: s0, c: (H.ic !== undefined && numOf(r[H.ic]) === 1) ? 1 : 0, code: code, name: H.nm !== undefined ? String(r[H.nm] || '').trim() : '', q: q, a: H.amt !== undefined ? numOf(r[H.amt]) : 0 });
+        continue; } }
       if (H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim())) { st.exTest = (st.exTest || 0) + 1; XP('test'); continue; }
       if (NONPROD.test(code)) { st.exCode[code.toUpperCase()] = (st.exCode[code.toUpperCase()] || 0) + q; XP('code'); continue; }
       if (H.ch.length && !H.ch.some(function (x) { return numOf(r[x]) === 1; })) {
@@ -2170,7 +2175,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       dates[a.date] = 1; items[cu] = 1;
       if (!svc && !known[cu.replace(/\s/g, '')]) { var u = unknown[cu] || (unknown[cu] = { code: a.code, name: a.name, qty: 0 }); u.qty += a.qty; }
     });
-    lines.forEach(function (l) { var cu = l.code.toUpperCase().replace(/\s/g, ''), t = totAll[cu]; l.unit = /^S-/i.test(l.code) ? 'piece' : (H.amt !== undefined && t.q > 0 && t.a > 0 ? (t.a / t.q < 5 ? 'Gram' : 'piece') : (/^(CK|LI|PAR|HO)|^TEMP00[12]$/i.test(l.code) ? 'Gram' : 'piece')); });
+    lines.forEach(function (l) { var cu = l.code.toUpperCase().replace(/\s/g, ''), t = totAll[cu] || { q: 0, a: 0 }; l.unit = /^S-/i.test(l.code) ? 'piece' : (H.amt !== undefined && t.q > 0 && t.a > 0 ? (t.a / t.q < 5 ? 'Gram' : 'piece') : (/^(CK|LI|PAR|HO)|^TEMP00[12]$/i.test(l.code) ? 'Gram' : 'piece')); });
     var ds = Object.keys(dates).sort(); if (!ds.length) return { err: 'قرأت تصدير الطلبات لكن ما فيه أسطر معتمدة (Submit / Ready to deliver / Delivered) بقناة صحيحة.' + (st.badDate ? ' وفيه ' + st.badDate + ' سطر تاريخه غير مفهوم (مثل «' + st.badDateEx + '»).' : ''), diag: 'أسطر مقروءة ' + st.lines + '، مستبعدة بالحالة ' + st.exStateN + '، بالقناة ' + st.exChan };
     st.used = rows.length; st.unknown = Object.keys(unknown).map(function (k) { return unknown[k]; }).sort(function (a, b) { return b.qty - a.qty; });
     var hd1 = aoa[hi] || [], colL = function (n) { var s = '', k = n + 1; while (k > 0) { var m2 = (k - 1) % 26; s = String.fromCharCode(65 + m2) + s; k = Math.floor((k - 1) / 26); } return s; }, cm = [], CM = function (role, idx, rule) { if (idx !== undefined && idx !== null) cm.push({ role: role, head: String(hd1[idx] === undefined ? '' : hd1[idx]).trim(), col: colL(idx), rule: rule }); };
@@ -2321,7 +2326,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   }
   function qtyPreview() {
     var p0 = Q.pend; if (!p0) return; var pk = qtyPicked(), p = { sheet: p0.sheet, dates: pk.dates, rows: pk.rows, nItems: p0.nItems, hasUm: p0.hasUm, stats: p0.stats, cmap: p0.cmap }; if (!p.dates.length) { $('qy_prev').innerHTML = '<div class="bar-actions"><b>فلتر التاريخ:</b><button class="s" onclick="qtyPF(\'\',\'\')">مسح الفلتر</button></div><div class="msg warn">ما فيه أيام داخل الفترة المحددة.</div>'; return; }
-    Q.pdm = modelFromRows(p.rows); Q.sl.p = (pk.lines || []).map(normLine); Q.sm.p = {}; $('qy_prev').innerHTML = qtyStats(p) + '<div class="card"><h3>لوحة الأيام (قبل الاعتماد)</h3>' + dayCards(Q.pdm, p.dates, 'p', 0, 0) + '</div><div class="card"><h3>جدول الأصناف × التواريخ بالكميات الأصلية (للمطابقة مع ملفك)</h3><p class="muted">الأعمدة الأربعة الأولى ثابتة والباقي يتحرك. اسحب الزاوية السفلية لتوسيع الجدول أو اضغط تكبير.</p>' + pivotHtml(p.rows, p.dates, 'qpv_p') + '</div><div class="card" id="qs_p"></div><p class="muted" style="margin:10px 0 4px"><b>ما سيُحفظ في النظام عند الاعتماد</b> (غير مكرر مع الملخص أعلاه: الملخص يعدّ الفواتير، وهذه تعدّ ما سيدخل جدول الكميات)</p><div class="grid">' + kpi('الورقة المقروءة', p.sheet) + kpi('أيام ستُحفظ', p.dates.length) + kpi('أصناف مختلفة', p.nItems) + kpi('خلايا (صنف × يوم) ستُحفظ', p.rows.length) + '</div>' +
+    Q.pdm = modelFromRows(p.rows); Q.sl.p = (pk.lines || []).map(normLine); Q.sm.p = {}; $('qy_prev').innerHTML = qtyStats(p) + '<div class="card"><h3>لوحة الأيام (قبل الاعتماد)</h3>' + dayCards(Q.pdm, p.dates, 'p', 0, 0) + '</div><div class="card"><h3>جدول الأصناف × التواريخ بالكميات الأصلية (للمطابقة مع ملفك)</h3><p class="muted">الأعمدة الأربعة الأولى ثابتة والباقي يتحرك. اسحب الزاوية السفلية لتوسيع الجدول أو اضغط تكبير.</p>' + pivotHtml(p.rows, p.dates, 'qpv_p') + '</div><div class="card" id="qs_p"></div><p class="muted" style="margin:10px 0 4px">عند الاعتماد سيُحفظ: ' + p.rows.length + ' خلية (صنف × يوم) من ' + p.nItems + ' صنف في ' + p.dates.length + ' يوم (الورقة المقروءة: ' + h(p.sheet) + ').</p>' +
       '<div class="bar-actions"><b>فلتر التاريخ:</b><label style="margin:0">من</label><input type="date" style="max-width:160px" value="' + h(Q.pf || '') + '" onchange="qtyPF(\'pf\',this.value)"><label style="margin:0">إلى</label><input type="date" style="max-width:160px" value="' + h(Q.pt || '') + '" onchange="qtyPF(\'pt\',this.value)"><button class="s" onclick="qtyPF(\'\',\'\')">مسح</button></div>' +
       '<p class="muted">من ' + h(p.dates[0]) + ' إلى ' + h(p.dates[p.dates.length - 1]) + (p.hasUm ? '' : '. ما لقيت عمود الوحدة، فتُحسب الكميات حسب وحدة الصنف في المنتجات') + '. رفع نفس التواريخ مرة ثانية يستبدل أرقامها السابقة.</p>' +
       '<button class="p" onclick="qtyCommit()">اعتماد (' + p.dates.length + ' يوم)</button>'; drawSum('p');
@@ -2456,28 +2461,42 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   }
   var KRGB = { ch: '120,72,40', sl: '46,125,50', pt: '240,170,0', sv: '21,101,192', bx: '110,110,110' };
   window.qtyFull = function (id) { var e = $(id); if (!e) return; e.classList.toggle('full'); }
-  function pivotHtml(rows, dates, id) {
-    var items = {}, order = [];
+  Q.kf = {}; Q.pvd = {};
+  function pivotHtml(rows, dates, id) { Q.pvd[id] = { rows: rows, dates: dates }; return '<div id="' + id + '_w">' + pivotInner(rows, dates, id) + '</div>'; }
+  window.qtyKF = function (id, k) { Q.kf[id] = Q.kf[id] === k ? '' : k; var d = Q.pvd[id], w = $(id + '_w'); if (d && w) w.innerHTML = pivotInner(d.rows, d.dates, id); };
+  function pivotInner(rows, dates, id) {
+    var items = {}, order = [], kf = Q.kf[id] || '';
     rows.forEach(function (r) { var k = String(r.code).toUpperCase(); var it = items[k]; if (!it) { it = items[k] = { code: r.code, name: r.name, unit: r.unit, kind: r.kind, q: {}, tot: 0, mx: 0 }; order.push(k); } it.q[r.date] = (it.q[r.date] || 0) + r.qty; it.tot += r.qty; if (!it.name) it.name = r.name; });
     order.sort(function (a, b) { return String(items[a].code).localeCompare(String(items[b].code)); });
+    if (kf) order = order.filter(function (k) { return kcls(items[k]) === kf; });
     order.forEach(function (k) { var it = items[k]; dates.forEach(function (x) { if ((it.q[x] || 0) > it.mx) it.mx = it.q[x]; }); });
     var head = '<tr><th class="s1">الكود</th><th class="s2">الصنف</th><th class="s3">الوحدة</th><th class="s4">الإجمالي</th>' + dates.map(function (x) { return '<th onclick="qtyDay(\'' + x + '\',\'p\')" style="cursor:pointer" title="تفاصيل اليوم">' + h(dayLbl(x)) + '<br><small>' + h(wdOf(x)) + '</small></th>'; }).join('') + '</tr>';
     var dk = {}, dp = {}; order.forEach(function (k) { var it = items[k], kc = kcls(it); if (kc === 'sv') return; dates.forEach(function (x) { var q = it.q[x] || 0; if (!q) return; if (kc === 'pt' && !isGram(it.unit)) dp[x] = (dp[x] || 0) + q; else if (isGram(it.unit)) dk[x] = (dk[x] || 0) + q / 1000; }); });
     var gk = 0; dates.forEach(function (x) { gk += dk[x] || 0; });
-    head += '<tr class="qtotr"><th class="s1">إجمالي اليوم</th><th class="s2">كجم (بدون الحبات)</th><th class="s3"></th><th class="s4"><span class="qtt">' + fmtKg(gk) + '</span></th>' + dates.map(function (x) { return '<th><span class="qtt">' + (dk[x] ? fmtKg(dk[x]) : '–') + '</span>' + (dp[x] ? '<small class="qtp">' + n0q(dp[x]) + ' حبة بيتي</small>' : '') + '</th>'; }).join('') + '</tr>';
+    head += '<tr class="qtotr"><th class="s1">الإجمالي</th><th class="s2">كيلو كل يوم <small class="qtp2">وتحته حبات البيتي</small></th><th class="s3">كجم</th><th class="s4"><span class="qtt">' + fmtKg(gk) + '</span><small class="qtp">&nbsp;</small></th>' + dates.map(function (x) { return '<th><span class="qtt">' + (dk[x] ? fmtKg(dk[x]) : '–') + '</span><small class="qtp">' + (dp[x] ? n0q(dp[x]) + ' حبة بيتي' : '&nbsp;') + '</small></th>'; }).join('') + '</tr>';
     var body = order.map(function (k) {
       var it = items[k], kc = kcls(it), rgb = KRGB[kc];
       return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + '</td><td class="s3">' + h(isGram(it.unit) ? 'جرام' : 'حبة') + '</td><td class="s4"><b>' + n0q(it.tot) + '</b></td>' + dates.map(function (x) { var q = it.q[x]; return '<td class="qc"' + (q && rgb ? ' style="background:rgba(' + rgb + ',' + (.14 + .6 * q / (it.mx || 1)).toFixed(2) + ')"' : '') + '>' + (q ? n0q(q) : '') + '</td>'; }).join('') + '</tr>';
     }).join('');
-    return '<div class="qlg"><span class="k-ch">شوكولاتة</span><span class="k-sl">مالح</span><span class="k-pt">بيتيت كاتو</span><span class="k-sv">خدمات</span><span class="k-bx">بوكسات</span></div>' +
+    var lg = [['ch', 'شوكولاتة'], ['sl', 'مالح'], ['pt', 'بيتيت كاتو'], ['sv', 'خدمات'], ['bx', 'بوكسات']].map(function (x) { return '<button type="button" class="k-' + x[0] + (kf === x[0] ? ' on' : '') + '" onclick="qtyKF(\'' + id + '\',\'' + x[0] + '\')">' + (kf === x[0] ? '✔ ' : '') + x[1] + '</button>'; }).join('');
+    return '<div class="qlg">' + lg + (kf ? '<button type="button" class="qall" onclick="qtyKF(\'' + id + '\',\'' + kf + '\')">عرض الكل</button>' : '') + '<span class="muted" style="font-size:12px">اضغط على نوع لعرضه وحده وإجماليه</span></div>' +
       '<div class="qpv" id="' + id + '"><button type="button" class="s qfb" onclick="qtyFull(\'' + id + '\')">تكبير / تصغير</button><table class="qt stk"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>';
   }
   /* ---------- ملخص الفواتير: أيام، فواتير، توصيل، إشراف، بيتيت، مالح/حالي، قيمة (مع فلتر التاريخ والحالة) ---------- */
   Q.sm = { p: {}, d: {} }; Q.sl = { p: [], d: [] };
   function normLine(l) { var svc = /^S-/i.test(l.code); return { d: l.d, i: l.i, s: l.s, c: l.c, code: l.code, name: l.name, kind: svc ? 'Services' : '', unit: l.unit, q: l.q, x: l.x ? 1 : 0, kg: !svc && isGram(l.unit) ? l.q / 1000 : 0, a: l.a || 0, salt: !svc && SALTRX.test(String(l.name || '')) }; }
+  function badSt(l) { return !OK_STATE[String(l.s).toLowerCase()]; }
   function sumFilter(lines, f) {
     var a = f.f || '', b = f.t || '', st = f.s || '';
-    return lines.filter(function (l) { return (!a || l.d >= a) && (!b || l.d <= b) && (st === '' ? true : st === 'call' ? l.c : st === 'nochan' ? l.x : st === 'nocall' ? (!l.c && !l.x) : (!l.c && String(l.s).toLowerCase() === st)); });
+    return lines.filter(function (l) {
+      if ((a && l.d < a) || (b && l.d > b)) return false;
+      var cd = badSt(l);
+      if (st === '') return !cd && !l.c;
+      if (st === 'withcall') return !cd;
+      if (st === 'call') return !!l.c && !cd;
+      if (st === 'nochan') return !!l.x && !cd;
+      return !l.c && String(l.s).toLowerCase() === st;
+    });
   }
   function sumStats(L) {
     var o = { days: {}, inv: {}, deliv: 0, sup: 0, petit: 0, salt: 0, choc: 0, amt: 0 };
@@ -2501,31 +2520,38 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     if (!all.length) { box.innerHTML = '<h3>ملخص الفواتير</h3><p class="muted">لا توجد سطور فواتير محفوظة. تظهر هذه اللوحة عند رفع تصدير الطلبات (Sales Order أو cr data).</p>'; return; }
     var ds = all.map(function (l) { return l.d; }).sort(), mn = ds[0], mx = ds[ds.length - 1], L = sumFilter(all, f), st = sumStats(L);
     var states = {}; all.forEach(function (l) { if (!l.c && l.s) states[String(l.s).toLowerCase()] = l.s; });
-    var cnt = {}; sumFilter(all, { f: f.f, t: f.t, s: '' }).forEach(function (l) { var k = l.c ? 'call' : String(l.s).toLowerCase(); (cnt[k] = cnt[k] || {})[l.i || l.d + l.code] = 1; if (l.x) (cnt.nochan = cnt.nochan || {})[l.i || l.d + l.code] = 1; });
-    var opts2 = '<option value=""' + (!f.s ? ' selected' : '') + '>الكل ما عدا Cancel وDraft (يشمل In Call وبدون القناة)</option><option value="nocall"' + (f.s === 'nocall' ? ' selected' : '') + '>المحسوبة في الكميات (بدون In Call)</option><option value="call"' + (f.s === 'call' ? ' selected' : '') + '>In Call فقط</option><option value="nochan"' + (f.s === 'nochan' ? ' selected' : '') + '>بدون قناة (لا تدخل الكميات) فقط</option>' + Object.keys(states).map(function (k) { return '<option value="' + h(k) + '"' + (f.s === k ? ' selected' : '') + '>' + h(states[k]) + '</option>'; }).join('');
+    var cnt = {}, addC = function (k, l) { (cnt[k] = cnt[k] || {})[l.i || l.d + l.code] = 1; };
+    all.forEach(function (l) { if ((f.f && l.d < f.f) || (f.t && l.d > f.t)) return; var cd = badSt(l); if (!cd && !l.c) addC('', l); if (!cd) addC('withcall', l); if (l.c && !cd) addC('call', l); if (l.x && !cd) addC('nochan', l); if (!l.c) addC(String(l.s).toLowerCase(), l); });
+    var SORD = ['submit', 'ready to deliver', 'under preparation', 'delivered', 'cancel', 'draft'], fk = Object.keys(states).sort(function (a, b) { var x = SORD.indexOf(a), y = SORD.indexOf(b); return (x < 0 ? 99 : x) - (y < 0 ? 99 : y); });
+    var FOPT = [['', 'الكل (بدون Cancel وDraft وبدون In Call)'], ['withcall', 'الكل مع In Call']].concat(fk.map(function (k) { return [k, states[k] + (OK_STATE[k] ? '' : ' (لا تدخل الكميات)') + ' — وحدها']; })).concat([['call', 'In Call فقط'], ['nochan', 'بدون قناة (لا تدخل الكميات) فقط']]);
+    var opts2 = FOPT.map(function (o) { return '<option value="' + h(o[0]) + '"' + ((f.s || '') === o[0] ? ' selected' : '') + '>' + h(o[1]) + '</option>'; }).join('');
     var tile = function (cls, lab, val) { return '<div class="qkp ' + cls + '"><span>' + lab + '</span><b>' + val + '</b></div>'; };
-    var chips = Object.keys(cnt).map(function (k) { var on = f.s === k; return '<button type="button" class="tag' + (on ? ' chon' : '') + '" style="cursor:pointer" onclick="qtySum(\'' + ctx + '\',\'s\',\'' + h(k) + '\')">' + (on ? '✔ ' : '') + h(k === 'call' ? 'In Call' : k === 'nochan' ? 'بدون قناة' : states[k] || k) + ': <b>' + Object.keys(cnt[k]).length + '</b></button>'; }).join(' ');
-    chips = '<button type="button" class="tag' + (!f.s ? ' chon' : '') + '" style="cursor:pointer" onclick="qtySum(\'' + ctx + '\',\'s\',\'\')">' + (!f.s ? '✔ ' : '') + 'الكل</button> ' + chips;
+    var chips = FOPT.map(function (o) { var k = o[0], n = cnt[k] ? Object.keys(cnt[k]).length : 0; if (!n && k !== '') return ''; var on = (f.s || '') === k; return '<button type="button" class="tag' + (on ? ' chon' : '') + '" style="cursor:pointer" onclick="qtySum(\'' + ctx + '\',\'s\',\'' + h(k) + '\')">' + (on ? '✔ ' : '') + h(k === '' ? 'الكل' : k === 'withcall' ? 'مع In Call' : k === 'call' ? 'In Call' : k === 'nochan' ? 'بدون قناة' : states[k]) + ': <b>' + n + '</b></button>'; }).join(' ');
     box.innerHTML = '<h3>ملخص الفواتير والكميات</h3><div class="bar-actions"><label style="margin:0">من</label><input type="date" style="max-width:150px" min="' + mn + '" max="' + mx + '" value="' + h(f.f || mn) + '" onchange="qtySum(\'' + ctx + '\',\'f\',this.value)"><label style="margin:0">إلى</label><input type="date" style="max-width:150px" min="' + mn + '" max="' + mx + '" value="' + h(f.t || mx) + '" onchange="qtySum(\'' + ctx + '\',\'t\',this.value)"><label style="margin:0">حالة الطلب</label><select style="max-width:260px" onchange="qtySum(\'' + ctx + '\',\'s\',this.value)">' + opts2 + '</select><button class="s" onclick="Q_sumReset(\'' + ctx + '\')">كل الفترة</button></div>' +
       '<div class="qgrid"><div><div class="qkps">' + tile('c-gray', 'عدد الأيام', Object.keys(st.days).length) + tile('c-gray', 'عدد الفواتير', Object.keys(st.inv).length) + tile('c-blue', 'إجمالي التوصيل', n0q(st.deliv)) + tile('c-orange', 'إجمالي خدمة الإشراف', n0q(st.sup)) + tile('c-yellow', 'إجمالي بيتيت كاتو (حبة)', n0q(st.petit)) + tile('c-green', 'المالح (كجم)' + (ctx === 'p' ? ' ≈' : ''), fmtKg(st.salt)) + tile('c-red', 'الحالي/الشوكولاتة (كجم)', fmtKg(st.choc)) + tile('c-gray', 'قيمة المنتجات (ريال)', n0q(st.amt)) + '</div>' +
-      '<p class="muted" style="margin-top:8px">حسب الفلتر الحالي. الفواتير حسب رقم الطلب، والقيمة مجموع مبالغ سطور المنتجات بدون الخدمات.' + (ctx === 'p' ? ' المالح في المعاينة تقدير بالاسم، ويُحسب بدقة بعد الاعتماد.' : '') + '</p><div style="margin-top:6px"><b>الفواتير حسب الحالة:</b> ' + chips + '</div></div>' + callList(sumFilter(all, { f: f.f, t: f.t, s: '' })) + '</div>' + (ctx === 'p' ? auditHtml(f) : '');
+      '<p class="muted" style="margin-top:8px">حسب الفلتر الحالي. الفواتير حسب رقم الطلب، والقيمة مجموع مبالغ سطور المنتجات بدون الخدمات.' + (ctx === 'p' ? ' المالح في المعاينة تقدير بالاسم، ويُحسب بدقة بعد الاعتماد.' : '') + '</p><div style="margin-top:6px"><b>الفواتير حسب الحالة:</b> ' + chips + '</div></div>' + callList(sumFilter(all, { f: f.f, t: f.t, s: 'withcall' })) + '</div>' + (ctx === 'p' ? auditHtml(f) : '');
   }
-  var WLAB = { ok: ['محسوب في الكميات', 'ok'], call: ['In Call (يظهر في الملخص ولا يدخل الكميات)', ''], state: ['حالة غير معتمدة (Cancel أو Draft…)', 'x'], chan: ['قناة غير معتمدة (ليست Occasion Section/C Service/Showroom)', 'x'], test: ['عميل test', 'x'], code: ['خدمات إيجار/عينات/أكواد غير إنتاجية', 'x'], qty0: ['كمية صفر أو سالبة', 'x'], nodate: ['تاريخ غير مفهوم أو فارغ', 'x'] };
+  var WLAB = { ok: 'محسوب في الكميات', call: 'In Call (يظهر في الملخص ولا يدخل الكميات)', chan: 'بدون قناة (يظهر في الملخص ولا يدخل الكميات)', state: 'حالة لا تدخل الكميات (Cancel / Draft…)', test: 'عميل test (مستبعد)', code: 'خدمات إيجار/عينات/أكواد غير إنتاجية (مستبعدة)', qty0: 'كمية صفر أو سالبة (مستبعدة)', nodate: 'تاريخ غير مفهوم أو فارغ (مستبعد)' };
   function auditHtml(f) {
     var xr = (Q.pend && Q.pend.xr) || []; if (!xr.length) return '';
-    var a = f.f || '', b = f.t || '', s = f.s || '', g = {}, tot = { n: 0, q: 0, dn: 0, dq: 0, sn: 0, sq: 0 };
+    var a = f.f || '', b = f.t || '', s = f.s || '', g = {}, out = { n: 0, q: 0, dn: 0, dq: 0, sn: 0, sq: 0 }, inn = { n: 0, q: 0, dn: 0, dq: 0, sn: 0, sq: 0 }, E = function () { return { n: 0, q: 0, dn: 0, dq: 0, sn: 0, sq: 0 }; };
+    var stSel = (['', 'withcall', 'call', 'nochan'].indexOf(s) < 0) ? s : '';
     xr.forEach(function (r) {
-      if (r.d) { if ((a && r.d < a) || (b && r.d > b)) return; } else if (a || b) return;
-      if (s === 'nocall') { if (r.w !== 'ok') return; } else if (s === 'call') { if (r.w !== 'call') return; } else if (s && String(r.s).toLowerCase() !== s) return;
-      var o = g[r.w] || (g[r.w] = { n: 0, q: 0, dn: 0, dq: 0, sn: 0, sq: 0 }), c = String(r.code).toUpperCase().replace(/\s/g, '');
-      [o, tot].forEach(function (x) { x.n++; x.q += r.q; if (c === 'S-10004') { x.dn++; x.dq += r.q; } if (c === 'S-10005') { x.sn++; x.sq += r.q; } });
+      if (stSel && String(r.s).toLowerCase() !== stSel) return;
+      var c = String(r.code).toUpperCase().replace(/\s/g, ''), outside = r.d && ((a && r.d < a) || (b && r.d > b));
+      var tgt = outside ? [out] : [g[r.w] || (g[r.w] = E()), inn];
+      tgt.forEach(function (x) { x.n++; x.q += r.q; if (c === 'S-10004') { x.dn++; x.dq += r.q; } if (c === 'S-10005') { x.sn++; x.sq += r.q; } });
     });
-    var rowsH = Object.keys(WLAB).filter(function (k) { return g[k]; }).map(function (k) { var o = g[k]; return '<tr' + (k === 'ok' ? ' style="background:#e4f4e6;font-weight:700"' : '') + '><td class="qn">' + h(WLAB[k][0]) + '</td><td>' + o.n + '</td><td>' + n0q(o.q) + '</td><td>' + o.dn + ' / ' + n0q(o.dq) + '</td><td>' + o.sn + ' / ' + n0q(o.sq) + '</td></tr>'; }).join('');
-    var rg = g.ok || { n: 0, q: 0, dn: 0, dq: 0, sn: 0, sq: 0 };
-    return '<details class="card" style="margin-top:10px" open><summary><b>تدقيق المطابقة مع ملفك (سطراً سطراً)</b></summary><p class="muted">كل سطر في ملفك داخل الفترة والحالة المختارة أعلاه، موزّع حسب سبب احتسابه أو استبعاده. صف «المجموع» هو ما يطلع في Excel لو طبّقت نفس الفلتر (نفس التاريخ ونفس حالة الطلب) على الملف. الفرق بينه وبين «محسوب» هو الأسطر المستبعدة بأسبابها.</p>' +
-      '<div class="tw"><table class="qt"><thead><tr><th class="qn">السبب</th><th>عدد السطور</th><th>مجموع الكمية</th><th>التوصيل S-10004<br><small>سطور / كمية</small></th><th>الإشراف S-10005<br><small>سطور / كمية</small></th></tr></thead><tbody>' + rowsH +
-      '<tr style="font-weight:800;background:#f3ece4"><td class="qn">المجموع (يطابق Excel بنفس الفلتر)</td><td>' + tot.n + '</td><td>' + n0q(tot.q) + '</td><td>' + tot.dn + ' / ' + n0q(tot.dq) + '</td><td>' + tot.sn + ' / ' + n0q(tot.sq) + '</td></tr></tbody></table></div>' +
-      (tot.dq !== rg.dq || tot.sq !== rg.sq ? '<p class="warn">⚠ فرق التوصيل بين الملف والمحسوب: ' + n0q(tot.dq - rg.dq) + '، والإشراف: ' + n0q(tot.sq - rg.sq) + '. أسبابه في الصفوف أعلاه (قناة أو In Call أو حالة).</p>' : '<p class="muted">التوصيل والإشراف في الملف يساويان المحسوب تماماً.</p>') + '</details>';
+    var cell = function (o) { return '<td>' + o.n + '</td><td>' + n0q(o.q) + '</td><td>' + o.dn + '</td><td>' + n0q(o.dq) + '</td><td>' + o.sn + '</td><td>' + n0q(o.sq) + '</td>'; };
+    var rowsH = Object.keys(WLAB).filter(function (k) { return g[k]; }).map(function (k) { return '<tr' + (k === 'ok' ? ' style="background:#e4f4e6;font-weight:700"' : '') + '><td class="qn" style="white-space:normal;min-width:230px">' + h(WLAB[k]) + '</td>' + cell(g[k]) + '</tr>'; }).join('');
+    var all = E(); [inn, out].forEach(function (x) { for (var k in all) all[k] += x[k]; });
+    var rg = g.ok || E(), sheetInfo = Q.pend ? h(Q.pend.sheet || '') : '';
+    return '<details class="card" style="margin-top:10px" open><summary><b>تدقيق المطابقة مع Excel (سطراً سطراً)</b></summary><p class="muted">الورقة المقروءة: <b>' + sheetInfo + '</b> (تأكد أنها نفس الورقة المفتوحة عندك في Excel). كل سطر في الورقة مصنّف حسب سبب احتسابه أو استبعاده' + (stSel ? '، وللحالة المختارة فقط' : '') + '. «سطور» = عدد صفوف الورقة، و«كمية» = مجموع عمود Quantity لها. الرقمان يتساويان غالباً لأن كمية سطر التوصيل 1.</p>' +
+      '<div class="tw"><table class="qt"><thead><tr><th class="qn" rowspan="2">السبب</th><th colspan="2">كل الأصناف</th><th colspan="2">التوصيل S-10004</th><th colspan="2">الإشراف S-10005</th></tr><tr><th>سطور</th><th>كمية</th><th>سطور</th><th>كمية</th><th>سطور</th><th>كمية</th></tr></thead><tbody>' + rowsH +
+      '<tr style="font-weight:800;background:#f3ece4"><td class="qn">المجموع داخل الفترة</td>' + cell(inn) + '</tr>' +
+      (out.n ? '<tr style="color:#b55a00;font-weight:700"><td class="qn" style="white-space:normal">خارج الفترة (من ' + h(a || '—') + ' إلى ' + h(b || '—') + ')</td>' + cell(out) + '</tr>' : '') +
+      '<tr style="font-weight:900;background:#efe0c8"><td class="qn" style="white-space:normal">مجموع الورقة كلها (يطابق Excel' + (stSel ? ' بنفس الحالة' : ' بدون فلتر') + ' وبدون فلتر تاريخ)</td>' + cell(all) + '</tr></tbody></table></div>' +
+      (out.dn ? '<p class="warn">⚠ فيه ' + out.dn + ' سطر توصيل خارج الفترة المحددة. إذا كان Excel عندك بلا فلتر تاريخ فهذا سبب الفرق. اضغط «كل الفترة» لتطابقه.</p>' : '') + '</details>';
   }
   function cmapHtml(cm) {
     if (!cm || !cm.length) return '';
