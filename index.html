@@ -2144,8 +2144,14 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       var q = numOf(r[H.q]), s0 = ''; if (q <= 0) { XP('qty0'); continue; }
       if (H.st !== undefined) { s0 = String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' '); if (!OK_STATE[s0.toLowerCase()]) { var kk = s0 || '(بدون حالة)'; st.exState[kk] = (st.exState[kk] || 0) + 1; st.exStateN++; XP('state'); continue; } }
       if (H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim())) { st.exTest = (st.exTest || 0) + 1; XP('test'); continue; }
-      if (H.ch.length && !H.ch.some(function (x) { return numOf(r[x]) === 1; })) { st.exChan++; st.exChanQty += q; XP('chan'); continue; }
       if (NONPROD.test(code)) { st.exCode[code.toUpperCase()] = (st.exCode[code.toUpperCase()] || 0) + q; XP('code'); continue; }
+      if (H.ch.length && !H.ch.some(function (x) { return numOf(r[x]) === 1; })) {
+        st.exChan++; st.exChanQty += q; XP('chan');
+        /* v3.6: السطر بلا قناة يظهر في الملخص (علامة x) ولا يدخل الكميات اليومية */
+        var xnm = H.nm !== undefined ? String(r[H.nm] || '').trim() : '', xam = H.amt !== undefined ? numOf(r[H.amt]) : 0, xc = H.ic !== undefined && numOf(r[H.ic]) === 1;
+        lines.push({ d: d, i: xi, s: s0, c: xc ? 1 : 0, x: 1, code: code, name: xnm, q: q, a: xam });
+        var xk = code.toUpperCase().replace(/\s/g, ''), xt = totAll[xk] || (totAll[xk] = { q: 0, a: 0 }); xt.q += q; xt.a += xam; continue;
+      }
       var call = H.ic !== undefined && numOf(r[H.ic]) === 1, lnm = H.nm !== undefined ? String(r[H.nm] || '').trim() : '', lam = H.amt !== undefined ? numOf(r[H.amt]) : 0;
       lines.push({ d: d, i: H.inv !== undefined ? String(r[H.inv] === undefined ? '' : r[H.inv]).trim() : '', s: s0, c: call ? 1 : 0, code: code, name: lnm, q: q, a: lam });
       var cKey = code.toUpperCase().replace(/\s/g, ''), ta = totAll[cKey] || (totAll[cKey] = { q: 0, a: 0 }); ta.q += q; ta.a += lam;
@@ -2468,17 +2474,17 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   }
   /* ---------- ملخص الفواتير: أيام، فواتير، توصيل، إشراف، بيتيت، مالح/حالي، قيمة (مع فلتر التاريخ والحالة) ---------- */
   Q.sm = { p: {}, d: {} }; Q.sl = { p: [], d: [] };
-  function normLine(l) { var svc = /^S-/i.test(l.code); return { d: l.d, i: l.i, s: l.s, c: l.c, code: l.code, name: l.name, kind: svc ? 'Services' : '', unit: l.unit, q: l.q, kg: !svc && isGram(l.unit) ? l.q / 1000 : 0, a: l.a || 0, salt: !svc && SALTRX.test(String(l.name || '')) }; }
+  function normLine(l) { var svc = /^S-/i.test(l.code); return { d: l.d, i: l.i, s: l.s, c: l.c, code: l.code, name: l.name, kind: svc ? 'Services' : '', unit: l.unit, q: l.q, x: l.x ? 1 : 0, kg: !svc && isGram(l.unit) ? l.q / 1000 : 0, a: l.a || 0, salt: !svc && SALTRX.test(String(l.name || '')) }; }
   function sumFilter(lines, f) {
     var a = f.f || '', b = f.t || '', st = f.s || '';
-    return lines.filter(function (l) { return (!a || l.d >= a) && (!b || l.d <= b) && (st === '' ? true : st === 'call' ? l.c : st === 'nocall' ? !l.c : (!l.c && String(l.s).toLowerCase() === st)); });
+    return lines.filter(function (l) { return (!a || l.d >= a) && (!b || l.d <= b) && (st === '' ? true : st === 'call' ? l.c : st === 'nochan' ? l.x : st === 'nocall' ? (!l.c && !l.x) : (!l.c && String(l.s).toLowerCase() === st)); });
   }
   function sumStats(L) {
     var o = { days: {}, inv: {}, deliv: 0, sup: 0, petit: 0, salt: 0, choc: 0, amt: 0 };
     L.forEach(function (l) {
       o.days[l.d] = 1; if (l.i) o.inv[l.i] = 1; var c = String(l.code).toUpperCase();
       if (c === 'S-10004') { o.deliv += l.q; return; } if (c === 'S-10005') { o.sup += l.q; return; } if (/^S-/.test(c)) return;
-      o.amt += l.a || 0; if (isPetit(l)) o.petit += l.q; else if (l.salt) o.salt += l.kg || 0; else o.choc += l.kg || 0;
+      o.amt += l.a || 0; if (l.x) return; if (isPetit(l)) o.petit += l.q; else if (l.salt) o.salt += l.kg || 0; else o.choc += l.kg || 0;
     });
     return o;
   }
@@ -2495,10 +2501,10 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     if (!all.length) { box.innerHTML = '<h3>ملخص الفواتير</h3><p class="muted">لا توجد سطور فواتير محفوظة. تظهر هذه اللوحة عند رفع تصدير الطلبات (Sales Order أو cr data).</p>'; return; }
     var ds = all.map(function (l) { return l.d; }).sort(), mn = ds[0], mx = ds[ds.length - 1], L = sumFilter(all, f), st = sumStats(L);
     var states = {}; all.forEach(function (l) { if (!l.c && l.s) states[String(l.s).toLowerCase()] = l.s; });
-    var cnt = {}; sumFilter(all, { f: f.f, t: f.t, s: '' }).forEach(function (l) { var k = l.c ? 'call' : String(l.s).toLowerCase(); (cnt[k] = cnt[k] || {})[l.i || l.d + l.code] = 1; });
-    var opts2 = '<option value=""' + (!f.s ? ' selected' : '') + '>الكل ما عدا الملغاة (يشمل In Call)</option><option value="nocall"' + (f.s === 'nocall' ? ' selected' : '') + '>المحسوبة في الكميات (بدون In Call)</option><option value="call"' + (f.s === 'call' ? ' selected' : '') + '>In Call فقط</option>' + Object.keys(states).map(function (k) { return '<option value="' + h(k) + '"' + (f.s === k ? ' selected' : '') + '>' + h(states[k]) + '</option>'; }).join('');
+    var cnt = {}; sumFilter(all, { f: f.f, t: f.t, s: '' }).forEach(function (l) { var k = l.c ? 'call' : String(l.s).toLowerCase(); (cnt[k] = cnt[k] || {})[l.i || l.d + l.code] = 1; if (l.x) (cnt.nochan = cnt.nochan || {})[l.i || l.d + l.code] = 1; });
+    var opts2 = '<option value=""' + (!f.s ? ' selected' : '') + '>الكل ما عدا Cancel وDraft (يشمل In Call وبدون القناة)</option><option value="nocall"' + (f.s === 'nocall' ? ' selected' : '') + '>المحسوبة في الكميات (بدون In Call)</option><option value="call"' + (f.s === 'call' ? ' selected' : '') + '>In Call فقط</option><option value="nochan"' + (f.s === 'nochan' ? ' selected' : '') + '>بدون قناة (لا تدخل الكميات) فقط</option>' + Object.keys(states).map(function (k) { return '<option value="' + h(k) + '"' + (f.s === k ? ' selected' : '') + '>' + h(states[k]) + '</option>'; }).join('');
     var tile = function (cls, lab, val) { return '<div class="qkp ' + cls + '"><span>' + lab + '</span><b>' + val + '</b></div>'; };
-    var chips = Object.keys(cnt).map(function (k) { var on = f.s === k; return '<button type="button" class="tag' + (on ? ' chon' : '') + '" style="cursor:pointer" onclick="qtySum(\'' + ctx + '\',\'s\',\'' + h(k) + '\')">' + (on ? '✔ ' : '') + h(k === 'call' ? 'In Call' : states[k] || k) + ': <b>' + Object.keys(cnt[k]).length + '</b></button>'; }).join(' ');
+    var chips = Object.keys(cnt).map(function (k) { var on = f.s === k; return '<button type="button" class="tag' + (on ? ' chon' : '') + '" style="cursor:pointer" onclick="qtySum(\'' + ctx + '\',\'s\',\'' + h(k) + '\')">' + (on ? '✔ ' : '') + h(k === 'call' ? 'In Call' : k === 'nochan' ? 'بدون قناة' : states[k] || k) + ': <b>' + Object.keys(cnt[k]).length + '</b></button>'; }).join(' ');
     chips = '<button type="button" class="tag' + (!f.s ? ' chon' : '') + '" style="cursor:pointer" onclick="qtySum(\'' + ctx + '\',\'s\',\'\')">' + (!f.s ? '✔ ' : '') + 'الكل</button> ' + chips;
     box.innerHTML = '<h3>ملخص الفواتير والكميات</h3><div class="bar-actions"><label style="margin:0">من</label><input type="date" style="max-width:150px" min="' + mn + '" max="' + mx + '" value="' + h(f.f || mn) + '" onchange="qtySum(\'' + ctx + '\',\'f\',this.value)"><label style="margin:0">إلى</label><input type="date" style="max-width:150px" min="' + mn + '" max="' + mx + '" value="' + h(f.t || mx) + '" onchange="qtySum(\'' + ctx + '\',\'t\',this.value)"><label style="margin:0">حالة الطلب</label><select style="max-width:260px" onchange="qtySum(\'' + ctx + '\',\'s\',this.value)">' + opts2 + '</select><button class="s" onclick="Q_sumReset(\'' + ctx + '\')">كل الفترة</button></div>' +
       '<div class="qgrid"><div><div class="qkps">' + tile('c-gray', 'عدد الأيام', Object.keys(st.days).length) + tile('c-gray', 'عدد الفواتير', Object.keys(st.inv).length) + tile('c-blue', 'إجمالي التوصيل', n0q(st.deliv)) + tile('c-orange', 'إجمالي خدمة الإشراف', n0q(st.sup)) + tile('c-yellow', 'إجمالي بيتيت كاتو (حبة)', n0q(st.petit)) + tile('c-green', 'المالح (كجم)' + (ctx === 'p' ? ' ≈' : ''), fmtKg(st.salt)) + tile('c-red', 'الحالي/الشوكولاتة (كجم)', fmtKg(st.choc)) + tile('c-gray', 'قيمة المنتجات (ريال)', n0q(st.amt)) + '</div>' +
