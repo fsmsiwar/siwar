@@ -16,9 +16,9 @@
   }
   function call(fn, args, ok, bad) {
     fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args }) })
-      .then(function (r) { return r.json(); })
+      .then(function (r) { return r.text().then(function (t) { var j; try { j = JSON.parse(t); } catch (e) { throw new Error('PARSE'); } return j; }); })
       .then(function (j) { if (j && j.__err) { if (bad) bad({ message: j.__err }); } else if (ok) ok(j.r); })
-      .catch(function () { if (bad) bad({ message: 'تعذر الاتصال بالخادم' }); });
+      .catch(function (e) { try { console.warn('sw fetch', url, e); } catch (x) { } if (bad) bad({ message: e && e.message === 'PARSE' ? 'الخادم لا يردّ بصيغة API: الصق Code.gs الجديد وانشر New version، وتأكد أن الوصول Anyone' : 'تعذر الوصول للخادم: تأكد من رابط /exec وأن الوصول Anyone وأن النشر محدّث' }); });
   }
   function mk(ok, bad) {
     return new Proxy({}, { get: function (_, fn) {
