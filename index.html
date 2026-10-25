@@ -6,7 +6,14 @@
 (function () {
   if (window.google && google.script && google.script.run) return;
   var url = ''; try { var q = location.search.match(/[?&]api=([^&]+)/); if (q) { url = decodeURIComponent(q[1]); localStorage.setItem('sw_api', url); } else url = localStorage.getItem('sw_api') || ''; } catch (e) { }
-  if (!url) { url = (window.prompt('الصق رابط الخادم (ينتهي بـ /exec) مرة واحدة فقط') || '').trim(); try { if (url) localStorage.setItem('sw_api', url); } catch (e) { } }
+  if (!url) {
+    document.addEventListener('DOMContentLoaded', function () {
+      var d = document.createElement('div'); d.style.cssText = 'position:fixed;inset:0;z-index:99999;background:#faf6f1;display:flex;align-items:center;justify-content:center;padding:20px;font-family:Tahoma,Arial,sans-serif;direction:rtl';
+      d.innerHTML = '<div style="max-width:460px;width:100%;background:#fff;border-radius:14px;box-shadow:0 6px 30px rgba(0,0,0,.15);padding:24px"><h2 style="margin:0 0 8px">إدارة المعرض</h2><p style="color:#666;line-height:1.7">الصق رابط الخادم الذي ينتهي بـ <b dir="ltr">/exec</b> مرة واحدة فقط، وسيُحفظ في هذا المتصفح.</p><input id="swu" dir="ltr" placeholder="https://script.google.com/macros/s/.../exec" style="width:100%;box-sizing:border-box;padding:12px;border:1px solid #ccc;border-radius:8px;font-size:15px"><div id="swe" style="color:#b00;margin:8px 0;font-size:14px"></div><button id="swb" style="width:100%;padding:12px;border:0;border-radius:8px;background:#7a4a2a;color:#fff;font-size:16px;cursor:pointer">حفظ ومتابعة</button></div>';
+      document.body.appendChild(d);
+      document.getElementById('swb').onclick = function () { var v = document.getElementById('swu').value.trim(); if (!/^https:\/\/script\.google\.com\/macros\/s\/[^\/]+\/exec$/.test(v)) { document.getElementById('swe').textContent = 'الرابط غير صحيح، يجب أن ينتهي بـ /exec'; return; } try { localStorage.setItem('sw_api', v); } catch (e) { } location.reload(); };
+    });
+  }
   function call(fn, args, ok, bad) {
     fetch(url, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ fn: fn, args: args }) })
       .then(function (r) { return r.json(); })
