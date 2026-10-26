@@ -4410,7 +4410,7 @@ var FX = (function () {
     }
     var hij = ''; try { hij = fHij.format(new Date(Date.UTC(y, m, y === n.y && m === n.m ? n.d : 1, 9))); } catch (e) { }
     return '<div class="mc' + (inline ? ' mci' : '') + '"><div class="mch"><button type="button" class="s" onclick="calNav(-1)" aria-label="الشهر السابق">›</button><span>' + MONTHS[m] + ' ' + y + '</span><button type="button" class="s" onclick="calNav(1)" aria-label="الشهر التالي">‹</button></div>' +
-      '<div class="mcw">' + DAYS.map(function (d) { return '<u>' + d.slice(0, 2) + '</u>'; }).join('') + '</div><div class="mcg">' + cells + '</div>' +
+      '<div class="mcw">' + ['أحد', 'إثن', 'ثلا', 'أرب', 'خمي', 'جمع', 'سبت'].map(function (d) { return '<u>' + d + '</u>'; }).join('') + '</div><div class="mcg">' + cells + '</div>' +
       '<div class="mcf"><span>' + hij + '</span><button type="button" class="s" onclick="calToday()">اليوم</button></div></div>';
   }
   function calRedraw() {
@@ -4776,6 +4776,192 @@ var FX = (function () {
 
   /* الرئيسية: تقويم داخل بطاقة الساعة */
   var hm0 = window.R && R.home;
+})();
+
+</script>
+<style>
+.rclk-card.cw{position:relative;overflow:hidden;border-radius:18px;min-height:150px;padding:22px 56px;transition:background .4s}
+.rclk-card.cw>*{position:relative;z-index:1}
+.rclk-card.chas:before{content:"";position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.28))}
+.rclk-card.clt:before{background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(255,255,255,.35))}
+.rclk-card.cdk .rclk,.rclk-card.cdk b,.rclk-card.cdk .mc,.rclk-card.cdk small,.rclk-card.cdk .muted{color:#fff!important;text-shadow:0 1px 6px rgba(0,0,0,.35)}
+.rclk-card.clt .rclk,.rclk-card.clt b,.rclk-card.clt .mc,.rclk-card.clt small,.rclk-card.clt .muted{color:#2a1d17!important}
+.rclk-card.chas .mcg b.td{background:rgba(255,255,255,.92);color:#222!important;text-shadow:none}
+.rclk-card.cdk .mch .s,.rclk-card.cdk .mcf .s{background:rgba(255,255,255,.22);color:#fff;border-color:transparent}
+.cbn{position:absolute;top:50%;transform:translateY(-50%);z-index:3!important;width:34px;height:34px;border-radius:50%;border:0;background:rgba(255,255,255,.28);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);color:#fff;font-size:22px;line-height:1;cursor:pointer;margin:0;padding:0;opacity:.75;transition:opacity .15s,transform .15s}
+.cbn:hover{opacity:1;transform:translateY(-50%) scale(1.08)}.cbn.cl{left:10px}.cbn.cr{right:10px}.cbn.cg{top:10px;right:auto;left:50px;transform:none;font-size:16px;width:30px;height:30px}.cbn.cg:hover{transform:scale(1.08)}
+.rclk-card.clt .cbn{background:rgba(0,0,0,.15);color:#222}
+.uip{position:fixed;top:0;bottom:0;left:0;width:min(94vw,360px);z-index:10002;background:var(--card);color:var(--ink);box-shadow:8px 0 40px rgba(0,0,0,.28);overflow:auto;padding:16px 16px 28px;border-radius:0 18px 18px 0;animation:uiin .22s ease}
+@keyframes uiin{from{transform:translateX(-30px);opacity:0}to{transform:none;opacity:1}}
+.uih{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.uip h4{margin:16px 0 6px;font-size:13px;color:var(--mut)}
+.uig{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.uit{height:62px;border-radius:12px;border:2px solid transparent;background-size:cover;background-position:center;position:relative;cursor:pointer;padding:0;margin:0;overflow:hidden}
+.uit span{position:absolute;inset:auto 0 0 0;background:rgba(0,0,0,.45);color:#fff;font-size:10.5px;padding:2px 0;text-align:center}.uit.on{border-color:var(--acc);box-shadow:0 0 0 2px var(--acc)}
+.uic{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:8px 0}.uic label{display:flex;flex-direction:column;gap:4px;font-size:12px}.uic input[type=color]{width:100%;height:36px;border:1px solid var(--line);border-radius:10px;padding:2px;background:var(--soft);cursor:pointer}
+.uick{display:flex;gap:8px;align-items:center;margin:10px 0;font-size:13px}
+.ic-glass .app .ico{background:rgba(128,128,128,.16)!important;backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);border:1px solid rgba(255,255,255,.5);box-shadow:0 6px 18px -8px rgba(0,0,0,.3),inset 0 1px 0 rgba(255,255,255,.6)}
+.ic-glass .app .ico:after{display:none}.ic-glass .app .ico svg{color:var(--ink);filter:none}
+.ic-white .app .ico{background:rgba(40,40,46,.5)!important;backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);border:1px solid rgba(255,255,255,.25)}
+.ic-white .app .ico:after{display:none}.ic-white .app .ico svg{color:#fff}
+.ic-solid .app .ico{background:#fff!important;border:1px solid rgba(0,0,0,.08)}.ic-solid .app .ico:after{display:none}.ic-solid .app .ico svg{color:var(--acc);filter:none}
+@media (max-width:700px){.rclk-card.cw{padding:18px 50px}}
+</style>
+<script>
+/* ===== الإصدار 4.4: مظهر الموقع + ويدجت الساعة ===== */
+(function () {
+  function lsG(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+  function lsS(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  var U = (function () { try { return JSON.parse(lsG('sw_ui', '{}')) || {}; } catch (e) { return {}; } })();
+  function save() { lsS('sw_ui', JSON.stringify(U)); }
+  U.cc = U.cc || {};
+
+  /* ---------- مولّد المشاهد (SVG مدمج، بدون إنترنت) ---------- */
+  function rng(seed) { var a = seed >>> 0; return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+  function lg(id, stops, h) { return '<linearGradient id="' + id + '" x1="0" y1="0" x2="' + (h ? 1 : 0) + '" y2="' + (h ? 0 : 1) + '">' + stops.map(function (s, i) { return '<stop offset="' + Math.round(i / (stops.length - 1) * 100) + '%" stop-color="' + s + '"/>'; }).join('') + '</linearGradient>'; }
+  function uri(inner, defs) { return 'url("data:image/svg+xml;utf8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300" preserveAspectRatio="xMidYMax slice"><defs>' + (defs || '') + '</defs>' + inner + '</svg>') + '")'; }
+  function ridge(seed, base, amp, col, op) { var r = rng(seed), p = 'M0 300 L0 ' + base, x = 0, y = base; while (x < 900) { x += 40 + r() * 50; y = base - r() * amp; p += ' L' + Math.min(x, 900).toFixed(0) + ' ' + y.toFixed(0); } return '<path d="' + p + ' L900 300Z" fill="' + col + '" opacity="' + (op || 1) + '"/>'; }
+  function stars(seed, n, yMax) { var r = rng(seed), o = ''; for (var i = 0; i < n; i++) o += '<circle cx="' + (r() * 900).toFixed(0) + '" cy="' + (r() * yMax).toFixed(0) + '" r="' + (0.5 + r() * 1.3).toFixed(1) + '" fill="#fff" opacity="' + (0.4 + r() * 0.6).toFixed(2) + '"/>'; return o; }
+  function city(seed, n, hMin, hMax, col, lit, base) {
+    var r = rng(seed), o = '', x = -10; base = base || 300;
+    while (x < 900) {
+      var w = 30 + r() * 50, hh = hMin + r() * (hMax - hMin); o += '<rect x="' + x.toFixed(0) + '" y="' + (base - hh).toFixed(0) + '" width="' + w.toFixed(0) + '" height="' + hh.toFixed(0) + '" fill="' + col + '"/>';
+      if (lit) for (var wy = base - hh + 8; wy < base - 8; wy += 12) for (var wx = x + 5; wx < x + w - 6; wx += 9) if (r() < 0.28) o += '<rect x="' + wx.toFixed(0) + '" y="' + wy.toFixed(0) + '" width="4" height="6" fill="' + lit + '" opacity="' + (0.5 + r() * 0.5).toFixed(2) + '"/>';
+      x += w + 2 + r() * 6;
+    } return o;
+  }
+  function towers(col, lit) {
+    return '<rect x="140" y="40" width="22" height="260" fill="' + col + '"/><polygon points="136,40 151,6 166,40" fill="' + col + '"/>' +
+      '<rect x="600" y="70" width="16" height="230" fill="' + col + '"/><circle cx="608" cy="78" r="16" fill="' + col + '"/><rect x="606" y="30" width="4" height="40" fill="' + col + '"/>' +
+      '<path d="M330 300 L330 80 Q375 30 420 80 L420 300 L398 300 L398 110 Q375 80 352 110 L352 300Z" fill="' + col + '"/>' +
+      '<rect x="144" y="60" width="14" height="3" fill="' + lit + '" opacity=".8"/><rect x="144" y="90" width="14" height="3" fill="' + lit + '" opacity=".8"/>';
+  }
+  function glow(id, col) { return '<radialGradient id="' + id + '"><stop offset="0%" stop-color="' + col + '" stop-opacity=".95"/><stop offset="100%" stop-color="' + col + '" stop-opacity="0"/></radialGradient>'; }
+  function roadPersp(sky, road, line, vx) {
+    return '<polygon points="' + (vx - 12) + ',170 ' + (vx + 12) + ',170 1100,300 -200,300" fill="' + road + '"/>' +
+      [0, 1, 2, 3, 4, 5].map(function (i) { var t0 = i / 6, t1 = t0 + 0.07, y0 = 170 + 130 * t0 * t0 * 1.1 + 0, y1 = 170 + 130 * t1 * t1 * 1.1, w0 = 1 + 7 * t0 * t0 * 1.1, w1 = 1 + 7 * t1 * t1 * 1.1; return '<polygon points="' + (vx - w0) + ',' + y0.toFixed(0) + ' ' + (vx + w0) + ',' + y0.toFixed(0) + ' ' + (vx + w1) + ',' + y1.toFixed(0) + ' ' + (vx - w1) + ',' + y1.toFixed(0) + '" fill="' + line + '"/>'; }).join('');
+  }
+  var SC = [];
+  function G(id, name, a, b, dk, ang) { SC.push({ id: id, cat: 'ألوان', name: name, dk: dk, bg: 'linear-gradient(' + (ang || 135) + 'deg,' + a + ',' + b + ')' }); }
+  G('g1', 'منتصف الليل', '#0f2027', '#2c5364', true); G('g2', 'غروب', '#ff7e5f', '#feb47b', false); G('g3', 'محيط', '#2193b0', '#6dd5ed', true); G('g4', 'شوكولاتة', '#3e2723', '#8d6e63', true);
+  G('g5', 'ذهبي', '#b8863b', '#f3d58a', false); G('g6', 'زمردي', '#134e5e', '#71b280', true); G('g7', 'لافندر', '#8e9eab', '#eef2f3', false); G('g8', 'وردي', '#ee9ca7', '#ffdde1', false); G('g9', 'جرافيت', '#232526', '#414345', true);
+  function S(id, cat, name, dk, svg) { SC.push({ id: id, cat: cat, name: name, dk: dk, bg: svg }); }
+  S('n1', 'طبيعة', 'جبال الفجر', true, uri('<rect width="900" height="300" fill="url(#a)"/><circle cx="640" cy="190" r="46" fill="#ffe8b0" opacity=".9"/>' + ridge(11, 200, 90, '#5b4b7a', .8) + ridge(12, 235, 70, '#3b3358') + ridge(13, 275, 40, '#211c3a'), lg('a', ['#1b2a49', '#8a5a83', '#e07a5f', '#f2cc8f'])));
+  S('n2', 'طبيعة', 'غابة ضبابية', true, uri('<rect width="900" height="300" fill="url(#a)"/>' + [0, 1, 2].map(function (k) { var r = rng(30 + k), o = ''; for (var x = -20; x < 920; x += 26 + r() * 22) { var h = 90 + k * 40 + r() * 70, w = 30 + r() * 18, b = 300; o += '<polygon points="' + x + ',' + b + ' ' + (x + w / 2) + ',' + (b - h) + ' ' + (x + w) + ',' + b + '" fill="' + ['#6f9c7d', '#3f7355', '#1d4a35'][k] + '" opacity="' + [.65, .85, 1][k] + '"/>'; } return o; }).join(''), lg('a', ['#dff0e3', '#a9cdb3', '#7fb08a'])));
+  S('n3', 'طبيعة', 'كثبان الصحراء', false, uri('<rect width="900" height="300" fill="url(#a)"/><circle cx="700" cy="90" r="40" fill="#fff6dc" opacity=".95"/><path d="M0 220 Q150 150 300 210 T620 190 T900 220 L900 300 L0 300Z" fill="#e8b36a"/><path d="M0 260 Q200 200 420 255 T900 240 L900 300 L0 300Z" fill="#cf8f45"/><path d="M0 290 Q300 250 600 285 T900 280 L900 300 L0 300Z" fill="#a8672a"/>', lg('a', ['#f6c88a', '#ffe9c7', '#fff4e0'])));
+  S('n4', 'طبيعة', 'غروب البحر', true, uri('<rect width="900" height="300" fill="url(#a)"/><circle cx="450" cy="170" r="56" fill="#ffd9a0"/><rect y="170" width="900" height="130" fill="url(#b)"/>' + [0, 1, 2, 3, 4, 5, 6].map(function (i) { return '<rect x="' + (400 - i * 8) + '" y="' + (180 + i * 16) + '" width="' + (100 + i * 16) + '" height="4" rx="2" fill="#ffd9a0" opacity="' + (.7 - i * .09).toFixed(2) + '"/>'; }).join(''), lg('a', ['#2b1055', '#7b3f98', '#e8696b', '#ffb36b']) + lg('b', ['#a85a7a', '#3b2a68', '#1a1446'])));
+  S('n5', 'طبيعة', 'سماء النجوم', true, uri('<rect width="900" height="300" fill="url(#a)"/>' + stars(5, 110, 220) + '<circle cx="730" cy="70" r="26" fill="#fdf6d8"/><circle cx="742" cy="64" r="24" fill="#12204a"/>' + ridge(51, 250, 50, '#0a1230') + ridge(52, 280, 30, '#050a1c'), lg('a', ['#050a1c', '#12204a', '#27407a'])));
+  S('c1', 'مدن', 'أفق ليلي', true, uri('<rect width="900" height="300" fill="url(#a)"/>' + stars(7, 40, 120) + city(21, 0, 40, 130, '#10183a', '#ffd479') + towers('#070d24', '#ffd479'), lg('a', ['#070c22', '#1d3263', '#3d5a99'])));
+  S('c2', 'مدن', 'مدينة الغروب', true, uri('<rect width="900" height="300" fill="url(#a)"/><circle cx="260" cy="150" r="52" fill="#ffe0a3" opacity=".9"/>' + city(22, 0, 60, 170, '#3b1f4d', null) + city(23, 0, 30, 100, '#251237', '#ffb870'), lg('a', ['#41245f', '#c2456f', '#ff9a5a', '#ffd08a'])));
+  S('c3', 'مدن', 'مدينة ضبابية', false, uri('<rect width="900" height="300" fill="url(#a)"/>' + city(24, 0, 90, 200, '#aebdd0', null) .replace(/<rect /g, '<rect opacity=".55" ') + city(25, 0, 60, 150, '#7f93ac', null).replace(/<rect /g, '<rect opacity=".75" ') + city(26, 0, 30, 100, '#51647d', null), lg('a', ['#e8eef5', '#c8d4e2', '#a8b8cc'])));
+  S('s1', 'شوارع', 'شارع ليلي', true, uri('<rect width="900" height="300" fill="url(#a)"/>' + city(31, 0, 70, 140, '#0c1230', '#ffd479', 170).replace(/<rect /g, '<rect ') + roadPersp(0, '#14172b', '#e8e8e8', 450) +
+    [120, 330, 570, 780].map(function (x, i) { return '<rect x="' + x + '" y="' + (150 + (i % 2) * 8) + '" width="3" height="60" fill="#222a4a"/><circle cx="' + (x + 1) + '" cy="' + (148 + (i % 2) * 8) + '" r="38" fill="url(#g)"/>'; }).join(''), lg('a', ['#050816', '#161e44', '#2c3a78']) + glow('g', '#ffcf6b')));
+  S('s2', 'شوارع', 'شارع ممطر', true, uri('<rect width="900" height="300" fill="url(#a)"/>' + city(41, 0, 80, 150, '#0e1a2b', '#7fd0ff', 175) + roadPersp(0, '#0b1220', '#9fb4c8', 450) +
+    '<circle cx="380" cy="235" r="22" fill="url(#r)"/><circle cx="520" cy="250" r="26" fill="url(#r)"/><circle cx="600" cy="215" r="14" fill="url(#w)"/><circle cx="300" cy="212" r="14" fill="url(#w)"/>' +
+    (function () { var r = rng(9), o = ''; for (var i = 0; i < 90; i++) { var x = r() * 900, y = r() * 300; o += '<line x1="' + x.toFixed(0) + '" y1="' + y.toFixed(0) + '" x2="' + (x - 6).toFixed(0) + '" y2="' + (y + 22).toFixed(0) + '" stroke="#bcd6ea" stroke-opacity=".35"/>'; } return o; })(), lg('a', ['#0a1424', '#1c3350', '#2f5273']) + glow('r', '#ff4d4d') + glow('w', '#ffffff')));
+  S('s3', 'شوارع', 'طريق الصحراء', false, uri('<rect width="900" height="300" fill="url(#a)"/><circle cx="450" cy="150" r="30" fill="#fff3d0"/><rect y="170" width="900" height="130" fill="#d9a15e"/>' + ridge(61, 172, 22, '#b9803f') + roadPersp(0, '#3b3b44', '#fff3c4', 450), lg('a', ['#f4b06a', '#fbd9a0', '#fff1d6'])));
+
+  /* ---------- تطبيق الإعدادات ---------- */
+  var MODEL = []; function sheetsDark() {
+    var out = []; try { [].forEach.call(document.styleSheets, function (ss) { var rs; try { rs = ss.cssRules; } catch (e) { return; } [].forEach.call(rs || [], function (r) { if (r.type === 4 && r.media && (r.__o || /prefers-color-scheme\s*:\s*dark/.test(r.media.mediaText))) { if (!r.__o) r.__o = r.media.mediaText; out.push(r); } }); }); } catch (e) { }
+    return out;
+  }
+  function applyMode() {
+    var m = U.mode || 'auto', rs = sheetsDark();
+    rs.forEach(function (r) { try { r.media.mediaText = m === 'dark' ? 'all' : m === 'light' ? 'not all' : r.__o; } catch (e) { } });
+    document.documentElement.style.colorScheme = m === 'auto' ? '' : m;
+    var mt = document.querySelectorAll('meta[name=theme-color]'); if (mt.length && m !== 'auto') { [].forEach.call(mt, function (x) { x.setAttribute('content', m === 'dark' ? '#17110e' : '#f7f7f5'); x.removeAttribute('media'); }); }
+  }
+  function applyIcons() { var b = document.body; b.classList.remove('ic-glass', 'ic-white', 'ic-solid'); if (U.icons && U.icons !== 'color') b.classList.add('ic-' + U.icons); }
+  var CCV = { brand: '--brand', acc: '--acc', bg: '--bg', card: '--card', ink: '--ink' };
+  function applyColors() {
+    [document.documentElement, document.body].forEach(function (el) {
+      Object.keys(CCV).forEach(function (k) { if (/^#[0-9a-f]{6}$/i.test(U.cc[k] || '')) el.style.setProperty(CCV[k], U.cc[k]); else el.style.removeProperty(CCV[k]); });
+      if (/^#[0-9a-f]{6}$/i.test(U.cc.brand || '')) el.style.setProperty('--brand2', 'color-mix(in srgb,' + U.cc.brand + ' 82%,#fff)'); else el.style.removeProperty('--brand2');
+      if (/^#[0-9a-f]{6}$/i.test(U.cc.card || '')) el.style.setProperty('--soft', 'color-mix(in srgb,' + U.cc.card + ' 94%,#808080)'); else el.style.removeProperty('--soft');
+    });
+  }
+  function byId(id) { for (var i = 0; i < SC.length; i++) if (SC[i].id === id) return SC[i]; return null; }
+  function cur() {
+    if (U.bg === 'custom' && /^#/.test(U.c1 || '')) return { id: 'custom', dk: lum(U.c1) < .55, bg: 'linear-gradient(135deg,' + U.c1 + ',' + (U.c2 || U.c1) + ')' };
+    return byId(U.bg) || null;
+  }
+  function lum(hex) { var n = parseInt(hex.slice(1), 16), r = n >> 16 & 255, g = n >> 8 & 255, b = n & 255; return (0.299 * r + 0.587 * g + 0.114 * b) / 255; }
+  function paintCard() {
+    var c = document.querySelector('.rclk-card'); if (!c) return;
+    if (!c.__w) {
+      c.__w = 1; c.classList.add('cw');
+      c.insertAdjacentHTML('beforeend', '<button type="button" class="cbn cl" aria-label="الخلفية التالية" title="التالي">‹</button><button type="button" class="cbn cr" aria-label="الخلفية السابقة" title="السابق">›</button><button type="button" class="cbn cg" aria-label="إعدادات المظهر" title="المظهر والويدجت">⚙</button>');
+      c.querySelector('.cl').onclick = function () { stepBg(1); }; c.querySelector('.cr').onclick = function () { stepBg(-1); }; c.querySelector('.cg').onclick = function () { togglePanel(); };
+    }
+    var s = cur(); c.style.backgroundImage = s ? s.bg : ''; c.style.backgroundSize = s ? 'cover' : ''; c.style.backgroundPosition = 'center';
+    c.classList.toggle('cdk', !!(s && s.dk)); c.classList.toggle('clt', !!(s && !s.dk)); c.classList.toggle('chas', !!s);
+  }
+  function stepBg(d) {
+    var i = -1, s = cur(); if (s) for (var k = 0; k < SC.length; k++) if (SC[k].id === s.id) i = k;
+    var n = (i + d + SC.length * 4) % SC.length; if (i < 0) n = d > 0 ? 0 : SC.length - 1;
+    U.bg = SC[n].id; U.rnd = U.rnd; save(); paintCard(); refreshPanel();
+  }
+  function randomBg() { var n = Math.floor(Math.random() * SC.length); U.bg = SC[n].id; save(); paintCard(); refreshPanel(); }
+  if (U.rnd) { var n0 = Math.floor(Math.random() * SC.length); U.bg = SC[n0].id; }
+
+  /* ---------- لوحة المظهر ---------- */
+  var TAB = 'ألوان';
+  function seg(items, curv, fn) { return '<div class="seg">' + items.map(function (x) { return '<button type="button" class="' + (x[0] === curv ? 'on' : '') + '" data-f="' + fn + '" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>'; }
+  function panelHtml() {
+    var cats = ['ألوان', 'طبيعة', 'مدن', 'شوارع', 'لون خاص'], s = cur();
+    var grid = TAB === 'لون خاص' ? '<div class="uic"><label>اللون الأول <input type="color" id="uc1" value="' + (U.c1 || '#3e2723') + '"></label><label>اللون الثاني <input type="color" id="uc2" value="' + (U.c2 || '#b8863b') + '"></label></div>' :
+      '<div class="uig">' + SC.filter(function (x) { return x.cat === TAB; }).map(function (x) { return '<button type="button" class="uit' + (s && s.id === x.id ? ' on' : '') + '" data-bg="' + x.id + '" style="background-image:' + x.bg + '" title="' + x.name + '"><span>' + x.name + '</span></button>'; }).join('') + '</div>';
+    var cc = [['brand', 'الشريط والعناوين'], ['acc', 'اللون المميز'], ['bg', 'خلفية الصفحة'], ['card', 'خلفية البطاقات'], ['ink', 'لون النص']];
+    return '<div class="uih"><b>المظهر والويدجت</b><button type="button" class="s" data-f="close">إغلاق</button></div>' +
+      '<h4>وضع الموقع</h4>' + seg([['auto', 'تلقائي'], ['light', 'فاتح'], ['dark', 'داكن']], U.mode || 'auto', 'mode') +
+      '<h4>شكل الأيقونات</h4>' + seg([['color', 'ملونة'], ['glass', 'شفافة'], ['white', 'بيضاء'], ['solid', 'أبيض ناصع']], U.icons || 'color', 'icons') +
+      '<h4>خلفية بطاقة الساعة والتاريخ</h4><div class="seg">' + cats.map(function (c) { return '<button type="button" class="' + (c === TAB ? 'on' : '') + '" data-tab="' + c + '">' + c + '</button>'; }).join('') + '</div>' + grid +
+      '<div class="nbr"><button type="button" class="s" data-f="rnd">🎲 عشوائي الآن</button><button type="button" class="s" data-f="none">بدون خلفية</button></div>' +
+      '<label class="uick"><input type="checkbox" id="urnd"' + (U.rnd ? ' checked' : '') + '> خلفية عشوائية في كل مرة أفتح الموقع</label><p class="muted">تقدر تبدّل الخلفية بسرعة بالسهمين على جانبي البطاقة.</p>' +
+      '<h4>لوحة الألوان (اختر بمزاجك)</h4><div class="uic">' + cc.map(function (c) { return '<label>' + c[1] + ' <input type="color" data-cc="' + c[0] + '" value="' + (U.cc[c[0]] || ccDefault(c[0])) + '"></label>'; }).join('') + '</div>' +
+      '<div class="nbr"><button type="button" class="s" data-f="ccreset">إعادة ألوان الموقع للأصل</button><button type="button" class="s" data-f="allreset">إعادة كل شيء</button></div>' +
+      '<p class="muted">الإعدادات تُحفظ في هذا الجهاز والمتصفح فقط.</p>';
+  }
+  function ccDefault(k) { try { var v = getComputedStyle(document.body).getPropertyValue(CCV[k]).trim(); if (/^#[0-9a-f]{6}$/i.test(v)) return v; var m = /rgb\((\d+),\s*(\d+),\s*(\d+)/.exec(v); if (m) return '#' + [m[1], m[2], m[3]].map(function (x) { return ('0' + (+x).toString(16)).slice(-2); }).join(''); } catch (e) { } return '#888888'; }
+  function refreshPanel() { var p = document.getElementById('uip'); if (p) { var sc = p.scrollTop; p.innerHTML = panelHtml(); p.scrollTop = sc; } }
+  function togglePanel() {
+    var p = document.getElementById('uip'); if (p) { p.remove(); return; }
+    p = document.createElement('div'); p.id = 'uip'; p.className = 'uip no12'; p.dir = 'rtl'; p.innerHTML = panelHtml(); document.body.appendChild(p);
+    p.addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      if (b.dataset.tab) { TAB = b.dataset.tab; refreshPanel(); return; }
+      if (b.dataset.bg) { U.bg = b.dataset.bg; save(); paintCard(); refreshPanel(); return; }
+      var f = b.dataset.f, v = b.dataset.v;
+      if (f === 'close') p.remove();
+      else if (f === 'mode') { U.mode = v; save(); applyMode(); refreshPanel(); }
+      else if (f === 'icons') { U.icons = v; save(); applyIcons(); refreshPanel(); }
+      else if (f === 'rnd') randomBg();
+      else if (f === 'none') { U.bg = ''; save(); paintCard(); refreshPanel(); }
+      else if (f === 'ccreset') { U.cc = {}; save(); applyColors(); refreshPanel(); }
+      else if (f === 'allreset') { U = { cc: {} }; save(); applyMode(); applyIcons(); applyColors(); paintCard(); refreshPanel(); }
+    });
+    p.addEventListener('input', function (e) {
+      var t = e.target;
+      if (t.id === 'uc1' || t.id === 'uc2') { U.bg = 'custom'; U[t.id === 'uc1' ? 'c1' : 'c2'] = t.value; if (!U.c2) U.c2 = t.value; if (!U.c1) U.c1 = t.value; save(); paintCard(); }
+      else if (t.dataset && t.dataset.cc) { U.cc[t.dataset.cc] = t.value; save(); applyColors(); }
+      else if (t.id === 'urnd') { U.rnd = t.checked; save(); }
+    });
+  }
+  window.uiPanel = togglePanel;
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') { var p = document.getElementById('uip'); if (p) p.remove(); } });
+
+  /* ---------- ربط ---------- */
+  var at0 = window.applyTheme; if (at0) window.applyTheme = function () { var r = at0.apply(this, arguments); applyColors(); return r; };
+  var sh1 = window.shell;
+  window.shell = function () {
+    sh1.apply(this, arguments);
+    var tgs = document.querySelector('.tgs');
+    if (tgs && !document.getElementById('tg_ui')) { var b = document.createElement('button'); b.id = 'tg_ui'; b.type = 'button'; b.className = 's'; b.textContent = 'المظهر'; b.title = 'المظهر والألوان والويدجت'; b.onclick = togglePanel; tgs.appendChild(b); }
+    applyMode(); applyIcons(); applyColors();
+  };
+  setInterval(function () { var c = document.querySelector('.rclk-card'); if (c && (!c.__w || c.dataset.pk !== String(U.bg) + String(U.c1) + String(U.c2))) { c.dataset.pk = String(U.bg) + String(U.c1) + String(U.c2); paintCard(); } }, 600);
+  if (document.readyState !== 'loading') { applyMode(); applyIcons(); applyColors(); } else document.addEventListener('DOMContentLoaded', function () { applyMode(); applyIcons(); applyColors(); });
+  window.__ui = { SC: SC, U: function () { return U; } };
 })();
 
 </script>
