@@ -672,7 +672,11 @@ function decideLeave(id, d) { run(rpc('leaves.decide', { id: id, decision: d }),
 /* ---------- التنبيهات ---------- */
 R.alerts = function (m) {
   return rpc('alerts.list', { limit: 100 }).then(function (d) {
-    m.innerHTML = '<div class="card"><h3>التنبيهات</h3>' + (d.unread ? '<button class="s" onclick="run(rpc(\'alerts.read\'),\'تم\').then(function(){refreshBadge();go(\'alerts\')})">تعليم الكل كمقروء (' + d.unread + ')</button>' : '') + alertList(d.rows) + '</div>';
+    var lg = can('عرض_التقارير') ? rpc('log.recent', { limit: 60 }).catch(function () { return null; }) : Promise.resolve(null);
+    return lg.then(function (L) {
+    var ops = L && L.rows ? '<div class="card"><h3>آخر العمليات</h3><p class="muted">آخر ' + L.rows.length + ' عملية سُجّلت في النظام من أصل ' + L.total + '، الأحدث أولاً.</p><div class="tw"><table><tr><th>الوقت</th><th>المستخدم</th><th>القسم</th><th>العملية</th><th>السجل</th></tr>' + L.rows.map(function (r) { return '<tr><td style="white-space:nowrap">' + h(String(r['الوقت']).replace('T', ' ').slice(0, 16)) + '</td><td>' + h(r['المستخدم']) + '</td><td>' + h(r['الوحدة']) + '</td><td>' + h(r['العملية']) + '</td><td>' + h(r['السجل']) + '</td></tr>'; }).join('') + '</table></div></div>' : '';
+    m.innerHTML = '<div class="card"><h3>التنبيهات</h3>' + (d.unread ? '<button class="s" onclick="run(rpc(\'alerts.read\'),\'تم\').then(function(){refreshBadge();go(\'alerts\')})">تعليم الكل كمقروء (' + d.unread + ')</button>' : '') + alertList(d.rows) + '</div>' + ops;
+    });
   });
 };
 
@@ -2855,7 +2859,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   /* ---------- كاش القراءات: يعيد النتيجة فوراً ويحدّثها بصمت ---------- */
   var RC = {}, TTL = 180000, REFRESH = 15000;
   var READ = /^(dashboard|capacity\.matrix|search|bootstrap2?|report\.items|report\.sales|data\.sets|dash\.daily|erp\.status|table\.list|team\.today|emp\.profile|shift\.week|sku\.analysis|qty\.list|efile\.list|file\.list|empt\.list|booking\.list|cash\.list|cash\.preview|tasks\.today|notes\.list|supply\.list|waste\.list|leaves\.list|taste\.list|[a-z]+\.(week|report|history|analysis|dash|items|emps|cancels|status|matrix))$|^(chk\.get|mod\.list|so\.status)$/;
-  var NOCACHE = /^(alerts\.list|file\.get|efile\.get|booking\.get|bin\.list|bin\.peek|backup\.list|ai\.status)$/;
+  var NOCACHE = /^(log\.recent|alerts\.list|file\.get|efile\.get|booking\.get|bin\.list|bin\.peek|backup\.list|ai\.status)$/;
   var base = rpc;
   /* دمج القراءات المتزامنة في طلب واحد للخادم (يوفّر مصادقة وذهاباً وإياباً) */
   var BQ = [], BT = null;
@@ -2886,7 +2890,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   }
   var pfT = null;
   window.prefetchView = function (v) {
-    var o = VR[v]; if (!o || o.d !== dayKey() || v === S.view) return;
+    var o = VR[v]; if (!o || v === S.view) return;
     o.l.forEach(function (x) { var e = RC[x.k]; if (e && Date.now() - e.t < 60000) return; rpc(x.a, x.p).catch(function () { }); });
   };
   ['mouseover', 'touchstart', 'focusin'].forEach(function (ev) {
@@ -2895,6 +2899,17 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       clearTimeout(pfT); pfT = setTimeout(function () { window.prefetchView(b.getAttribute('data-v')); }, 90);
     }, { passive: true });
   });
+  /* تسخين: بعد الدخول نجلب بصمت قراءات الأقسام التي تستخدمها عادةً بالتتابع، فيكون أول تنقل فورياً */
+  var WU = setInterval(function () {
+    if (!(S.boot && S.boot.user)) return; clearInterval(WU);
+    setTimeout(function () {
+      var q = []; Object.keys(VR).forEach(function (v) { if (v !== S.view && VR[v] && VR[v].l) VR[v].l.forEach(function (x) { q.push(x); }); });
+      q = q.slice(0, 14);
+      (function nx() { var x = q.shift(); if (!x || !S.token) return; var e = RC[x.k];
+        if (document.hidden || (e && Date.now() - e.t < 60000)) return setTimeout(nx, 50);
+        rpc(x.a, x.p).catch(function () { }).then(function () { setTimeout(nx, 500); }); })();
+    }, 3000);
+  }, 800);
   /* شريط «بيانات أحدث» عندما يكتشف التحديث الصامت تغيّراً في القسم المعروض */
   function freshHide() { var c = $('fresh_chip'); if (c) c.parentNode.removeChild(c); }
   function freshShow() {
@@ -2906,23 +2921,41 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   window.freshHide = freshHide;
   rpc = function (action, p) {
     if (NOCACHE.test(action)) return base(action, p);
-    if (!READ.test(action)) { RC = {}; return base(action, p); }
-    var k = action + '|' + JSON.stringify(p || {}), e = RC[k], now = Date.now();
+    if (!READ.test(action)) { RC = {}; pClear(); return base(action, p); }
+    pLoad(); var k = action + '|' + JSON.stringify(p || {}), e = RC[k], now = Date.now();
     if (NAV.load) recordVR(S.view, action, p);
-    if (e && now - e.t < TTL) {
+    if (e && now - e.t < (e.p ? PTTL : TTL)) {
       if (now - e.t > REFRESH && !e.busy) {
         e.busy = true; var id0 = NAV.id, v0 = S.view, old = JSON.stringify(e.d);
         fetchRead(action, p).then(function (d) {
-          var j = JSON.stringify(d === undefined ? null : d); RC[k] = { t: Date.now(), d: JSON.parse(j) };
+          var j = JSON.stringify(d === undefined ? null : d); RC[k] = { t: Date.now(), d: JSON.parse(j) }; pSave();
           if (j !== old && NAV.id === id0 && S.view === v0) freshShow();
         }).catch(function () { delete RC[k]; });
       }
       return Promise.resolve(JSON.parse(JSON.stringify(e.d)));
     }
-    return fetchRead(action, p).then(function (d) { RC[k] = { t: Date.now(), d: JSON.parse(JSON.stringify(d === undefined ? null : d)) }; return d; });
+    return fetchRead(action, p).then(function (d) { RC[k] = { t: Date.now(), d: JSON.parse(JSON.stringify(d === undefined ? null : d)) }; pSave(); return d; });
   };
-  window.rpcClear = function () { RC = {}; };
-  var lo = logout; logout = function (s) { RC = {}; return lo(s); };
+  /* كاش دائم في المتصفح: بعد التحديث أو إعادة الفتح تظهر الأقسام فوراً من آخر نسخة ثم تتحدث بصمت */
+  var PK = '', PT = null, PTTL = 43200000;
+  function pkey() { try { return S.boot && S.boot.user ? 'sw_rc_' + S.boot.user.code : ''; } catch (e) { return ''; } }
+  function pLoad() {
+    var k = pkey(); if (!k || PK === k) return; PK = k;
+    try { var o = JSON.parse(lsGet(k, '{}')) || {}; Object.keys(o).forEach(function (x) { if (!RC[x] && o[x] && Date.now() - o[x].t < PTTL) RC[x] = { t: o[x].t, d: o[x].d, p: true }; }); } catch (e) { }
+  }
+  function pSave() {
+    clearTimeout(PT); PT = setTimeout(function () {
+      var k = pkey(); if (!k) return; var o = {}, size = 0;
+      Object.keys(RC).sort(function (a, b) { return RC[b].t - RC[a].t; }).forEach(function (x) {
+        if (/^(bootstrap|search|file\.|efile\.|booking\.get|ai\.)/.test(x)) return;
+        var j = JSON.stringify(RC[x].d); if (j.length > 150000 || size + j.length > 1500000) return; size += j.length; o[x] = { t: RC[x].t, d: RC[x].d };
+      });
+      lsSet(k, JSON.stringify(o));
+    }, 1200);
+  }
+  function pClear() { var k = pkey(); if (k) { try { localStorage.removeItem(k); } catch (e) { } } PK = ''; }
+  window.rpcClear = function () { RC = {}; pClear(); };
+  var lo = logout; logout = function (s) { pClear(); RC = {}; return lo(s); };
 
   /* ---------- الساعة ---------- */
   var TZ = 'Asia/Riyadh';
