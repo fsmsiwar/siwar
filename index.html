@@ -510,7 +510,6 @@ R.home = function (m) {
       kpi('حجوزات استلام اليوم', d.bookingsToday) + kpi('أعلى نسبة طاقة اليوم', c ? pct(c.maxPct) : '—', capCls) +
       kpi('حجوزات معلّقة', d.pendingBookings, d.pendingBookings ? 'warn' : '') + kpi('صافي كاش الحجوزات اليوم', money(d.cashPreview.bookingCash - d.cashPreview.refundCash)) +
       kpi('مهام اليوم', d.tasks.done + ' / ' + d.tasks.total) + kpi('مهام متأخرة', d.tasks.late, d.tasks.late ? 'bad' : 'ok') +
-      kpi('فروق توريد مفتوحة', d.supplyOpen, d.supplyOpen ? 'warn' : 'ok') + kpi('شحنات بانتظار الاستلام', d.supplyWaiting) +
       kpi('ملاحظات اليوم', d.notesToday) + kpi('تنبيهات غير مقروءة', d.alerts.unread, d.alerts.unread ? 'warn' : '') + '</div>';
     html += '<div class="grid">' + kpi('أخطاء مفتوحة', d.issuesOpen, d.issuesHigh ? 'bad' : d.issuesOpen ? 'warn' : 'ok') + kpi('أصناف منتهية الصلاحية', d.shelfExpired, d.shelfExpired ? 'bad' : 'ok') + kpi('تنتهي صلاحيتها قريباً', d.shelfSoon, d.shelfSoon ? 'warn' : 'ok') + kpi('مقترحات جديدة', d.suggNew) + kpi('تذوق اليوم (جم)', d.taste && d.taste.used !== null ? d.taste.used : '—') + '</div>';
     html += '<div class="card"><h3>الجرد النقدي اليوم</h3>' + (d.cash ? 'مُقفل — الفرق: <b>' + money(d.cash['الفرق']) + '</b> ' + tag(d.cash['حالة_الفرق']) : '<span class="muted">لم يُقفل بعد</span> <button class="s" onclick="go(\'cash\')">إقفال الجرد</button>') + '</div>';
@@ -2348,9 +2347,30 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       (st.unknown.length ? '<div class="msg bad"><b>أكواد غير موجودة في المنتجات (' + st.unknown.length + '):</b> ' + st.unknown.slice(0, 12).map(function (u) { return h(u.code) + ' ' + h(u.name) + ' — ' + Math.round(u.qty); }).join('، ') + (st.unknown.length > 12 ? '…' : '') + '<br>تدخل في الكميات، لكن أضفها في المنتجات ليظهر نوعها ووزنها بشكل صحيح.</div>' : '') +
       cmapHtml(p.cmap) + '<details><summary>إجمالي الكيلو لكل يوم (لمطابقتها مع صف Day Total)</summary><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' + days + '</div></details>';
   }
+  /* v4.3.1: طلبات تاريخ اليوم داخل الملف المرفوع */
+  function todayCard(p, pk) {
+    var td = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Riyadh', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
+    var all = (p0lines(pk) || []), ok = all.filter(function (l) { return l.d === td && !l.x && (!l.s || OK_STATE[String(l.s).toLowerCase()]); });
+    var bad = all.filter(function (l) { return l.d === td && !(ok.indexOf(l) >= 0); }).length;
+    var rng = p.dates.length ? 'من ' + h(p.dates[0]) + ' إلى ' + h(p.dates[p.dates.length - 1]) : '';
+    var head = '<div class="card tdc"><h3>طلبات اليوم (' + h(td) + ')</h3>';
+    var items = {}, inv = {}, nInv = 0, tot = 0, kg = 0, pcs = 0;
+    if (ok.length) {
+      ok.forEach(function (l) { if (l.i && !inv[l.i]) { inv[l.i] = 1; nInv++; } var k = String(l.code).toUpperCase(), it = items[k] || (items[k] = { code: l.code, name: l.name || '', q: 0, g: /^gram$/i.test(l.unit || '') }); it.q += l.q; if (!it.name && l.name) it.name = l.name; });
+    } else if (p.rows.some(function (r) { return r.date === td; })) {
+      p.rows.filter(function (r) { return r.date === td; }).forEach(function (r) { var k = String(r.code).toUpperCase(); items[k] = { code: r.code, name: r.name || '', q: r.qty, g: r.unit === 'Gram' }; });
+    } else return head + '<p class="muted">الملف ما فيه طلبات بتاريخ اليوم' + (rng ? ' (تواريخه ' + rng + ')' : '') + '.' + (bad ? ' فيه ' + bad + ' سطر بتاريخ اليوم مستبعد (ملغي أو مسودة).' : '') + '</p></div>';
+    var arr = Object.keys(items).map(function (k) { return items[k]; }).sort(function (a, b) { return b.q - a.q; });
+    arr.forEach(function (it) { if (it.g) kg += it.q / 1000; else pcs += it.q; });
+    var fm = function (n) { return (Math.round(n * 100) / 100).toLocaleString('en-US'); };
+    return head + '<div class="kvs"><div><small>عدد الطلبات</small><b>' + (nInv || '—') + '</b></div><div><small>عدد الأصناف</small><b>' + arr.length + '</b></div><div><small>إجمالي الوزن</small><b>' + fm(kg) + ' كجم</b></div><div><small>إجمالي الحبات</small><b>' + fm(pcs) + '</b></div></div>' +
+      '<details open><summary>الأصناف وأعدادها (' + arr.length + ')</summary><div class="tw"><table><thead><tr><th>الكود</th><th>الصنف</th><th>الكمية</th></tr></thead><tbody>' + arr.map(function (it) { return '<tr><td>' + h(it.code) + '</td><td>' + h(it.name) + '</td><td>' + (it.g ? fm(it.q / 1000) + ' كجم' : fm(it.q) + ' حبة') + '</td></tr>'; }).join('') + '</tbody></table></div></details>' +
+      (bad ? '<p class="muted">استُبعد ' + bad + ' سطر بتاريخ اليوم (ملغي أو مسودة).</p>' : '') + '</div>';
+  }
+  function p0lines(pk) { return pk && pk.lines; }
   function qtyPreview() {
     var p0 = Q.pend; if (!p0) return; var pk = qtyPicked(), p = { sheet: p0.sheet, dates: pk.dates, rows: pk.rows, nItems: p0.nItems, hasUm: p0.hasUm, stats: p0.stats, cmap: p0.cmap }; if (!p.dates.length) { $('qy_prev').innerHTML = '<div class="bar-actions"><b>فلتر التاريخ:</b><button class="s" onclick="qtyPF(\'\',\'\')">مسح الفلتر</button></div><div class="msg warn">ما فيه أيام داخل الفترة المحددة.</div>'; return; }
-    Q.pdm = modelFromRows(p.rows); Q.sl.p = (pk.lines || []).map(normLine); Q.sm.p = {}; $('qy_prev').innerHTML = qtyStats(p) + '<div class="card"><h3>لوحة الأيام (قبل الاعتماد)</h3>' + dayCards(Q.pdm, p.dates, 'p', 0, 0) + '</div><div class="card"><h3>جدول الأصناف × التواريخ بالكميات الأصلية (للمطابقة مع ملفك)</h3><p class="muted">الأعمدة الأربعة الأولى ثابتة والباقي يتحرك. اسحب الزاوية السفلية لتوسيع الجدول أو اضغط تكبير.</p>' + pivotHtml(p.rows, p.dates, 'qpv_p') + '</div><div class="card" id="qs_p"></div><p class="muted" style="margin:10px 0 4px">عند الاعتماد سيُحفظ: ' + p.rows.length + ' خلية (صنف × يوم) من ' + p.nItems + ' صنف في ' + p.dates.length + ' يوم (الورقة المقروءة: ' + h(p.sheet) + ').</p>' +
+    Q.pdm = modelFromRows(p.rows); Q.sl.p = (pk.lines || []).map(normLine); Q.sm.p = {}; $('qy_prev').innerHTML = todayCard(p, pk) + qtyStats(p) + '<div class="card"><h3>لوحة الأيام (قبل الاعتماد)</h3>' + dayCards(Q.pdm, p.dates, 'p', 0, 0) + '</div><div class="card"><h3>جدول الأصناف × التواريخ بالكميات الأصلية (للمطابقة مع ملفك)</h3><p class="muted">الأعمدة الأربعة الأولى ثابتة والباقي يتحرك. اسحب الزاوية السفلية لتوسيع الجدول أو اضغط تكبير.</p>' + pivotHtml(p.rows, p.dates, 'qpv_p') + '</div><div class="card" id="qs_p"></div><p class="muted" style="margin:10px 0 4px">عند الاعتماد سيُحفظ: ' + p.rows.length + ' خلية (صنف × يوم) من ' + p.nItems + ' صنف في ' + p.dates.length + ' يوم (الورقة المقروءة: ' + h(p.sheet) + ').</p>' +
       '<div class="bar-actions"><b>فلتر التاريخ:</b><label style="margin:0">من</label><input type="date" style="max-width:160px" value="' + h(Q.pf || '') + '" onchange="qtyPF(\'pf\',this.value)"><label style="margin:0">إلى</label><input type="date" style="max-width:160px" value="' + h(Q.pt || '') + '" onchange="qtyPF(\'pt\',this.value)"><button class="s" onclick="qtyPF(\'\',\'\')">مسح</button></div>' +
       '<p class="muted">من ' + h(p.dates[0]) + ' إلى ' + h(p.dates[p.dates.length - 1]) + (p.hasUm ? '' : '. ما لقيت عمود الوحدة، فتُحسب الكميات حسب وحدة الصنف في المنتجات') + '. رفع نفس التواريخ مرة ثانية يستبدل أرقامها السابقة.</p>' +
       '<button class="p" onclick="qtyCommit()">اعتماد (' + p.dates.length + ' يوم)</button>'; drawSum('p');
@@ -3734,7 +3754,6 @@ if (S.token) start(false); else showLogin();
     if (m.shelf.expired > 0) add('bad', m.shelf.expired + ' صنف منتهي الصلاحية', 'أزلها من العرض وسجّل الهالك.');
     else if (m.shelf.soon > 0) add('warn', m.shelf.soon + ' صنف تقترب صلاحيته', 'رتّب تصريفها أو خصماً قبل الانتهاء.');
     if (m.capacityStop > 0) add('bad', 'الطاقة ممتلئة في ' + m.capacityStop + ' يوم قادم خلال أسبوع', 'أوقف أخذ الطلبات لهذه الأيام أو ارفع الطاقة.');
-    if (m.supplyOpen > 0) add('warn', m.supplyOpen + ' فرق توريد مفتوح', 'راجع «التوريد» وأغلق الفروق.');
     if (!o.length) add('ok', 'لا توجد ملاحظات حرجة في هذه الفترة', 'استمر على نفس الأداء.');
     return o;
   }
@@ -3778,7 +3797,7 @@ if (S.token) start(false); else showLogin();
     var m = d.mgmt, p = m.cash.pos;
     return '<div class="grid kxg">' + tile('إقفالات الجرد', n0(m.cash.closings), 'في الفترة') + tile('أيام بها فرق', n0(m.cash.diffDays), 'مجموع الفرق ' + money(m.cash.diffSum), { cls: m.cash.diffDays ? 'warn' : '' }) +
       tile('حجوزات الفترة', n0(m.bookings.total), m.bookings.pending + ' معلّقة') + tile('صلاحية منتهية', n0(m.shelf.expired), m.shelf.soon + ' تقترب', { cls: m.shelf.expired ? 'bad' : '' }) +
-      tile('أيام إيقاف الطاقة (7 أيام)', n0(m.capacityStop), m.capacityWarn + ' تحذير', { cls: m.capacityStop ? 'bad' : '' }) + tile('فروق توريد مفتوحة', n0(m.supplyOpen), '') +
+      tile('أيام إيقاف الطاقة (7 أيام)', n0(m.capacityStop), m.capacityWarn + ' تحذير', { cls: m.capacityStop ? 'bad' : '' }) + 
       tile('تنبيهات غير مقروءة', n0(m.alertsUnread), '') + tile('أعلى نسبة طاقة اليوم', m.capacityToday === null ? '—' : m.capacityToday + '%', '') + '</div>' +
       '<div class="kxrow">' + card('طرق الدفع في نقاط البيع', donut([{ name: 'كاش', v: p.cash }, { name: 'شبكة', v: p.card }, { name: 'تحويل', v: p.transfer }], n0)) + card('حالات الحجوزات', donut(m.bookings.byStatus.map(function (x) { return { name: x.name, v: x.n }; }))) +
       card('فرق الجرد اليومي (ريال)', m.cash.series.length ? area(m.cash.series.map(function (x) { return x.d.slice(5); }), m.cash.series.map(function (x) { return Math.abs(x.v); }), PAL[2]) : '<p class="muted">لا توجد إقفالات</p>', true) + '</div>' +
