@@ -340,6 +340,7 @@ button{transition:background-color .15s ease,transform .1s ease,box-shadow .15s 
 .ov .mdl{animation:swpop .22s cubic-bezier(.2,.8,.2,1)}@keyframes swpop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 #main>*{animation:swin .22s ease both}@keyframes swin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+.nvb{display:flex;gap:4px;flex:none}.nvb button{width:34px;height:34px;padding:0;border-radius:10px;font-size:17px;line-height:1;display:grid;place-content:center}.nvb button:disabled{opacity:.35;cursor:default}
 </style>
 </head>
 <body>
@@ -4250,6 +4251,28 @@ var FX = (function () {
   window.swFx = FX;
 })();
 
+</script>
+<script>
+/* ===== 4.2.1: رجوع / للأمام / تحديث ===== */
+(function () {
+  var H = [], I = -1, skip = false, g0 = window.go;
+  function upd() { var b = $('nvb'), f = $('nvf'); if (b) b.disabled = I <= 0; if (f) f.disabled = I >= H.length - 1; }
+  function mount() {
+    if ($('nvb')) return; var vt = $('vt'); if (!vt || !vt.parentNode) return;
+    var d = document.createElement('div'); d.className = 'nvb';
+    d.innerHTML = '<button class="s" id="nvb" title="رجوع" aria-label="رجوع">→</button><button class="s" id="nvf" title="للأمام" aria-label="للأمام">←</button><button class="s" id="nvr" title="تحديث" aria-label="تحديث">↻</button>';
+    vt.parentNode.insertBefore(d, vt);
+    $('nvb').onclick = function () { nav(-1); }; $('nvf').onclick = function () { nav(1); };
+    $('nvr').onclick = function () { try { rpcClear(); } catch (e) { } skip = true; try { g0(S.view); } finally { skip = false; } toast('تم التحديث'); };
+  }
+  function nav(d) { var j = I + d; if (j < 0 || j >= H.length) return; try { history.go(d); } catch (e) { I = j; skip = true; try { window.go(H[j]); } finally { skip = false; } } }
+  window.go = function (v) {
+    if (!skip && v !== H[I]) { var first = !H.length; H = H.slice(0, I + 1); H.push(v); I = H.length - 1; try { if (first) history.replaceState({ i: I }, ''); else history.pushState({ i: I }, ''); } catch (e) { } }
+    var r = g0.apply(this, arguments); mount(); upd(); return r;
+  };
+  window.addEventListener('popstate', function (e) { var i = e.state && typeof e.state.i === 'number' ? e.state.i : -1; if (i < 0 || i >= H.length || i === I) return; I = i; skip = true; try { window.go(H[i]); } finally { skip = false; } });
+  window.addEventListener('keydown', function (e) { if (e.altKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); nav(e.key === 'ArrowRight' ? -1 : 1); } });
+})();
 </script>
 </body>
 </html>
