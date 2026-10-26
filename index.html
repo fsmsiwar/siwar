@@ -34,6 +34,8 @@
 <base target="_top">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#f7f7f5" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#17110e" media="(prefers-color-scheme: dark)"><meta name="mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-title" content="إدارة المعرض"><meta name="format-detection" content="telephone=no">
+<link rel="preconnect" href="https://script.google.com"><link rel="preconnect" href="https://script.googleusercontent.com" crossorigin><link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
 <title>إدارة المعرض</title>
 <style>
 :root{--bg:#f4efe9;--card:#fff;--ink:#2a1d17;--mut:#7b6a5f;--brand:#3e2723;--brand2:#5d4037;--acc:#b8863b;--ok:#2e7d32;--warn:#e65100;--bad:#c62828;--line:#e7ddd2;--soft:#faf6f1;--sh:0 1px 3px rgba(62,39,35,.08),0 4px 14px rgba(62,39,35,.06)}
@@ -290,7 +292,7 @@ body.mx.tiles .layout{grid-template-columns:minmax(0,1fr)}body.mx.tiles .side{di
 <body>
 <div id="app"></div>
 <div id="toast"></div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script>(function(){function L(){if(window.XLSX||window.__xl_l)return;window.__xl_l=1;var s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';s.async=true;s.onerror=function(){window.__xl_l=0};document.head.appendChild(s)}window.loadXlsx=L;if(document.readyState==='complete')setTimeout(L,500);else addEventListener('load',function(){setTimeout(L,500)})})();</script>
 <script>
 var S = { token: null, boot: null, view: 'home', cache: {} };
 try { S.token = localStorage.getItem('tk') || sessionStorage.getItem('tk'); } catch (e) {}
@@ -487,7 +489,7 @@ var BK = null;
 R.book = function (m) {
   BK = { rid: uuid(), items: [{ code: '', qty: 1 }], reason: '' };
   m.innerHTML = '<div class="card"><h3>حجز استلام جديد</h3>' +
-    '<div class="row"><div><label>جوال العميل *</label><input id="bp" inputmode="tel" placeholder="05xxxxxxxx"></div><div><label>اسم العميل</label><input id="bn"></div></div>' +
+    '<div class="row"><div><label>جوال العميل *</label><input id="bp" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="05xxxxxxxx" oninput="phHint(this)" onblur="phHint(this,1)"><small id="bph" class="muted"></small></div><div><label>اسم العميل</label><input id="bn"></div></div>' +
     '<div class="row"><div><label>نوع الطلب</label><select id="bt"><option>استلام</option><option>توصيل</option></select></div><div><label>تاريخ الاستلام *</label><input id="bd" type="date" min="' + S.boot.today + '"></div><div><label>وقت الاستلام</label><input id="btm" type="time"></div></div>' +
     '<div id="bdel" style="display:none"><div class="row"><div style="flex:3"><label>عنوان التوصيل</label><input id="ba"></div><div><label>رسوم التوصيل</label><input id="bf" type="number" min="0" value="0"></div></div></div>' +
     '<div class="row"><div><label>رقم الفاتورة في نظام الكاشير (اختياري)</label><input id="bi"></div><div><label>الحالة</label><select id="bs"><option value="مؤكدة">مؤكدة</option><option value="معلّق">معلّق (يحجز الطاقة مؤقتاً)</option></select></div></div>' +
@@ -1063,7 +1065,9 @@ R.data = function (m) {
   m.innerHTML = '<div class="sub">' + sub.map(function (x) { return '<button class="s ' + (x[0] === DT.tab ? 'on' : '') + '" onclick="DT.tab=\'' + x[0] + '\';go(\'data\')">' + x[1] + '</button>'; }).join('') + '</div><div id="dtb"></div>';
   if (DT.tab === 'out') return dataOut(); dataIn(); return Promise.resolve();
 };
-function needXlsx() { if (typeof XLSX === 'undefined') { toast('مكتبة Excel لم تُحمَّل، تحقق من الاتصال بالإنترنت وأعد فتح الصفحة', true); return true; } return false; }
+function phNorm(v) { var s = String(v || '').replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/[\s\-().]/g, '').replace(/^\+/, '').replace(/^00/, ''); if (/^9665\d{8}$/.test(s)) s = '0' + s.slice(3); else if (/^5\d{8}$/.test(s)) s = '0' + s; return s; }
+function phHint(el, fix) { var v = phNorm(el.value), m = $('bph'), ok = /^05\d{8}$/.test(v); if (fix && v) el.value = v; if (m) { m.style.color = !v ? '' : ok ? 'var(--ok)' : 'var(--warn)'; m.textContent = !v ? '' : ok ? '✓ رقم صحيح' : (/^\d{9,15}$/.test(v) ? 'رقم غير سعودي، تأكد منه' : 'الرقم غير مكتمل أو فيه رموز غير صحيحة'); } }
+function needXlsx() { if (typeof XLSX === 'undefined') { try { window.loadXlsx && window.loadXlsx(); } catch (e) { } toast('جارٍ تحميل مكتبة Excel… أعد المحاولة بعد ثوانٍ (وتأكد من الاتصال بالإنترنت)', true); return true; } return false; }
 function dataOut() {
   return rpc('data.sets').then(function (sets) {
     $('dtb').innerHTML = '<div class="card"><h3>تصدير البيانات</h3><p class="muted">اختر الجداول، وحدد فترة اختيارية للجداول التي لها تاريخ. يُنزَّل ملف Excel واحد، كل جدول في ورقة.</p>' +
@@ -3621,6 +3625,92 @@ if (S.token) start(false); else showLogin();
   function upd() { if (pend > 0) { if (!tm) tm = setTimeout(function () { tm = null; if (pend > 0) box().className = 'on'; }, 160); } else { if (tm) { clearTimeout(tm); tm = null; } if (el) el.className = ''; } }
   var o = rpc;
   rpc = function (a, p) { pend++; upd(); var r; try { r = o(a, p); } catch (e) { pend--; upd(); throw e; } r.then(function () { pend = Math.max(0, pend - 1); upd(); }, function () { pend = Math.max(0, pend - 1); upd(); }); return r; };
+})();
+</script>
+<script>
+/* ===== الإصدار 4.0: حاسبة بمعادلات (+ - * / % وأقواس ودوال ومتغيرات) ===== */
+(function () {
+  function norm(s) {
+    return String(s).replace(/[٠-٩]/g, function (d) { return String(d.charCodeAt(0) - 1632); }).replace(/[۰-۹]/g, function (d) { return String(d.charCodeAt(0) - 1776); })
+      .replace(/×/g, '*').replace(/÷/g, '/').replace(/[٫]/g, '.').replace(/[،؛;]/g, ',').replace(/−|–/g, '-').replace(/\s+/g, ' ').trim();
+  }
+  var FN = {
+    sum: function (a) { return a.reduce(function (x, y) { return x + y; }, 0); }, avg: function (a) { return a.length ? FN.sum(a) / a.length : 0; },
+    min: function (a) { return Math.min.apply(null, a); }, max: function (a) { return Math.max.apply(null, a); },
+    round: function (a) { var n = a[1] || 0, f = Math.pow(10, n); return Math.round(a[0] * f) / f; }, abs: function (a) { return Math.abs(a[0]); }, sqrt: function (a) { return Math.sqrt(a[0]); }
+  };
+  /* محلّل آمن بلا eval: أرقام، + - * / %، أقواس، دوال، متغيرات */
+  function calc(src, vars) {
+    var s = norm(src).replace(/^=/, ''), i = 0;
+    function ws() { while (s[i] === ' ') i++; }
+    function expr() { var v = term(); for (;;) { ws(); var c = s[i]; if (c === '+') { i++; v += term(); } else if (c === '-') { i++; v -= term(); } else return v; } }
+    function term() { var v = unary(); for (;;) { ws(); var c = s[i]; if (c === '*') { i++; v *= unary(); } else if (c === '/') { i++; var d = unary(); if (d === 0) throw new Error('قسمة على صفر'); v /= d; } else return v; } }
+    function unary() { ws(); if (s[i] === '-') { i++; return -unary(); } if (s[i] === '+') { i++; return unary(); } return post(); }
+    function post() { var v = prim(); ws(); while (s[i] === '%') { i++; v /= 100; ws(); } return v; }
+    function prim() {
+      ws(); var c = s[i];
+      if (c === '(') { i++; var v = expr(); ws(); if (s[i] !== ')') throw new Error('قوس ناقص'); i++; return v; }
+      var m = /^(\d+(?:,\d{3})*(?:\.\d+)?|\.\d+|\d+)/.exec(s.slice(i));
+      if (m) { i += m[0].length; return parseFloat(m[0].replace(/,/g, '')); }
+      m = /^[A-Za-z_؀-ۿ][A-Za-z0-9_؀-ۿ]*/.exec(s.slice(i));
+      if (m) {
+        var nm = m[0].toLowerCase(); i += m[0].length; ws();
+        if (s[i] === '(') { i++; var a = []; ws(); if (s[i] !== ')') { for (;;) { a.push(expr()); ws(); if (s[i] === ',') { i++; continue; } break; } } if (s[i] !== ')') throw new Error('قوس ناقص'); i++; if (!FN[nm]) throw new Error('دالة غير معروفة: ' + m[0]); return FN[nm](a); }
+        if (Object.prototype.hasOwnProperty.call(vars, nm)) return vars[nm];
+        throw new Error('متغير غير معروف: ' + m[0]);
+      }
+      throw new Error(i >= s.length ? 'المعادلة ناقصة' : 'رمز غير مفهوم: ' + s[i]);
+    }
+    var r = expr(); ws(); if (i < s.length) throw new Error('رمز غير مفهوم: ' + s[i]);
+    if (!isFinite(r)) throw new Error('نتيجة غير صالحة'); return r;
+  }
+  function fmt(n) { var r = Math.round(n * 1e9) / 1e9; return r.toLocaleString('en-US', { maximumFractionDigits: 9 }); }
+  /* أسطر متعددة: «اسم = معادلة» يعرّف متغيراً، و ans = نتيجة السطر السابق */
+  function run(text) {
+    var vars = { ans: 0 }, out = [];
+    String(text).split('\n').forEach(function (ln) {
+      var t = norm(ln); if (!t) { out.push(null); return; }
+      try {
+        var m = /^([A-Za-z_؀-ۿ][A-Za-z0-9_؀-ۿ]*)\s*=\s*(.+)$/.exec(t), v;
+        if (m) { v = calc(m[2], vars); vars[m[1].toLowerCase()] = v; } else v = calc(t, vars);
+        vars.ans = v; out.push({ v: v });
+      } catch (e) { out.push({ e: e.message }); }
+    });
+    return out;
+  }
+  window.swCalc = { calc: calc, run: run };
+  var lastEl = null;
+  document.addEventListener('focusin', function (e) { var t = e.target; if (t && /^(INPUT|TEXTAREA)$/.test(t.tagName) && !t.closest('.calcbox') && t.type !== 'password') lastEl = t; });
+  window.openCalc = function () {
+    if (document.getElementById('calcov')) return;
+    var o = document.createElement('div'); o.className = 'ov'; o.id = 'calcov';
+    o.innerHTML = '<div class="mdl calcbox" role="dialog" aria-modal="true"><h3>الحاسبة</h3><div class="mb"><textarea id="calcin" dir="ltr" rows="4" placeholder="مثال:&#10;12*3+5%&#10;سعر = 35&#10;سعر * 120" style="font:16px ui-monospace,Menlo,Consolas,monospace;min-height:96px"></textarea><div id="calcout" dir="ltr" style="margin-top:10px;font:15px ui-monospace,Menlo,Consolas,monospace"></div><p class="muted" style="font-size:12px;margin:10px 0 0">تدعم + - * / % والأقواس، والدوال sum وavg وmin وmax وround وabs وsqrt، وتعريف متغيرات (اسم = معادلة)، وans لنتيجة السطر السابق. النسبة كما في Excel: 10% = 0.1.</p></div><div class="mf"><button class="s" id="calcx">إغلاق</button><button class="s" id="calcc">نسخ النتيجة</button><button id="calcp">إدراج في الحقل</button></div></div>';
+    document.body.appendChild(o);
+    var inp = document.getElementById('calcin'), outEl = document.getElementById('calcout'), last = null;
+    function upd() {
+      var r = run(inp.value), lastV = null;
+      outEl.innerHTML = r.map(function (x) { if (!x) return '<div>&nbsp;</div>'; if (x.e) return '<div style="color:var(--bad)">⚠ ' + h(x.e) + '</div>'; lastV = x.v; return '<div>= <b>' + h(fmt(x.v)) + '</b></div>'; }).join('');
+      last = lastV;
+      try { localStorage.setItem('sw_calc', inp.value); } catch (e) { }
+    }
+    try { inp.value = localStorage.getItem('sw_calc') || ''; } catch (e) { }
+    inp.addEventListener('input', upd); upd(); inp.focus();
+    function close() { if (o.parentNode) o.parentNode.removeChild(o); }
+    document.getElementById('calcx').onclick = close; o.addEventListener('mousedown', function (e) { if (e.target === o) close(); });
+    o.addEventListener('keydown', function (e) { if (e.key === 'Escape') close(); });
+    document.getElementById('calcc').onclick = function () { if (last === null) return toast('لا توجد نتيجة', true); var v = String(Math.round(last * 1e9) / 1e9); try { navigator.clipboard.writeText(v); toast('نُسخت النتيجة: ' + v); } catch (e) { toast(v); } };
+    document.getElementById('calcp').onclick = function () {
+      if (last === null) return toast('لا توجد نتيجة', true);
+      if (!lastEl || !document.body.contains(lastEl)) return toast('اضغط أولاً داخل الحقل الذي تريد إدراج النتيجة فيه', true);
+      lastEl.value = String(Math.round(last * 1e9) / 1e9); lastEl.dispatchEvent(new Event('input', { bubbles: true })); lastEl.dispatchEvent(new Event('change', { bubbles: true })); close(); lastEl.focus();
+    };
+  };
+  var st1 = window.shell;
+  if (typeof st1 === 'function') window.shell = function () {
+    st1.apply(this, arguments);
+    var box = document.querySelector('.tgs'); if (box && !document.getElementById('tg_c')) { var b = document.createElement('button'); b.id = 'tg_c'; b.className = 's'; b.title = 'الحاسبة'; b.setAttribute('aria-label', 'الحاسبة'); b.textContent = '🧮'; b.onclick = window.openCalc; box.appendChild(b); }
+  };
+  document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key === '=') { e.preventDefault(); window.openCalc(); } });
 })();
 </script>
 </body>
