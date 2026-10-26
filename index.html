@@ -2890,7 +2890,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   };
   ['mouseover', 'touchstart', 'focusin'].forEach(function (ev) {
     document.addEventListener(ev, function (e) {
-      var b = e.target && e.target.closest ? e.target.closest('#nav button[data-v]') : null; if (!b) return;
+      var b = e.target && e.target.closest ? e.target.closest('#nav button[data-v], .app[data-v]') : null; if (!b) return;
       clearTimeout(pfT); pfT = setTimeout(function () { window.prefetchView(b.getAttribute('data-v')); }, 90);
     }, { passive: true });
   });
@@ -2984,7 +2984,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
         pre += groups.filter(function (g) { return g.items.length; }).map(function (g) {
           return '<div class="apgrp"><h3>' + h(g.name) + '</h3><div class="apps">' + g.items.map(function (v) {
             var c = AC[v[0]] || ['#A2845E', '#6E5438'];
-            return '<button class="app" onclick="go(\'' + v[0] + '\')" aria-label="' + h(v[1]) + '"><span class="ico" style="background:linear-gradient(160deg,' + c[0] + ',' + c[1] + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="' + (IC[v[0]] || 'M4 6h16M4 12h16M4 18h16') + '"/></svg></span>' + (v[0] === 'alerts' ? '<span class="bdg" id="abadge2" hidden></span>' : '') + '<span class="lb">' + h(v[1]) + '</span></button>';
+            return '<button class="app" data-v="' + v[0] + '" onclick="go(\'' + v[0] + '\')" aria-label="' + h(v[1]) + '"><span class="ico" style="background:linear-gradient(160deg,' + c[0] + ',' + c[1] + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="' + (IC[v[0]] || 'M4 6h16M4 12h16M4 18h16') + '"/></svg></span>' + (v[0] === 'alerts' ? '<span class="bdg" id="abadge2" hidden></span>' : '') + '<span class="lb">' + h(v[1]) + '</span></button>';
           }).join('') + '</div></div>';
         }).join('');
         setTimeout(function () { var a = $('abadge'), b = $('abadge2'); if (a && b) { b.hidden = a.hidden; b.textContent = a.textContent; } }, 0);
