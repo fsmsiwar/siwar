@@ -131,6 +131,21 @@ tr:hover td{background:var(--soft)}
 .vsr{padding:8px 20px 0}.vsr input{max-width:340px}
 .rclk-card{display:flex;align-items:center;gap:18px;flex-wrap:wrap}.rclk{font-size:44px;font-weight:700;letter-spacing:2px;font-variant-numeric:tabular-nums;direction:ltr;color:var(--brand)}
 .tiles-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}.tile{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 8px;background:var(--soft);border:1px solid var(--line);border-radius:12px;cursor:pointer;color:var(--ink);font:inherit}.tile:hover{border-color:var(--acc)}.tile svg{width:28px;height:28px;color:var(--acc)}
+
+.apps{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:22px 10px;padding:6px 2px 2px}
+.app{display:flex;flex-direction:column;align-items:center;gap:8px;background:none;border:0;padding:0;cursor:pointer;color:var(--ink);font:inherit;-webkit-tap-highlight-color:transparent;position:relative}
+.app .ico{width:68px;height:68px;border-radius:22.5%;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 1px rgba(0,0,0,.12),0 6px 14px -4px rgba(0,0,0,.28),inset 0 1px 0 rgba(255,255,255,.35);transition:transform .18s cubic-bezier(.2,.8,.3,1.2),box-shadow .18s;position:relative;overflow:hidden}
+.app .ico:after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.22),rgba(255,255,255,0) 55%);pointer-events:none}
+.app .ico svg{width:34px;height:34px;color:#fff;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));position:relative;z-index:1}
+.app:hover .ico{transform:translateY(-3px) scale(1.06);box-shadow:0 2px 2px rgba(0,0,0,.12),0 12px 20px -6px rgba(0,0,0,.35),inset 0 1px 0 rgba(255,255,255,.35)}
+.app:active .ico{transform:scale(.92)}
+.app:focus-visible .ico{outline:3px solid var(--acc);outline-offset:3px}
+.app span.lb{font-size:12.5px;font-weight:600;text-align:center;line-height:1.3;max-width:92px;letter-spacing:-.1px}
+.app .bdg{position:absolute;top:-5px;inset-inline-end:10px;min-width:20px;height:20px;padding:0 6px;border-radius:10px;background:#ff3b30;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 2px var(--card);z-index:2}
+.app .bdg[hidden]{display:none}
+.apgrp{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:16px 16px 20px;margin-bottom:14px;box-shadow:var(--sh)}
+.apgrp h3{margin:0 4px 14px;font-size:13px;font-weight:700;color:var(--mut);letter-spacing:.2px}
+@media(max-width:560px){.apps{grid-template-columns:repeat(4,1fr);gap:18px 4px}.app .ico{width:60px;height:60px}.app .ico svg{width:30px;height:30px}.app span.lb{font-size:11.5px}}
 body.tiles .layout{grid-template-columns:minmax(0,1fr)}body.tiles .side{display:none}body.tiles #menu{display:inline-block}
 body.bold,body.bold td,body.bold th,body.bold input,body.bold select,body.bold textarea,body.bold button{font-weight:700}body.bold .muted,body.bold small{font-weight:600}
 #adm .tw{overflow-x:visible}#adm table{table-layout:auto}#adm td,#adm th{white-space:normal;overflow-wrap:anywhere;word-break:break-word;min-width:70px}#adm td:nth-child(3),#adm td:nth-child(2){min-width:140px}
@@ -253,6 +268,7 @@ body.mx details.card>summary{cursor:pointer;font-weight:600}
 body.mx #toast{border-radius:8px;box-shadow:0 6px 24px rgba(0,0,0,.3)}
 body.mx .tile{border-radius:10px;border:1px solid var(--line);box-shadow:var(--sh);transition:transform .12s,box-shadow .12s}body.mx .tile:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(0,0,0,.1)}
 body.mx .qdc{border-radius:10px}body.mx .qpv,body.mx .qcl{border-radius:10px}
+body.mx.tiles .layout{grid-template-columns:minmax(0,1fr)}body.mx.tiles .side{display:none}body.mx.tiles #menu{display:inline-flex}
 @media (max-width:900px){body.mx .layout{grid-template-columns:1fr}body.mx .pgh{padding:14px 14px 0}body.mx .pgh h1{font-size:22px}body.mx main{padding:10px 12px 30px}body.mx .topbar{padding:8px 12px}body.mx .secbar{padding:6px 12px}body.mx .vsr{padding:8px 12px 0}}
 @media (max-width:900px){body.mx .crumbs{display:none}body.mx .topbar{flex-wrap:wrap}body.mx .gs{flex:1 1 140px;min-width:0}body.mx .tgs #tg_l,body.mx .tgs #tg_u{display:none}}
 @media print{body.mx .pgh,body.mx .side,body.mx .topbar{display:none}}
@@ -416,7 +432,7 @@ function shell() {
   refreshBadge(); clearInterval(S.poll); S.poll = setInterval(refreshBadge, 120000);
 }
 function toggleMenu(o) { $('side').classList.toggle('open', o); $('scrim').classList.toggle('open', o); }
-function refreshBadge() { rpc('alerts.list', { limit: 1 }).then(function (d) { var b = $('abadge'); if (!b) return; b.hidden = !d.unread; b.textContent = d.unread; }).catch(function () { }); }
+function refreshBadge() { rpc('alerts.list', { limit: 1 }).then(function (d) { var b = $('abadge'); if (!b) return; b.hidden = !d.unread; b.textContent = d.unread; var b2 = $('abadge2'); if (b2) { b2.hidden = !d.unread; b2.textContent = d.unread; } }).catch(function () { }); }
 function go(v) {
   if (v === 'supply' || v === 'waste' || v === 'taste') v = 'home';
   S.view = v; toggleMenu(false);
@@ -2916,14 +2932,15 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   clearInterval(window.__ck); window.__ck = setInterval(tick, 1000);
 
   /* ---------- أدوات الشريط العلوي: Bold، تخطيط الرئيسية ---------- */
+  try { if (!localStorage.getItem('sw_lay2')) { localStorage.setItem('sw_lay', 'tiles'); localStorage.setItem('sw_lay2', '1'); } } catch (e) { }
   function applyPrefs() {
     document.body.classList.toggle('bold', lsGet('sw_bold', '0') === '1');
-    document.body.classList.toggle('tiles', lsGet('sw_lay', 'side') === 'tiles');
-    var m = $('menu'); if (m) m.onclick = function () { if (lsGet('sw_lay', 'side') === 'tiles') go('home'); else toggleMenu(true); };
-    var bb = $('tg_b'), bl = $('tg_l'); if (bb) bb.setAttribute('aria-pressed', lsGet('sw_bold', '0') === '1'); if (bl) bl.textContent = lsGet('sw_lay', 'side') === 'tiles' ? '☰ قائمة جانبية' : '▦ مربعات';
+    document.body.classList.toggle('tiles', lsGet('sw_lay', 'tiles') === 'tiles');
+    var m = $('menu'); if (m) m.onclick = function () { if (lsGet('sw_lay', 'tiles') === 'tiles') go('home'); else toggleMenu(true); };
+    var bb = $('tg_b'), bl = $('tg_l'); if (bb) bb.setAttribute('aria-pressed', lsGet('sw_bold', '0') === '1'); if (bl) bl.textContent = lsGet('sw_lay', 'tiles') === 'tiles' ? '☰ قائمة جانبية' : '▦ مربعات';
   }
   window.tgBold = function () { lsSet('sw_bold', lsGet('sw_bold', '0') === '1' ? '0' : '1'); applyPrefs(); };
-  window.tgLay = function () { lsSet('sw_lay', lsGet('sw_lay', 'side') === 'tiles' ? 'side' : 'tiles'); applyPrefs(); if (S.view === 'home') go('home'); else if (lsGet('sw_lay', 'side') === 'tiles') go('home'); };
+  window.tgLay = function () { lsSet('sw_lay', lsGet('sw_lay', 'tiles') === 'tiles' ? 'side' : 'tiles'); applyPrefs(); if (S.view === 'home') go('home'); else if (lsGet('sw_lay', 'tiles') === 'tiles') go('home'); };
   var st0 = shell;
   shell = function () {
     st0();
@@ -2955,13 +2972,18 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   var home0 = R.home;
   R.home = function (m) {
     return home0(m).then(function () {
-      var tiles = lsGet('sw_lay', 'side') === 'tiles', pre = '<div class="card rclk-card"><div class="rclk" id="rclk">--:--:--</div><div><b id="rdate"></b><br><small class="muted" id="rhij"></small><br><small class="muted">توقيت الرياض</small></div></div>';
+      var tiles = lsGet('sw_lay', 'tiles') === 'tiles', pre = '<div class="card rclk-card"><div class="rclk" id="rclk">--:--:--</div><div><b id="rdate"></b><br><small class="muted" id="rhij"></small><br><small class="muted">توقيت الرياض</small></div></div>';
       if (tiles) {
         var groups = [], cur = null;
-        VIEWS.filter(canView).forEach(function (v) { if (v[0] === '#') { cur = { name: v[1], items: [] }; groups.push(cur); } else { if (!cur) { cur = { name: 'الأقسام', items: [] }; groups.push(cur); } cur.items.push(v); } });
+        VIEWS.filter(canView).forEach(function (v) { if (v[0] === 'home') return; if (v[0] === '#') { cur = { name: v[1], items: [] }; groups.push(cur); } else { if (!cur) { cur = { name: 'الأقسام', items: [] }; groups.push(cur); } cur.items.push(v); } });
+        var AC = { home: ['#5AC8FA', '#0A84FF'], daily: ['#FF9F0A', '#FF6B00'], book: ['#34C759', '#248A3D'], bookings: ['#5E5CE6', '#3634A3'], cap: ['#BF5AE2', '#8944AB'], svc: ['#FF6482', '#D70040'], tasks: ['#34C759', '#1E9E3F'], chk: ['#30D158', '#12A33A'], chkrep: ['#64D2FF', '#0A84FF'], chki: ['#8E8E93', '#636366'], cash: ['#FFD60A', '#E0A800'], shelf: ['#FF9F0A', '#D97700'], issues: ['#FF453A', '#C62828'], suggestions: ['#FFD60A', '#FF9F0A'], procs: ['#5E5CE6', '#4140B5'], notes: ['#FFCC00', '#E6A800'], team: ['#0A84FF', '#0061C8'], depts: ['#64D2FF', '#2A9BD6'], schedule: ['#FF375F', '#C70039'], leaves: ['#30B0C7', '#1A7F94'], reports: ['#5856D6', '#3A38A8'], skus: ['#BF5AE2', '#8E3DB8'], guide: ['#8E8E93', '#5C5C61'], qty: ['#FF9F0A', '#D97700'], sales: ['#34C759', '#1E9E3F'], soemp: ['#0A84FF', '#0061C8'], prods: ['#A2845E', '#6E5438'], newprod: ['#FF375F', '#C70039'], data: ['#64D2FF', '#1C8FC9'], files: ['#0A84FF', '#0A5FC0'], bin: ['#8E8E93', '#5C5C61'], alerts: ['#FF453A', '#C62828'], admin: ['#8E8E93', '#48484A'], me: ['#5AC8FA', '#2A8FBF'] };
         pre += groups.filter(function (g) { return g.items.length; }).map(function (g) {
-          return '<div class="card"><h3>' + h(g.name) + '</h3><div class="tiles-grid">' + g.items.map(function (v) { return '<button class="tile" onclick="go(\'' + v[0] + '\')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="' + (IC[v[0]] || 'M4 6h16M4 12h16M4 18h16') + '"/></svg><span>' + h(v[1]) + '</span></button>'; }).join('') + '</div></div>';
+          return '<div class="apgrp"><h3>' + h(g.name) + '</h3><div class="apps">' + g.items.map(function (v) {
+            var c = AC[v[0]] || ['#A2845E', '#6E5438'];
+            return '<button class="app" onclick="go(\'' + v[0] + '\')" aria-label="' + h(v[1]) + '"><span class="ico" style="background:linear-gradient(160deg,' + c[0] + ',' + c[1] + ')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="' + (IC[v[0]] || 'M4 6h16M4 12h16M4 18h16') + '"/></svg></span>' + (v[0] === 'alerts' ? '<span class="bdg" id="abadge2" hidden></span>' : '') + '<span class="lb">' + h(v[1]) + '</span></button>';
+          }).join('') + '</div></div>';
         }).join('');
+        setTimeout(function () { var a = $('abadge'), b = $('abadge2'); if (a && b) { b.hidden = a.hidden; b.textContent = a.textContent; } }, 0);
       }
       m.innerHTML = pre + m.innerHTML; tick();
     });
@@ -3334,7 +3356,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   function paint(v) {
     var t = typeof titleOf === 'function' ? titleOf(v) : '', g = groupOf(v), c = $('crumbs'), ph = $('pgh');
     if (c) c.innerHTML = (g ? '<span>' + h(g) + '</span><span>›</span>' : '') + '<b>' + h(t) + '</b>';
-    if (ph) { ph.innerHTML = '<h1>' + h(t) + '</h1>' + (SUB[v] ? '<p>' + h(SUB[v]) + '</p>' : ''); ph.style.display = v === 'home' && lsGet('sw_lay', 'side') === 'tiles' ? 'none' : ''; }
+    if (ph) { ph.innerHTML = '<h1>' + h(t) + '</h1>' + (SUB[v] ? '<p>' + h(SUB[v]) + '</p>' : ''); ph.style.display = v === 'home' && lsGet('sw_lay', 'tiles') === 'tiles' ? 'none' : ''; }
   }
   function foldState() { try { return JSON.parse(lsGet('sw_fold', '{}')); } catch (e) { return {}; } }
   function applyFold() {
