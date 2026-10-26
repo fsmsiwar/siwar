@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
+<meta name="referrer" content="no-referrer">
 <script>
 /* v3.4: عند فتح الصفحة من استضافة خارجية (GitHub Pages) بدل Apps Script نحوّل google.script.run إلى طلبات fetch لنفس الخادم */
 (function () {
@@ -148,7 +149,7 @@ tr:hover td{background:var(--soft)}
 .apgrp{background:var(--card);border:1px solid var(--line);border-radius:26px;padding:16px 16px 20px;margin-bottom:14px;box-shadow:var(--sh)}
 .apgrp h3{margin:0 4px 14px;font-size:13px;font-weight:700;color:var(--mut);letter-spacing:.2px}
 @media(max-width:560px){.apps{grid-template-columns:repeat(4,1fr);gap:18px 4px}.app .ico{width:60px;height:60px}.app .ico svg{width:30px;height:30px}.app span.lb{font-size:11.5px}}
-.kxg{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:1000px){.kxg{grid-template-columns:repeat(2,minmax(0,1fr))}}body[data-view=kpi] .vsr{display:none}
+.kxg{grid-template-columns:repeat(4,minmax(0,1fr))}@media(max-width:1000px){.kxg{grid-template-columns:repeat(2,minmax(0,1fr))}}body[data-view=kpi] .vsr,body[data-view=calc] .vsr,body[data-view=dq] .vsr{display:none}
 .kx{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:14px 16px;box-shadow:var(--sh);position:relative;overflow:hidden;min-height:104px}
 .kx .kxl{font-size:12.5px;color:var(--mut);font-weight:600}.kx .kxv{font-size:28px;font-weight:800;letter-spacing:-.5px;margin:4px 0 2px;font-variant-numeric:tabular-nums}
 .kx .kxs{font-size:12px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}.kx .ksp{position:absolute;left:12px;bottom:12px;width:70px;height:24px;opacity:.9}
@@ -306,6 +307,39 @@ body.mx.tiles .layout{grid-template-columns:minmax(0,1fr)}body.mx.tiles .side{di
 .tag.chon{background:#7a4a2a!important;color:#fff!important;border-color:#7a4a2a!important;box-shadow:0 0 0 2px rgba(122,74,42,.25)}
 .qlg button{border:0;font:inherit;cursor:pointer;border-radius:999px;padding:4px 12px}.qlg button.on{outline:2px solid #3b2a00;font-weight:800}.qlg .qall{background:#eee;color:#333}
 .qt.stk thead tr.qtotr th{height:58px;vertical-align:middle;line-height:1.15;padding-top:4px;padding-bottom:4px}.qtt{display:block;width:fit-content;margin:0 auto}.qtp{display:block;min-height:14px;margin-top:3px;font-size:11px;font-weight:700;color:#6b4a00}.qtp2{display:block;font-size:11px;font-weight:600;color:#6b4a00}
+/* ===== 4.2: جودة البيانات + ورقة الحسابات ===== */
+.dqh{display:flex;gap:22px;align-items:center;flex-wrap:wrap}
+.dqs{width:112px;height:112px;border-radius:50%;display:grid;place-content:center;text-align:center;background:conic-gradient(var(--c) calc(var(--p)*1%),var(--line) 0);position:relative;flex:none}
+.dqs:before{content:"";position:absolute;inset:8px;border-radius:50%;background:var(--card)}
+.dqs b,.dqs small{position:relative;line-height:1.1}.dqs b{font-size:34px;font-weight:700;color:var(--c)}.dqs small{font-size:11px;color:var(--mut)}
+.dqm{flex:1;min-width:220px}.dqm h3{margin:0 0 4px}
+.dqc{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}.dqc span{padding:4px 12px;border-radius:99px;font-size:13px;font-weight:600;background:color-mix(in srgb,var(--c) 14%,transparent);color:var(--c)}
+.dqg{border-inline-start:4px solid var(--c)}
+.dqt{display:flex;align-items:center;gap:10px;flex-wrap:wrap}.dqt i{width:9px;height:9px;border-radius:50%;background:var(--c)}.dqt b{flex:1;min-width:160px}
+.dqn{font-weight:700;font-size:18px;color:var(--c)}.dqt em{font-style:normal;font-size:12px;color:var(--mut)}
+.dqg details{margin:6px 0 10px}.dqg summary{cursor:pointer;color:var(--mut);font-size:13px}.dqg ul{margin:8px 0 0;padding-inline-start:20px;font-size:13px;line-height:1.9}
+.cxbar,.cxfb{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:10px}.cxbar .sp{flex:1}.cxbar select,.cxbar input{max-width:200px}
+.cxfb b{min-width:44px;text-align:center;padding:7px 8px;border:1px solid var(--line);border-radius:8px;background:var(--soft);font-variant-numeric:tabular-nums}
+.cxfb input{flex:1;min-width:200px;font-family:inherit}
+.cxw{overflow:auto;max-height:62vh;border:1px solid var(--line);border-radius:12px;outline:none;direction:ltr;background:var(--card)}
+.cx{border-collapse:separate;border-spacing:0;font-size:13px;font-variant-numeric:tabular-nums}
+.cx th{position:sticky;top:0;background:var(--soft);color:var(--mut);font-weight:600;font-size:11px;padding:5px 8px;border-bottom:1px solid var(--line);border-inline-end:1px solid var(--line);z-index:1}
+.cx tbody th{position:sticky;left:0;top:auto;min-width:34px;text-align:center;z-index:1}
+.cx td{min-width:92px;height:28px;padding:3px 8px;border-bottom:1px solid var(--line);border-inline-end:1px solid var(--line);white-space:nowrap;cursor:cell;max-width:220px;overflow:hidden;text-overflow:ellipsis}
+.cx td.nu{text-align:right}.cx td.er{color:var(--bad);font-weight:600}.cx td.fm{color:#0A60C0}
+@media (prefers-color-scheme:dark){.cx td.fm{color:#64D2FF}}
+.cx td.sel{outline:2px solid var(--acc);outline-offset:-2px;background:color-mix(in srgb,var(--acc) 10%,transparent)}
+.cxh{font-size:12px;line-height:1.8;margin:10px 0 0}
+/* ===== 4.2: صقل Apple ===== */
+html{-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","IBM Plex Sans Arabic","Noto Sans Arabic","Segoe UI",Tahoma,sans-serif;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+button,input,select,textarea{font-family:inherit}
+:focus-visible{outline:2px solid var(--acc);outline-offset:2px;border-radius:8px}
+button{transition:background-color .15s ease,transform .1s ease,box-shadow .15s ease,border-color .15s ease}button:active:not(:disabled){transform:scale(.97)}
+.card{transition:box-shadow .2s ease,border-color .2s ease}
+.ov .mdl{animation:swpop .22s cubic-bezier(.2,.8,.2,1)}@keyframes swpop{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+#main>*{animation:swin .22s ease both}@keyframes swin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 </style>
 </head>
 <body>
@@ -611,44 +645,6 @@ function closeCash() {
   });
 }
 
-/* ---------- التوريد ---------- */
-var SP = null;
-R.supply = function (m) {
-  SP = { items: [{ code: '', qty: 1 }] };
-  return rpc('supply.list', {}).then(function (rows) {
-    var html = '';
-    if (can('تسجيل_إرسال_توريد')) html += '<div class="card"><h3>شحنة جديدة (الكمية المرسلة)</h3><div class="row"><div><label>المصدر</label><select id="sps">' + opts(S.boot.lists['مصادر_التوريد']) + '</select></div></div><div id="spi"></div><button class="s" onclick="SP.items.push({code:\'\',qty:1});renderSp()">+ صنف</button><br><button class="p" onclick="sendSupply()">تسجيل الشحنة</button></div>';
-    html += '<div class="card"><h3>المطابقة</h3><div class="tw"><table><tr><th>الشحنة</th><th>التاريخ</th><th>الصنف</th><th>مرسل</th><th>مستلم</th><th>الفرق</th><th>الحالة</th><th></th></tr>' + rows.map(function (r) {
-      var pend = r['الكمية_المستلمة'] === '';
-      return '<tr><td>' + h(r['رقم_الشحنة']) + '</td><td>' + h(r['التاريخ']) + '</td><td>' + h(r['اسم_المنتج']) + '</td><td>' + h(r['الكمية_المرسلة']) + '</td><td>' + h(r['الكمية_المستلمة']) + '</td><td>' + h(r['الفرق']) + '</td><td>' + tag(r['حالة_المطابقة']) + (r['حالة_المعالجة'] === 'مفتوح' && !pend ? ' ' + tag('مفتوح') : '') + (r['سبب_الفرق'] ? '<br><small class="muted">' + h(r['سبب_الفرق']) + '</small>' : '') + '</td><td>' +
-        (can('تسجيل_استلام') && (pend || r['حالة_المعالجة'] === 'مفتوح') ? '<button class="s" onclick="recvSupply(\'' + h(r['رقم_الشحنة']) + '\',\'' + h(r['كود_المنتج']) + '\',' + (pend ? 1 : 0) + ')">' + (pend ? 'استلام' : 'معالجة') + '</button>' : '') + '</td></tr>';
-    }).join('') + '</table></div></div>';
-    m.innerHTML = html; renderSp();
-  });
-};
-function renderSp() { var e = $('spi'); if (!e) return; e.innerHTML = SP.items.map(function (it, i) { return '<div class="row"><div style="flex:3"><select onchange="SP.items[' + i + '].code=this.value">' + opts(S.boot.products.map(function (p) { return { v: p.code, l: p.name }; }), it.code, 'اختر الصنف') + '</select></div><div><input type="number" min="0" step="any" value="' + h(it.qty) + '" onchange="SP.items[' + i + '].qty=this.value"></div></div>'; }).join(''); }
-function sendSupply() { run(rpc('supply.send', { source: val('sps'), items: SP.items.filter(function (i) { return i.code; }) }), 'تم تسجيل الشحنة').then(function () { go('supply'); }); }
-function recvSupply(sh, code, pend) {
-  if (pend) {
-    modal('استلام صنف من الشحنة ' + sh, [{ id: 'q', label: 'الكمية المستلمة فعلياً', type: 'number' }, { id: 'r', label: 'سبب الفرق إن وُجد', type: 'select', options: S.boot.lists['أسباب_فرق_التوريد'] || [], blank: 'لا يوجد فرق' }], 'تسجيل الاستلام').then(function (v) {
-      if (!v || v.q === '') return;
-      run(rpc('supply.receive', { shipment: sh, code: code, qty: v.q, reason: v.r }), 'تم تسجيل الاستلام').then(function (r) { if (r.diff !== 0) toast('يوجد فرق ' + r.diff + ' (' + r.status + ')'); go('supply'); });
-    });
-  } else {
-    modal('معالجة فرق التوريد', [{ id: 'r', label: 'سبب الفرق / طريقة المعالجة', type: 'textarea' }], 'تأكيد المعالجة').then(function (v) {
-      if (!v || !v.r) return; run(rpc('supply.resolve', { shipment: sh, code: code, reason: v.r }), 'تمت المعالجة').then(function () { go('supply'); });
-    });
-  }
-}
-
-/* ---------- الهالك والتذوق ---------- */
-R.waste = function (m) {
-  return rpc('waste.list', {}).then(function (rows) {
-    m.innerHTML = '<div class="card"><h3>تسجيل هالك أو تذوق</h3><div class="row"><div><label>المنتج</label><select id="wp">' + opts(S.boot.products.map(function (p) { return { v: p.code, l: p.name }; }), '', 'اختر') + '</select></div><div><label>الكمية</label><input id="wq" type="number" min="0" step="any"></div><div><label>النوع</label><select id="wt">' + opts(S.boot.lists['أنواع_الهالك']) + '</select></div></div><label>السبب</label><input id="wr"><button class="p" onclick="addWaste()">تسجيل</button></div><div class="card tw"><table><tr><th>التاريخ</th><th>المنتج</th><th>الكمية</th><th>النوع</th><th>السبب</th></tr>' + rows.map(function (r) { return '<tr><td>' + h(r['التاريخ']) + '</td><td>' + h(r['اسم_المنتج']) + '</td><td>' + h(r['الكمية']) + '</td><td>' + h(r['النوع']) + '</td><td>' + h(r['السبب']) + '</td></tr>'; }).join('') + '</table></div>';
-  });
-};
-function addWaste() { run(rpc('waste.add', { code: val('wp'), qty: val('wq'), type: val('wt'), reason: val('wr') }), 'تم التسجيل').then(function () { go('waste'); }); }
-
 /* ---------- الملاحظات ---------- */
 R.notes = function (m) {
   return rpc('notes.list', {}).then(function (rows) {
@@ -917,21 +913,6 @@ function guideEdit(i) {
   });
 }
 function guideDel(i) { var r = S.cache.gd[i]; confirmBox('«' + r['العنوان'] + '» سينتقل إلى سلة المحذوفات (30 يوماً). متابعة؟', true, 'نقل إلى السلة').then(function (ok) { if (ok) run(rpc('mod.remove', { mod: 'guide', row: r.__row, keyValue: r['الرقم'] }), 'نُقل إلى سلة المحذوفات').then(function () { go('guide'); }); }); }
-
-/* ---------- وزن التذوق ---------- */
-R.taste = function (m) {
-  return rpc('taste.list').then(function (d) {
-    var s = d.summary, today = d.rows.filter(function (r) { return r.date === S.boot.today; })[0] || {};
-    m.innerHTML = '<div class="card"><h3>وزن بوكس التذوق</h3><p class="muted">يُعبّأ البوكس مرة واحدة الساعة 2 ظهراً: زِنه بعد التعبئة، ثم زِنه نهاية اليوم. يحسب النظام المستهلك وعدد القطع التقريبي (' + h(d.pieceWeight) + ' جم للقطعة) والمؤشر: فواتير لكل كيلو تذوق. عدد الفواتير يؤخذ من جرد اليوم إن لم تدخله.</p>' +
-      '<div class="row"><div><label>التاريخ</label><input id="tt0" type="date" value="' + h(S.boot.today) + '" max="' + h(S.boot.today) + '"></div><div><label>وزن البوكس بعد التعبئة (جم)</label><input id="tt1" type="number" step="any" value="' + h(today.before === undefined || today.before === '' ? '' : today.before) + '"></div><div><label>وزن البوكس نهاية اليوم (جم)</label><input id="tt2" type="number" step="any" value="' + h(today.after === undefined || today.after === '' ? '' : today.after) + '"></div><div><label>عدد الفواتير (اختياري)</label><input id="tt3" type="number" value="' + h(today.invoices === null || today.invoices === undefined ? '' : today.invoices) + '"></div></div>' +
-      '<label>ملاحظات</label><input id="tt4" value="' + h(today.notes || '') + '"><button class="p" onclick="saveTaste()">حفظ الوزن</button></div>' +
-      '<div class="grid">' + kpi('متوسط الاستهلاك اليومي (جم)', s.avgDay || '—', d.limit && s.avgDay > d.limit ? 'bad' : '') + kpi('إجمالي آخر 30 يوم (كجم)', s.totalKg || '—') + kpi('فواتير لكل كجم تذوق', s.invPerKg === null ? '—' : s.invPerKg) + kpi('جرام تذوق لكل فاتورة', s.gPerInvoice === null ? '—' : s.gPerInvoice) + '</div>' +
-      '<div class="card"><h3>السجل</h3><div class="tw"><table><tr><th>التاريخ</th><th>بعد التعبئة</th><th>نهاية اليوم</th><th>المستهلك (جم)</th><th>القطع</th><th>الفواتير</th><th>فواتير/كجم</th><th>جم/فاتورة</th></tr>' +
-      d.rows.map(function (r) { return '<tr><td>' + h(r.date) + '</td><td>' + h(r.before === '' ? '—' : r.before) + '</td><td>' + h(r.after === '' ? '—' : r.after) + '</td><td>' + (r.used === null ? '<span class="tag warn">ناقص</span>' : '<b' + (d.limit && r.used > d.limit ? ' style="color:var(--bad)"' : '') + '>' + r.used + '</b>') + '</td><td>' + h(r.pieces === null ? '—' : r.pieces) + '</td><td>' + h(r.invoices === null ? '—' : r.invoices) + '</td><td>' + h(r.invPerKg === null ? '—' : r.invPerKg) + '</td><td>' + h(r.gPerInvoice === null ? '—' : r.gPerInvoice) + '</td></tr>'; }).join('') + '</table></div>' +
-      '<p class="muted">حد التنبيه اليومي: ' + (d.limit ? d.limit + ' جم' : 'غير مفعّل') + ' — يُضبط من الإعدادات (حد_التذوق_اليومي_جم).</p></div>';
-  });
-}
-function saveTaste() { run(rpc('taste.save', { date: val('tt0'), before: val('tt1'), after: val('tt2'), invoices: val('tt3'), notes: val('tt4') }), 'تم حفظ الوزن').then(function () { go('taste'); }); }
 
 /* ---------- الفريق وملف الموظف ---------- */
 R.team = function (m) {
@@ -2999,7 +2980,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       if (tiles) {
         var groups = [], cur = null;
         VIEWS.filter(canView).forEach(function (v) { if (v[0] === 'home') return; if (v[0] === '#') { cur = { name: v[1], items: [] }; groups.push(cur); } else { if (!cur) { cur = { name: 'الأقسام', items: [] }; groups.push(cur); } cur.items.push(v); } });
-        var AC = { home: ['#5AC8FA', '#0A84FF'], kpi: ['#FF375F', '#C70039'], daily: ['#FF9F0A', '#FF6B00'], book: ['#34C759', '#248A3D'], bookings: ['#5E5CE6', '#3634A3'], cap: ['#BF5AE2', '#8944AB'], svc: ['#FF6482', '#D70040'], tasks: ['#34C759', '#1E9E3F'], chk: ['#30D158', '#12A33A'], chkrep: ['#64D2FF', '#0A84FF'], chki: ['#8E8E93', '#636366'], cash: ['#FFD60A', '#E0A800'], shelf: ['#FF9F0A', '#D97700'], issues: ['#FF453A', '#C62828'], suggestions: ['#FFD60A', '#FF9F0A'], procs: ['#5E5CE6', '#4140B5'], notes: ['#FFCC00', '#E6A800'], team: ['#0A84FF', '#0061C8'], depts: ['#64D2FF', '#2A9BD6'], schedule: ['#FF375F', '#C70039'], leaves: ['#30B0C7', '#1A7F94'], reports: ['#5856D6', '#3A38A8'], skus: ['#BF5AE2', '#8E3DB8'], guide: ['#8E8E93', '#5C5C61'], qty: ['#FF9F0A', '#D97700'], sales: ['#34C759', '#1E9E3F'], soemp: ['#0A84FF', '#0061C8'], prods: ['#A2845E', '#6E5438'], newprod: ['#FF375F', '#C70039'], data: ['#64D2FF', '#1C8FC9'], files: ['#0A84FF', '#0A5FC0'], bin: ['#8E8E93', '#5C5C61'], alerts: ['#FF453A', '#C62828'], admin: ['#8E8E93', '#48484A'], me: ['#5AC8FA', '#2A8FBF'] };
+        var AC = { home: ['#5AC8FA', '#0A84FF'], kpi: ['#FF375F', '#C70039'], dq: ['#30D158', '#12A33A'], calc: ['#64D2FF', '#0A84FF'], daily: ['#FF9F0A', '#FF6B00'], book: ['#34C759', '#248A3D'], bookings: ['#5E5CE6', '#3634A3'], cap: ['#BF5AE2', '#8944AB'], svc: ['#FF6482', '#D70040'], tasks: ['#34C759', '#1E9E3F'], chk: ['#30D158', '#12A33A'], chkrep: ['#64D2FF', '#0A84FF'], chki: ['#8E8E93', '#636366'], cash: ['#FFD60A', '#E0A800'], shelf: ['#FF9F0A', '#D97700'], issues: ['#FF453A', '#C62828'], suggestions: ['#FFD60A', '#FF9F0A'], procs: ['#5E5CE6', '#4140B5'], notes: ['#FFCC00', '#E6A800'], team: ['#0A84FF', '#0061C8'], depts: ['#64D2FF', '#2A9BD6'], schedule: ['#FF375F', '#C70039'], leaves: ['#30B0C7', '#1A7F94'], reports: ['#5856D6', '#3A38A8'], skus: ['#BF5AE2', '#8E3DB8'], guide: ['#8E8E93', '#5C5C61'], qty: ['#FF9F0A', '#D97700'], sales: ['#34C759', '#1E9E3F'], soemp: ['#0A84FF', '#0061C8'], prods: ['#A2845E', '#6E5438'], newprod: ['#FF375F', '#C70039'], data: ['#64D2FF', '#1C8FC9'], files: ['#0A84FF', '#0A5FC0'], bin: ['#8E8E93', '#5C5C61'], alerts: ['#FF453A', '#C62828'], admin: ['#8E8E93', '#48484A'], me: ['#5AC8FA', '#2A8FBF'] };
         pre += groups.filter(function (g) { return g.items.length; }).map(function (g) {
           return '<div class="apgrp"><h3>' + h(g.name) + '</h3><div class="apps">' + g.items.map(function (v) {
             var c = AC[v[0]] || ['#A2845E', '#6E5438'];
@@ -3891,6 +3872,384 @@ if (S.token) start(false); else showLogin();
   };
   document.addEventListener('keydown', function (e) { if ((e.ctrlKey || e.metaKey) && e.key === '=') { e.preventDefault(); window.openCalc(); } });
 })();
+</script>
+<script>
+/* ===== FX: محرك المعادلات (بدون eval) ===== */
+var FX = (function () {
+  function FxErr(c) { this.code = c; }
+  var E = { DIV: new FxErr('#DIV/0!'), NAME: new FxErr('#NAME?'), REF: new FxErr('#REF!'), VAL: new FxErr('#VALUE!'), NA: new FxErr('#N/A'), CYC: new FxErr('#CYCLE!'), NUM: new FxErr('#NUM!'), SYN: new FxErr('#SYNTAX!') };
+  function isErr(v) { return v instanceof FxErr; }
+  function colN(s) { var n = 0; s = s.toUpperCase(); for (var i = 0; i < s.length; i++) n = n * 26 + (s.charCodeAt(i) - 64); return n; }
+  function colS(n) { var s = ''; while (n > 0) { var m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; }
+  function digits(s) { return String(s).replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); }).replace(/٫/g, '.').replace(/[٬،]/g, function (c) { return c === '،' ? ',' : ''; }); }
+  var ALIAS = { 'جمع': 'SUM', 'مجموع': 'SUM', 'متوسط': 'AVERAGE', 'عدد': 'COUNT', 'اذا': 'IF', 'إذا': 'IF', 'اكبر': 'MAX', 'أكبر': 'MAX', 'اصغر': 'MIN', 'أصغر': 'MIN', 'تقريب': 'ROUND', 'ضريبة': 'TAX', 'خصم': 'DISCOUNT', 'بحث': 'XLOOKUP', 'مطلق': 'ABS', 'جمع_اذا': 'SUMIF', 'عدد_اذا': 'COUNTIF' };
+  var REF_RE = /^\$?([A-Za-z]{1,2})\$?(\d{1,4})$/;
+
+  function tokenize(src) {
+    var t = [], i = 0, n = src.length, m;
+    while (i < n) {
+      var ch = src[i];
+      if (/\s/.test(ch)) { i++; continue; }
+      if (ch === '"') { var j = i + 1, s = ''; while (j < n) { if (src[j] === '"') { if (src[j + 1] === '"') { s += '"'; j += 2; continue; } break; } s += src[j++]; } if (j >= n) throw E.SYN; t.push({ k: 's', v: s }); i = j + 1; continue; }
+      if (/[0-9٠-٩.٫]/.test(ch)) { m = /^[0-9٠-٩]*[.٫]?[0-9٠-٩]+(?:[eE][+-]?\d+)?|^[0-9٠-٩]+[.٫]?/.exec(src.slice(i)); if (!m) throw E.SYN; t.push({ k: 'n', v: parseFloat(digits(m[0])) }); i += m[0].length; continue; }
+      if (/[A-Za-z_$؀-ۿ]/.test(ch)) { m = /^[A-Za-z_$؀-ۿ][A-Za-z0-9_.$؀-ۿ]*/.exec(src.slice(i)); t.push({ k: 'id', v: m[0] }); i += m[0].length; continue; }
+      var two = src.substr(i, 2);
+      if (two === '<>' || two === '<=' || two === '>=') { t.push({ k: 'o', v: two }); i += 2; continue; }
+      if ('+-*/^&=<>%(),:;،'.indexOf(ch) >= 0) { t.push({ k: 'o', v: ch === ';' || ch === '،' ? ',' : ch }); i++; continue; }
+      throw E.SYN;
+    }
+    return t;
+  }
+  function parse(src) {
+    var t = tokenize(src), p = 0;
+    function pk() { return t[p]; }
+    function isO(v) { return t[p] && t[p].k === 'o' && t[p].v === v; }
+    function cmp() { var a = cat(); while (t[p] && t[p].k === 'o' && ['=', '<>', '<', '>', '<=', '>='].indexOf(t[p].v) >= 0) { var o = t[p++].v; a = { t: 'bin', o: o, a: a, b: cat() }; } return a; }
+    function cat() { var a = add(); while (isO('&')) { p++; a = { t: 'bin', o: '&', a: a, b: add() }; } return a; }
+    function add() { var a = mul(); while (isO('+') || isO('-')) { var o = t[p++].v; a = { t: 'bin', o: o, a: a, b: mul() }; } return a; }
+    function mul() { var a = pow(); while (isO('*') || isO('/')) { var o = t[p++].v; a = { t: 'bin', o: o, a: a, b: pow() }; } return a; }
+    function pow() { var a = un(); while (isO('^')) { p++; a = { t: 'bin', o: '^', a: a, b: un() }; } return a; }
+    function un() { if (isO('-')) { p++; return { t: 'neg', a: un() }; } if (isO('+')) { p++; return un(); } return post(); }
+    function post() { var a = prim(); while (isO('%')) { p++; a = { t: 'pct', a: a }; } return a; }
+    function ref(s) { var m = REF_RE.exec(s); if (!m) return null; return { c: colN(m[1]), r: parseInt(m[2], 10) }; }
+    function prim() {
+      var k = t[p++]; if (!k) throw E.SYN;
+      if (k.k === 'n') return { t: 'num', v: k.v };
+      if (k.k === 's') return { t: 'str', v: k.v };
+      if (k.k === 'o' && k.v === '(') { var e = cmp(); if (!isO(')')) throw E.SYN; p++; return e; }
+      if (k.k === 'id') {
+        if (isO('(')) {
+          p++; var args = [];
+          if (isO(')')) { p++; } else { for (; ;) { args.push(cmp()); if (isO(',')) { p++; continue; } if (isO(')')) { p++; break; } throw E.SYN; } }
+          var nm = k.v.toUpperCase(); nm = ALIAS[k.v] || ALIAS[nm] || nm; return { t: 'fn', n: nm, args: args };
+        }
+        var r1 = ref(k.v);
+        if (r1) { if (isO(':')) { p++; var k2 = t[p++]; var r2 = k2 && k2.k === 'id' ? ref(k2.v) : null; if (!r2) throw E.SYN; return { t: 'rng', c1: Math.min(r1.c, r2.c), r1: Math.min(r1.r, r2.r), c2: Math.max(r1.c, r2.c), r2: Math.max(r1.r, r2.r) }; } return { t: 'ref', c: r1.c, r: r1.r }; }
+        var u = k.v.toUpperCase();
+        if (u === 'TRUE' || u === 'صح') return { t: 'bool', v: true };
+        if (u === 'FALSE' || u === 'خطأ') return { t: 'bool', v: false };
+        throw E.NAME;
+      }
+      throw E.SYN;
+    }
+    var ast = cmp(); if (p < t.length) throw E.SYN; return ast;
+  }
+
+  function parseRaw(raw) {
+    var s = String(raw === undefined || raw === null ? '' : raw).trim();
+    if (s === '') return '';
+    var d = digits(s).replace(/,/g, '');
+    if (/^[-+]?(\d+\.?\d*|\.\d+)%$/.test(d)) return parseFloat(d) / 100;
+    if (/^[-+]?(\d+\.?\d*|\.\d+)$/.test(d)) return parseFloat(d);
+    return String(raw);
+  }
+  function num(v) {
+    if (isErr(v)) throw v;
+    if (typeof v === 'number') return v;
+    if (typeof v === 'boolean') return v ? 1 : 0;
+    if (v === '' || v === undefined) return 0;
+    if (v && v.rg) throw E.VAL;
+    var x = parseRaw(v); if (typeof x === 'number') return x; throw E.VAL;
+  }
+  function str(v) { if (isErr(v)) throw v; if (typeof v === 'number') return String(Math.round(v * 1e10) / 1e10); if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE'; return v === undefined ? '' : String(v); }
+  function truthy(v) { if (isErr(v)) throw v; if (typeof v === 'boolean') return v; if (typeof v === 'number') return v !== 0; if (v === '' || v === undefined) return false; var u = String(v).toUpperCase(); if (u === 'TRUE') return true; if (u === 'FALSE') return false; throw E.VAL; }
+  function rate(x) { x = num(x); return Math.abs(x) > 1 ? x / 100 : x; }
+  function cmpv(a, b) {
+    if (typeof a === 'string' && typeof b === 'string') { a = a.toLowerCase(); b = b.toLowerCase(); return a < b ? -1 : a > b ? 1 : 0; }
+    if (typeof a === 'string') return 1; if (typeof b === 'string') return -1;
+    a = num(a); b = num(b); return a < b ? -1 : a > b ? 1 : 0;
+  }
+  function critFn(c) {
+    var m = typeof c === 'string' ? /^(<>|<=|>=|=|<|>)?(.*)$/.exec(c) : null, op = '=', val = c;
+    if (m) { op = m[1] || '='; val = parseRaw(m[2]); }
+    return function (x) {
+      if (isErr(x)) return false;
+      var cr;
+      if (typeof val === 'number') { if (typeof x === 'string' && x !== '') { var xn = parseRaw(x); if (typeof xn !== 'number') return op === '<>'; x = xn; } if (x === '') return op === '<>'; cr = cmpv(x, val); }
+      else { cr = cmpv(String(x), String(val)); }
+      return op === '=' ? cr === 0 : op === '<>' ? cr !== 0 : op === '<' ? cr < 0 : op === '>' ? cr > 0 : op === '<=' ? cr <= 0 : cr >= 0;
+    };
+  }
+  function nums(vals, inRange) { var o = []; vals.forEach(function (v) { if (v && v.rg) { v.a.forEach(function (row) { row.forEach(function (x) { if (isErr(x)) throw x; if (typeof x === 'number') o.push(x); }); }); } else { if (isErr(v)) throw v; o.push(num(v)); } }); return o; }
+  function flat(v) { var o = []; if (v && v.rg) v.a.forEach(function (r) { r.forEach(function (x) { o.push(x); }); }); else o.push(v); return o; }
+
+  var FN = {
+    SUM: function (a) { return nums(a).reduce(function (s, x) { return s + x; }, 0); },
+    AVERAGE: function (a) { var n = nums(a); if (!n.length) throw E.DIV; return n.reduce(function (s, x) { return s + x; }, 0) / n.length; },
+    COUNT: function (a) { var c = 0; a.forEach(function (v) { flat(v).forEach(function (x) { if (typeof x === 'number') c++; }); }); return c; },
+    COUNTA: function (a) { var c = 0; a.forEach(function (v) { flat(v).forEach(function (x) { if (x !== '' && x !== undefined) c++; }); }); return c; },
+    MAX: function (a) { var n = nums(a); return n.length ? Math.max.apply(null, n) : 0; },
+    MIN: function (a) { var n = nums(a); return n.length ? Math.min.apply(null, n) : 0; },
+    ABS: function (a) { return Math.abs(num(a[0])); },
+    SQRT: function (a) { var x = num(a[0]); if (x < 0) throw E.NUM; return Math.sqrt(x); },
+    POWER: function (a) { return Math.pow(num(a[0]), num(a[1])); },
+    MOD: function (a) { var d = num(a[1]); if (d === 0) throw E.DIV; var x = num(a[0]); return x - d * Math.floor(x / d); },
+    ROUND: function (a) { var d = a.length > 1 ? num(a[1]) : 0, f = Math.pow(10, d), x = num(a[0]); return Math.sign(x) * Math.round(Math.abs(x) * f + 1e-9) / f; },
+    ROUNDUP: function (a) { var d = a.length > 1 ? num(a[1]) : 0, f = Math.pow(10, d), x = num(a[0]); return Math.sign(x) * Math.ceil(Math.abs(x) * f - 1e-9) / f; },
+    ROUNDDOWN: function (a) { var d = a.length > 1 ? num(a[1]) : 0, f = Math.pow(10, d), x = num(a[0]); return Math.sign(x) * Math.floor(Math.abs(x) * f + 1e-9) / f; },
+    AND: function (a) { var r = true; a.forEach(function (v) { flat(v).forEach(function (x) { if (x !== '' && !truthy(x)) r = false; }); }); return r; },
+    OR: function (a) { var r = false; a.forEach(function (v) { flat(v).forEach(function (x) { if (x !== '' && truthy(x)) r = true; }); }); return r; },
+    NOT: function (a) { return !truthy(a[0]); },
+    SUMIF: function (a) { var rg = flat(a[0]), f = critFn(a[1]), sr = a.length > 2 ? flat(a[2]) : rg, s = 0; rg.forEach(function (x, i) { if (f(x)) s += typeof sr[i] === 'number' ? sr[i] : 0; }); return s; },
+    COUNTIF: function (a) { var f = critFn(a[1]), c = 0; flat(a[0]).forEach(function (x) { if (f(x)) c++; }); return c; },
+    TAX: function (a) { return num(a[0]) * (a.length > 1 ? rate(a[1]) : 0.15); },
+    VAT: function (a) { return num(a[0]) * (a.length > 1 ? rate(a[1]) : 0.15); },
+    WITHVAT: function (a) { return num(a[0]) * (1 + (a.length > 1 ? rate(a[1]) : 0.15)); },
+    DISCOUNT: function (a) { return num(a[0]) * (1 - rate(a[1])); },
+    PCT: function (a) { var t = num(a[1]); if (t === 0) throw E.DIV; return num(a[0]) / t; },
+    VLOOKUP: function (a) {
+      var v = a[0], rg = a[1], ci = Math.floor(num(a[2])), exact = a.length > 3 ? !truthy(a[3]) : false;
+      if (!rg || !rg.rg) throw E.VAL; if (ci < 1 || ci > rg.cols) throw E.REF;
+      var best = -1;
+      for (var i = 0; i < rg.rows; i++) { var k = rg.a[i][0]; if (isErr(k)) continue; var c = cmpv(k, v); if (c === 0) { best = i; break; } if (!exact && c < 0) best = i; else if (!exact && c > 0) break; }
+      if (best < 0) throw E.NA; return rg.a[best][ci - 1];
+    },
+    XLOOKUP: function (a, ctx) {
+      var v = a[0], lk = flat(a[1]), rt = a[2] && a[2].rg ? flat(a[2]) : [a[2]];
+      for (var i = 0; i < lk.length; i++) { if (!isErr(lk[i]) && cmpv(lk[i], v) === 0) return rt[i] === undefined ? '' : rt[i]; }
+      if (a.length > 3) return a[3]; throw E.NA;
+    },
+    TODAY: function () { return Math.floor(Date.now() / 86400000); },
+    LEN: function (a) { return str(a[0]).length; },
+    CONCAT: function (a) { var s = ''; a.forEach(function (v) { flat(v).forEach(function (x) { s += str(x); }); }); return s; }
+  };
+
+  function Sheet(cells, maxR, maxC) {
+    var memo = {}, state = {};
+    function raw(c, r) { var v = cells[colS(c) + r]; return v === undefined ? '' : v; }
+    function cellVal(c, r) {
+      var key = colS(c) + r;
+      if (key in memo) return memo[key];
+      if (state[key] === 1) return E.CYC;
+      state[key] = 1;
+      var rw = raw(c, r), out;
+      try {
+        if (typeof rw === 'string' && rw.charAt(0) === '=' && rw.length > 1) { out = ev(parse(rw.slice(1))); if (out === '') out = 0; }
+        else out = parseRaw(rw);
+      } catch (e) { out = isErr(e) ? e : E.VAL; }
+      if (out && out.rg) out = E.VAL;
+      if (typeof out === 'number' && isFinite(out)) out = Math.round(out * 1e9) / 1e9;
+      state[key] = 2; memo[key] = out; return out;
+    }
+    function ev(n) {
+      switch (n.t) {
+        case 'num': return n.v; case 'str': return n.v; case 'bool': return n.v;
+        case 'ref': if (n.c > maxC || n.r > maxR || n.c < 1 || n.r < 1) throw E.REF; return cellVal(n.c, n.r);
+        case 'rng': { if (n.c2 > maxC || n.r2 > maxR) throw E.REF; var a = []; for (var r = n.r1; r <= n.r2; r++) { var row = []; for (var c = n.c1; c <= n.c2; c++) row.push(cellVal(c, r)); a.push(row); } return { rg: true, a: a, rows: a.length, cols: a[0].length }; }
+        case 'neg': return -num(ev(n.a));
+        case 'pct': return num(ev(n.a)) / 100;
+        case 'bin': {
+          var x = ev(n.a), y = ev(n.b);
+          if (isErr(x)) throw x; if (isErr(y)) throw y;
+          switch (n.o) {
+            case '+': return num(x) + num(y); case '-': return num(x) - num(y); case '*': return num(x) * num(y);
+            case '/': { var d = num(y); if (d === 0) throw E.DIV; return num(x) / d; }
+            case '^': return Math.pow(num(x), num(y));
+            case '&': return str(x) + str(y);
+            default: { var c = cmpv(x === '' ? 0 : x, y === '' ? 0 : y); return n.o === '=' ? c === 0 : n.o === '<>' ? c !== 0 : n.o === '<' ? c < 0 : n.o === '>' ? c > 0 : n.o === '<=' ? c <= 0 : c >= 0; }
+          }
+        }
+        case 'fn': {
+          if (n.n === 'IF') { if (n.args.length < 2) throw E.SYN; return truthy(ev(n.args[0])) ? ev(n.args[1]) : (n.args.length > 2 ? ev(n.args[2]) : false); }
+          if (n.n === 'IFERROR') { try { var v = ev(n.args[0]); if (isErr(v)) throw v; return v; } catch (e) { if (isErr(e)) return ev(n.args[1]); throw e; } }
+          var f = FN[n.n]; if (!f) throw E.NAME;
+          var vals = n.args.map(function (a) { var v = ev(a); return v; });
+          return f(vals);
+        }
+      }
+      throw E.SYN;
+    }
+    this.get = cellVal;
+  }
+  function evalAll(cells, maxR, maxC) {
+    var sh = new Sheet(cells, maxR, maxC), out = {};
+    Object.keys(cells).forEach(function (k) { var m = REF_RE.exec(k); if (m) out[k] = sh.get(colN(m[1]), parseInt(m[2], 10)); });
+    return out;
+  }
+  function fmt(v) {
+    if (isErr(v)) return v.code;
+    if (typeof v === 'boolean') return v ? 'TRUE' : 'FALSE';
+    if (typeof v === 'number') { if (!isFinite(v)) return '#NUM!'; return (Math.round(v * 1e6) / 1e6).toLocaleString('en-US', { maximumFractionDigits: 6 }); }
+    return v === undefined ? '' : String(v);
+  }
+  return { evalAll: evalAll, fmt: fmt, isErr: isErr, colS: colS, colN: colN, parseRaw: parseRaw, E: E };
+})();
+
+/* ===== الإصدار 4.2: جودة البيانات + ورقة الحسابات ===== */
+(function () {
+  IC.dq = 'M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6zM9 12l2 2 4-4';
+  IC.calc = 'M5 3h14v18H5zM8 7h8M8 12h2M14 12h2M8 16h2M14 16h2';
+  for (var i = 0; i < VIEWS.length; i++) if (VIEWS[i][0] === 'reports') { VIEWS.splice(i + 1, 0, ['calc', 'ورقة الحسابات', 'عرض_التقارير'], ['dq', 'جودة البيانات', 'عرض_التقارير']); break; }
+
+  /* ---------------- جودة البيانات ---------------- */
+  var Q = { d: null };
+  var SEV = { 'خطير': '#FF453A', 'متوسط': '#FF9F0A', 'تحسين اختياري': '#0A84FF' };
+  function qRender() {
+    var d = Q.d, m = $('main'); if (!d || !m) return;
+    var col = d.score >= 85 ? '#34C759' : d.score >= 60 ? '#FF9F0A' : '#FF453A';
+    var by = d.bySev;
+    var head = '<div class="card dqh"><div class="dqs" style="--c:' + col + ';--p:' + d.score + '"><b>' + d.score + '</b><small>من 100</small></div><div class="dqm"><h3>جودة البيانات</h3><p class="muted">فُحص ' + h(d.rows.products) + ' منتج، ' + h(d.rows.invoices) + ' فاتورة، ' + h(d.rows.items) + ' بند، ' + h(d.rows.customers) + ' عميل في ' + d.ms + ' م.ث.</p>' +
+      '<div class="dqc"><span style="--c:' + SEV['خطير'] + '">خطير ' + by['خطير'] + '</span><span style="--c:' + SEV['متوسط'] + '">متوسط ' + by['متوسط'] + '</span><span style="--c:' + SEV['تحسين اختياري'] + '">تحسين ' + by['تحسين اختياري'] + '</span></div>' +
+      '<div class="kxact"><button class="s" onclick="dqLoad()">↻ إعادة الفحص</button><button class="s" onclick="dqXls()">Excel</button></div></div></div>';
+    var body = d.groups.length ? d.groups.map(function (g, i) {
+      return '<div class="card dqg" style="--c:' + SEV[g.sev] + '"><div class="dqt"><i></i><b>' + h(g.title) + '</b><span class="dqn">' + g.count + '</span><em>' + h(g.sev) + '</em></div><p class="muted">الحل المقترح: ' + h(g.fix) + '</p>' +
+        '<details><summary>عرض أمثلة (' + Math.min(g.count, g.items.length) + ' من ' + g.count + ')</summary><ul>' + g.items.map(function (x) { return '<li>' + h(x) + '</li>'; }).join('') + '</ul></details>' +
+        (g.auto ? '<button class="s" onclick="dqFix(\'' + g.auto + '\',' + g.count + ')">إصلاح تلقائي (' + g.count + ')</button>' : '') + '</div>';
+    }).join('') : '<div class="card"><p>لا توجد مشاكل. البيانات سليمة.</p></div>';
+    m.innerHTML = head + body;
+  }
+  window.dqLoad = function () { var m = $('main'); m.innerHTML = '<div class="spinbox"><i class="spin"></i></div>'; return rpc('dq.scan').then(function (d) { Q.d = d; qRender(); }).catch(function (e) { m.innerHTML = '<div class="msg bad">' + h(e.message) + '</div>'; }); };
+  window.dqFix = function (id, n) {
+    confirmBox('سيتم تعديل ' + n + ' سجل تلقائياً وتسجيل العملية في سجل العمليات. المتابعة؟', false, 'نفّذ الإصلاح').then(function (ok) {
+      if (!ok) return;
+      run(rpc('dq.fix', { id: id })).then(function (r) { toast('تم إصلاح ' + r.fixed + ' سجل'); dqLoad(); });
+    });
+  };
+  window.dqXls = function () {
+    if (!Q.d) return; if (typeof XLSX === 'undefined') { try { loadXlsx(); } catch (e) { } return toast('جارٍ تحميل مكتبة Excel… أعد المحاولة بعد ثوانٍ', true); }
+    var rows = []; Q.d.groups.forEach(function (g) { g.items.forEach(function (x) { rows.push([g.sev, g.title, g.count, x, g.fix]); }); });
+    window.xlsxOut([{ name: 'جودة البيانات', head: ['الخطورة', 'المشكلة', 'العدد', 'مثال', 'الحل'], rows: rows }], 'جودة_البيانات');
+  };
+  R.dq = function (m) { return dqLoad(); };
+
+  /* ---------------- ورقة الحسابات ---------------- */
+  var MAXR = 200, MAXC = 26;
+  var C = { id: '', name: 'ورقة جديدة', cells: {}, rows: 30, cols: 10, sel: 'A1', vals: {}, list: [], t: null, saved: true };
+  function K(c, r) { return FX.colS(c) + r; }
+  function KP(k) { var m = /^([A-Z]+)(\d+)$/.exec(k); return { c: FX.colN(m[1]), r: +m[2] }; }
+  function recalc() { C.vals = FX.evalAll(C.cells, MAXR, MAXC); }
+  function tdCls(k) { var v = C.vals[k]; if (C.cells[k] === undefined || C.cells[k] === '') return ''; if (FX.isErr(v)) return 'er'; return typeof v === 'number' ? 'nu' : ''; }
+  function refresh() {
+    recalc();
+    [].forEach.call(document.querySelectorAll('#cxg td[data-k]'), function (td) {
+      var k = td.getAttribute('data-k'), raw = C.cells[k];
+      td.textContent = raw === undefined || raw === '' ? '' : (typeof raw === 'string' && /^\s*[-+]?[\d.٠-٩]+%\s*$/.test(raw) ? raw.trim() : FX.fmt(C.vals[k]));
+      td.className = tdCls(k) + (k === C.sel ? ' sel' : '') + (typeof raw === 'string' && raw.charAt(0) === '=' ? ' fm' : '');
+    });
+    sums();
+  }
+  function sums() {
+    var el = $('cxs'); if (!el) return; var s = 0, n = 0;
+    Object.keys(C.cells).forEach(function (k) { if (k === C.sel) { } });
+    var v = C.vals[C.sel]; el.textContent = FX.isErr(v) ? 'خطأ: ' + v.code : (C.cells[C.sel] ? 'القيمة: ' + FX.fmt(v) : '');
+  }
+  function sheetHtml() {
+    var t = '<table id="cxg" class="cx"><thead><tr><th></th>';
+    for (var c = 1; c <= C.cols; c++) t += '<th>' + FX.colS(c) + '</th>';
+    t += '</tr></thead><tbody>';
+    for (var r = 1; r <= C.rows; r++) { t += '<tr><th>' + r + '</th>'; for (var c2 = 1; c2 <= C.cols; c2++) t += '<td data-k="' + K(c2, r) + '"></td>'; t += '</tr>'; }
+    return t + '</tbody></table>';
+  }
+  function select(k) {
+    var o = document.querySelector('#cxg td.sel'); if (o) o.classList.remove('sel');
+    C.sel = k; var td = document.querySelector('#cxg td[data-k="' + k + '"]'); if (td) { td.classList.add('sel'); try { td.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } catch (e) { } }
+    $('cxn').textContent = k; $('cxf').value = C.cells[k] === undefined ? '' : C.cells[k]; sums();
+  }
+  function move(dc, dr) { var p = KP(C.sel); var c = Math.min(Math.max(p.c + dc, 1), C.cols), r = Math.min(Math.max(p.r + dr, 1), C.rows); select(K(c, r)); }
+  function setCell(k, v) { if (v === '' || v === undefined) delete C.cells[k]; else C.cells[k] = v; dirty(); }
+  function dirty() { C.saved = false; var s = $('cxst'); if (s) s.textContent = 'غير محفوظ'; clearTimeout(C.t); if (C.id) C.t = setTimeout(function () { save(true); }, 1500); }
+  function save(auto) {
+    var nm = ($('cxname') && $('cxname').value.trim()) || C.name; C.name = nm;
+    return rpc('calc.save', { id: C.id, name: nm, data: JSON.stringify({ c: C.cells, r: C.rows, l: C.cols }) }).then(function (r) {
+      C.id = r.id; C.saved = true; var s = $('cxst'); if (s) s.textContent = 'محفوظ ✓'; if (!auto) { toast('تم حفظ الورقة'); loadList(); }
+    }).catch(function (e) { toast(e.message, true); });
+  }
+  function loadList() { return rpc('calc.list').then(function (l) { C.list = l; var s = $('cxsel'); if (s) s.innerHTML = '<option value="">— ورقة جديدة —</option>' + l.map(function (x) { return '<option value="' + h(x.id) + '"' + (x.id === C.id ? ' selected' : '') + '>' + h(x.name) + '</option>'; }).join(''); }); }
+  function openSheet(id) {
+    if (!id) { newSheet(); return; }
+    rpc('calc.get', { id: id }).then(function (d) { var o = {}; try { o = JSON.parse(d.data); } catch (e) { } C.id = d.id; C.name = d.name; C.cells = o.c || {}; C.rows = Math.min(o.r || 30, MAXR); C.cols = Math.min(o.l || 10, MAXC); C.sel = 'A1'; draw(); }).catch(function (e) { toast(e.message, true); });
+  }
+  function newSheet(tpl) {
+    C.id = ''; C.name = 'ورقة جديدة'; C.cells = {}; C.rows = 30; C.cols = 10; C.sel = 'A1';
+    if (tpl === 'inv') {
+      var T = { A1: 'البند', B1: 'الكمية', C1: 'السعر', D1: 'الإجمالي', A2: 'صنف 1', B2: '4', C2: '530', D2: '=B2*C2', A3: 'صنف 2', B3: '2', C3: '420', D3: '=B3*C3', A4: 'صنف 3', B4: '1', C4: '35', D4: '=B4*C4',
+        A6: 'المجموع قبل الخصم', D6: '=SUM(D2:D4)', A7: 'نسبة الخصم', D7: '10%', A8: 'قيمة الخصم', D8: '=D6*D7', A9: 'بعد الخصم', D9: '=D6-D8', A10: 'ضريبة القيمة المضافة 15%', D10: '=TAX(D9)', A11: 'الإجمالي النهائي', D11: '=D9+D10', A13: 'أعلى سعر', D13: '=MAX(C2:C4)', A14: 'متوسط السعر', D14: '=ROUND(AVERAGE(C2:C4),2)', A15: 'تنبيه', D15: '=IF(D11>2000,"فاتورة كبيرة","عادية")' };
+      C.cells = T; C.name = 'قالب فاتورة';
+    }
+    draw();
+  }
+  function pullProducts() {
+    rpc('table.list', { table: 'products' }).then(function (t) {
+      var rows = t.rows.filter(function (r) { return r['فعال'] !== 'لا' && r['السعر'] !== '' && r['السعر'] !== undefined; }).slice(0, MAXR - 2);
+      if (C.cols < 12) C.cols = 12; if (C.rows < rows.length + 1) C.rows = Math.min(rows.length + 1, MAXR);
+      C.cells.J1 = 'الكود'; C.cells.K1 = 'الاسم'; C.cells.L1 = 'السعر';
+      rows.forEach(function (r, i) { C.cells['J' + (i + 2)] = String(r['الكود']); C.cells['K' + (i + 2)] = String(r['الاسم']); C.cells['L' + (i + 2)] = String(r['السعر']); });
+      dirty(); draw(); toast('أُضيفت ' + rows.length + ' منتجاً في الأعمدة J:L. جرّب =VLOOKUP("CK011",J2:L400,3,FALSE)');
+    }).catch(function (e) { toast(e.message, true); });
+  }
+  var SAFE = /^(SUM|AVERAGE|COUNT|COUNTA|MAX|MIN|ABS|SQRT|POWER|MOD|ROUND|ROUNDUP|ROUNDDOWN|AND|OR|NOT|SUMIF|COUNTIF|VLOOKUP|XLOOKUP|IF|IFERROR|TODAY|LEN|CONCAT)$/;
+  function xls() {
+    if (typeof XLSX === 'undefined') { try { loadXlsx(); } catch (e) { } return toast('جارٍ تحميل مكتبة Excel… أعد المحاولة بعد ثوانٍ', true); }
+    var ws = {}, maxR = 1, maxC = 1;
+    Object.keys(C.cells).forEach(function (k) {
+      var p = KP(k), raw = C.cells[k], v = C.vals[k], addr = XLSX.utils.encode_cell({ c: p.c - 1, r: p.r - 1 }), cell;
+      maxR = Math.max(maxR, p.r); maxC = Math.max(maxC, p.c);
+      var isF = typeof raw === 'string' && raw.charAt(0) === '=' && raw.length > 1;
+      if (FX.isErr(v)) cell = { t: 's', v: v.code };
+      else if (typeof v === 'number') cell = { t: 'n', v: v }; else if (typeof v === 'boolean') cell = { t: 'b', v: v }; else cell = { t: 's', v: String(v === undefined ? '' : v) };
+      if (isF && !FX.isErr(v)) {
+        var fns = raw.match(/[A-Za-z؀-ۿ_]+(?=\()/g) || [], ok = fns.every(function (f) { return SAFE.test(f.toUpperCase()); }) && !/[؀-ۿ٫;،]/.test(raw);
+        if (ok) cell.f = raw.slice(1);
+      }
+      ws[addr] = cell;
+    });
+    ws['!ref'] = XLSX.utils.encode_range({ s: { c: 0, r: 0 }, e: { c: maxC - 1, r: maxR - 1 } });
+    var wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, String(C.name).replace(/[\\\/?*\[\]:]/g, ' ').slice(0, 31) || 'ورقة'); wb.Workbook = { Views: [{ RTL: true }] };
+    XLSX.writeFile(wb, 'سوار_' + String(C.name).replace(/\s+/g, '_') + '_' + TODAY() + '.xlsx'); toast('تم تنزيل ملف Excel');
+  }
+  function draw() {
+    var m = $('main');
+    m.innerHTML = '<div class="card cxc"><div class="cxbar"><select id="cxsel" aria-label="الأوراق المحفوظة"></select><input id="cxname" value="' + h(C.name) + '" aria-label="اسم الورقة"><button class="s" id="cxsave">حفظ</button><span id="cxst" class="muted">' + (C.saved ? '' : 'غير محفوظ') + '</span><span class="sp"></span>' +
+      '<button class="s" id="cxinv">قالب فاتورة</button><button class="s" id="cxprod">سحب المنتجات</button><button class="s" id="cxrow">+ صفوف</button><button class="s" id="cxcol">+ عمود</button><button class="s" id="cxxls">Excel</button><button class="s bad" id="cxdel">حذف</button></div>' +
+      '<div class="cxfb"><b id="cxn">A1</b><input id="cxf" dir="auto" autocomplete="off" placeholder="اكتب رقماً أو نصاً أو معادلة تبدأ بـ =  مثل =SUM(A1:A5)*15%"><span id="cxs" class="muted"></span></div>' +
+      '<div class="cxw" id="cxw" tabindex="0">' + sheetHtml() + '</div>' +
+      '<p class="muted cxh">الدوال: SUM · AVERAGE · COUNT · COUNTA · MAX · MIN · IF · IFERROR · AND · OR · ROUND · ABS · MOD · POWER · SUMIF · COUNTIF · VLOOKUP · XLOOKUP · TAX(مبلغ؛ نسبة) · DISCOUNT(مبلغ؛ نسبة) · VAT · WITHVAT · PCT(جزء؛ كل). تقبل الأسماء العربية: جمع، متوسط، اذا، اكبر، اصغر، تقريب، ضريبة، خصم. النسبة: 15% أو 0.15. التحديد بالسهم، Enter للنزول، Tab لليمين، Delete للمسح، ولصق من Excel مباشرة.</p></div>';
+    loadList(); refresh(); select(C.sel);
+    var w = $('cxw'), f = $('cxf');
+    w.addEventListener('mousedown', function (e) {
+      var td = e.target.closest('td[data-k]'); if (!td) return; var k = td.getAttribute('data-k');
+      if (document.activeElement === f && /^=([^]*[-+*\/(,:&=<>^;]|)$/.test(f.value)) { e.preventDefault(); f.value += k; setCell(C.sel, f.value); refresh(); return; }
+      select(k);
+    });
+    w.addEventListener('dblclick', function () { f.focus(); f.select(); });
+    w.addEventListener('keydown', function (e) {
+      if (e.target === f) return;
+      var k = e.key;
+      if (k === 'ArrowDown') { move(0, 1); e.preventDefault(); } else if (k === 'ArrowUp') { move(0, -1); e.preventDefault(); } else if (k === 'ArrowLeft') { move(-1, 0); e.preventDefault(); } else if (k === 'ArrowRight') { move(1, 0); e.preventDefault(); }
+      else if (k === 'Enter') { move(0, 1); e.preventDefault(); } else if (k === 'Tab') { move(e.shiftKey ? -1 : 1, 0); e.preventDefault(); }
+      else if (k === 'F2') { f.focus(); e.preventDefault(); }
+      else if (k === 'Delete' || k === 'Backspace') { setCell(C.sel, ''); f.value = ''; refresh(); e.preventDefault(); }
+      else if (k.length === 1 && !e.ctrlKey && !e.metaKey && !e.altKey) { f.focus(); f.value = k; setCell(C.sel, k); refresh(); e.preventDefault(); }
+    });
+    f.addEventListener('input', function () { setCell(C.sel, f.value); refresh(); });
+    f.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') { e.preventDefault(); move(0, 1); w.focus(); } else if (e.key === 'Tab') { e.preventDefault(); move(e.shiftKey ? -1 : 1, 0); w.focus(); } else if (e.key === 'Escape') { f.value = C.cells[C.sel] || ''; w.focus(); }
+    });
+    w.addEventListener('paste', function (e) {
+      if (e.target === f) return; var tx = (e.clipboardData || window.clipboardData).getData('text'); if (!tx) return; e.preventDefault();
+      var p = KP(C.sel), rows = tx.replace(/\r/g, '').replace(/\n$/, '').split('\n');
+      rows.forEach(function (ln, i) { ln.split('\t').forEach(function (v, j) { var c = p.c + j, r = p.r + i; if (c <= MAXC && r <= MAXR) { if (c > C.cols) C.cols = c; if (r > C.rows) C.rows = r; C.cells[K(c, r)] = v; } }); });
+      dirty(); var sel = C.sel; $('cxw').innerHTML = sheetHtml(); refresh(); select(sel); bindNone();
+    });
+    function bindNone() { }
+    $('cxsel').onchange = function () { openSheet(this.value); };
+    $('cxname').oninput = function () { C.name = this.value; if (C.id) dirty(); };
+    $('cxsave').onclick = function () { save(false); };
+    $('cxinv').onclick = function () { newSheet('inv'); };
+    $('cxprod').onclick = pullProducts;
+    $('cxrow').onclick = function () { C.rows = Math.min(C.rows + 20, MAXR); var sel = C.sel; $('cxw').innerHTML = sheetHtml(); refresh(); select(sel); };
+    $('cxcol').onclick = function () { C.cols = Math.min(C.cols + 2, MAXC); var sel = C.sel; $('cxw').innerHTML = sheetHtml(); refresh(); select(sel); };
+    $('cxxls').onclick = xls;
+    $('cxdel').onclick = function () {
+      if (!C.id) { newSheet(); return; }
+      confirmBox('حذف الورقة «' + C.name + '» نهائياً؟', true, 'حذف').then(function (ok) { if (!ok) return; run(rpc('calc.del', { id: C.id }), 'تم الحذف').then(function () { newSheet(); }); });
+    };
+    w.focus();
+  }
+  R.calc = function (m) { if (!Object.keys(C.cells).length && !C.id) { /* ورقة فارغة جاهزة */ } draw(); return Promise.resolve(); };
+  window.swFx = FX;
+})();
+
 </script>
 </body>
 </html>
