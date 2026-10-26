@@ -3010,7 +3010,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   var home0 = R.home;
   R.home = function (m) {
     return home0(m).then(function () {
-      var tiles = lsGet('sw_lay', 'tiles') === 'tiles', pre = '<div class="card rclk-card"><div class="rclk" id="rclk">--:--:--</div><div><b id="rdate"></b><br><small class="muted" id="rhij"></small><br><small class="muted">توقيت الرياض</small></div></div>';
+      var tiles = lsGet('sw_lay', 'tiles') === 'tiles', pre = '<div class="card rclk-card"><div class="rclk" id="rclk">--:--:--</div><div><b id="rdate"></b><br><small class="muted" id="rhij"></small><br><small class="muted">توقيت الرياض</small></div><div class="mcal" id="hcal"></div></div>';
       if (tiles) {
         var groups = [], cur = null;
         VIEWS.filter(canView).forEach(function (v) { if (v[0] === 'home') return; if (v[0] === '#') { cur = { name: v[1], items: [] }; groups.push(cur); } else { if (!cur) { cur = { name: 'الأقسام', items: [] }; groups.push(cur); } cur.items.push(v); } });
@@ -4306,6 +4306,459 @@ var FX = (function () {
   window.addEventListener('popstate', function (e) { var i = e.state && typeof e.state.i === 'number' ? e.state.i : -1; if (i < 0 || i >= H.length || i === I) return; I = i; skip = true; try { window.go(H[i]); } finally { skip = false; } });
   window.addEventListener('keydown', function (e) { if (e.altKey && (e.key === 'ArrowRight' || e.key === 'ArrowLeft')) { e.preventDefault(); nav(e.key === 'ArrowRight' ? -1 : 1); } });
 })();
+</script>
+<style>
+.calbtn{display:inline-flex;align-items:center;gap:4px;padding:5px 9px;margin:0 6px}.calbtn em{font-style:normal;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums}
+.calp{position:fixed;z-index:9999;width:260px;background:var(--card,#fff);color:inherit;border:1px solid rgba(128,128,128,.25);border-radius:16px;box-shadow:0 12px 40px rgba(0,0,0,.2);padding:12px}
+.mc{direction:rtl;font-size:13px}.mch{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}.mch span{font-weight:700}.mch .s{padding:2px 10px;margin:0;font-size:16px}
+.mcw,.mcg{display:grid;grid-template-columns:repeat(7,1fr);text-align:center;gap:2px}.mcw u{text-decoration:none;font-size:10px;opacity:.6;padding:2px 0}
+.mcg b,.mcg i{padding:6px 0;border-radius:8px;font-weight:500;font-variant-numeric:tabular-nums}.mcg b.fr{color:#FF453A}.mcg b.td{background:var(--acc,#0A84FF);color:#fff;font-weight:700}
+.mcf{display:flex;justify-content:space-between;align-items:center;margin-top:8px;font-size:12px;opacity:.85}.mcf .s{padding:2px 10px;margin:0}
+.mci{min-width:230px;max-width:260px}.rclk-card .mcal{margin-inline-start:auto}
+.trb{position:fixed;z-index:10000;width:300px;background:var(--card,#fff);color:inherit;border:1px solid rgba(128,128,128,.3);border-radius:14px;box-shadow:0 12px 36px rgba(0,0,0,.22);padding:10px 12px;font-size:14px}
+.trh{display:flex;justify-content:space-between;align-items:center;font-size:11px;opacity:.65;margin-bottom:4px}.trh button{border:0;background:none;font-size:18px;cursor:pointer;color:inherit;padding:0 4px}
+.trt{line-height:1.7;margin-bottom:6px;white-space:pre-wrap;max-height:40vh;overflow:auto}.trb .s{padding:3px 12px;margin:0}
+.nbc textarea,.nbc input[type=text]{width:100%;box-sizing:border-box;margin:6px 0}.nbd{font-size:12px;opacity:.7}.nbc.drag{outline:2px dashed var(--acc,#0A84FF)}
+.nbr{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:8px}.nbfl{cursor:pointer;display:inline-block}
+.nbf{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}.nbch{display:inline-flex;align-items:center;gap:6px;background:rgba(128,128,128,.14);border:0;border-radius:999px;padding:4px 10px;font-size:12px;cursor:default;color:inherit}
+.nbch.dl{cursor:pointer}.nbch img{width:22px;height:22px;object-fit:cover;border-radius:5px}.nbch button{border:0;background:none;cursor:pointer;color:inherit;font-size:15px;padding:0}
+.nbq input{width:100%;box-sizing:border-box;margin:4px 0 10px}.nbe h3{margin:6px 0}.nbeh b{font-size:13px}.nbtx{white-space:pre-wrap;line-height:1.8;overflow-wrap:anywhere}
+.nbim{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.nbth{border:0;padding:0;background:rgba(128,128,128,.12);border-radius:12px;width:120px;height:120px;overflow:hidden;cursor:zoom-in;display:flex;align-items:center;justify-content:center}.nbth img{width:100%;height:100%;object-fit:cover}
+.nbov{position:fixed;inset:0;z-index:10001;background:rgba(0,0,0,.85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:16px}.nbov img{max-width:95vw;max-height:82vh;border-radius:10px}
+.seg{display:flex;gap:6px;flex-wrap:wrap;margin:4px 0 12px}.seg button{border:1px solid rgba(128,128,128,.35);background:transparent;color:inherit;border-radius:999px;padding:6px 14px;cursor:pointer;font:inherit}.seg button.on{background:var(--acc,#0A84FF);border-color:var(--acc,#0A84FF);color:#fff}
+.mla{border-inline-start:5px solid var(--c)}.mlh{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.mlh h2{margin:0;color:var(--c)}.mlc{min-width:150px;font-size:11px;opacity:.8}.mlc .bar{height:6px;border-radius:99px;background:rgba(128,128,128,.25);overflow:hidden;margin-top:4px}.mlc .bar i{display:block;height:100%;background:var(--c)}
+.kvs{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}.kvs small{display:block;opacity:.6;font-size:11px}.mlad{line-height:1.9;padding-inline-start:18px;margin:0}
+#mlIn,#mlOut{width:100%;box-sizing:border-box}
+@media (max-width:700px){.calbtn em{display:none}.trb{width:calc(100vw - 16px)}}
+</style>
+<script>
+/* ===== الإصدار 4.3: ساعة 12 + تقويم + دفتر ملاحظات + ترجمة + الإيميلات ===== */
+(function () {
+  var TZ = 'Asia/Riyadh';
+  function lsG(k, d) { try { var v = localStorage.getItem(k); return v === null ? d : v; } catch (e) { return d; } }
+  function lsS(k, v) { try { localStorage.setItem(k, v); } catch (e) { } }
+  function p2(n) { return (n < 10 ? '0' : '') + n; }
+  var MONTHS = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  var DAYS = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+
+  /* ---------- نظام 12 ساعة ---------- */
+  function t12(hh, mm, ss) { var H = parseInt(hh, 10); return (H % 12 || 12) + ':' + mm + (ss ? ':' + ss : '') + ' ' + (H < 12 ? 'AM' : 'PM'); }
+  window.t12 = t12;
+  var fT12 = new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit', second: '2-digit', hour12: true });
+  var fM12 = new Intl.DateTimeFormat('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit', hour12: true });
+  var fDay = new Intl.DateTimeFormat('ar-SA-u-ca-gregory-nu-latn', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+  var fHij = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn', { timeZone: TZ, day: 'numeric', month: 'long', year: 'numeric' });
+  function clean(s) { return s.replace(/[\u202f\u00a0]/g, ' '); }
+  function nowParts() {
+    var f = new Intl.DateTimeFormat('en-CA', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date()).split('-');
+    return { y: +f[0], m: +f[1] - 1, d: +f[2] };
+  }
+  function tick2() {
+    var d = new Date(), a = document.getElementById('rclk'), b = document.getElementById('clock');
+    if (a) { a.textContent = clean(fT12.format(d)); a.style.fontSize = '36px'; }
+    if (b) b.textContent = clean(fM12.format(d)) + ' — ' + fDay.format(d).replace(/،.*$/, '').split(' ')[0];
+    var hc = document.getElementById('hcal'); if (hc && !hc.firstChild) hc.innerHTML = calHtml(CAL.y, CAL.m, true);
+    var st = document.getElementById('nbstamp'); if (st) st.textContent = 'سيُسجَّل تلقائياً: ' + fDay.format(d) + ' — ' + clean(fM12.format(d));
+  }
+  clearInterval(window.__ck); window.__ck = setInterval(tick2, 1000);
+
+  /* تحويل أي وقت 24 ساعة ظاهر في الصفحة إلى 12 ساعة */
+  var TRX = /(^|[^\d:.\/\-])(\d{1,2}):([0-5]\d)(?::([0-5]\d))?(?![\d:])(?!\s?[AaPp][Mm])/g;
+  var SKIP = 'input,textarea,script,style,pre,code,select,option,.no12,.mcal,#cxw,.calp';
+  function conv(root) {
+    if (!root || !document.createTreeWalker) return;
+    var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null), n, list = [];
+    while ((n = w.nextNode())) { if (n.nodeValue.indexOf(':') >= 0 && /\d:\d\d/.test(n.nodeValue)) list.push(n); }
+    list.forEach(function (n) {
+      var p = n.parentElement; if (!p || (p.closest && p.closest(SKIP))) return;
+      var v = n.nodeValue, o = v.replace(TRX, function (m, pre, hh, mm, ss) { return +hh > 23 ? m : pre + t12(hh, mm, ss); });
+      if (o !== v) n.nodeValue = o;
+    });
+  }
+  var cvT = null, mo = null;
+  function schedConv() { clearTimeout(cvT); cvT = setTimeout(function () { if (mo) mo.disconnect(); try { conv(document.getElementById('app') || document.body); } finally { if (mo) mo.observe(document.body, { childList: true, subtree: true, characterData: true }); } }, 150); }
+  if (window.MutationObserver) { mo = new MutationObserver(schedConv); mo.observe(document.body, { childList: true, subtree: true, characterData: true }); }
+
+  /* ---------- تقويم مصغر ---------- */
+  var CAL = (function () { var n = nowParts(); return { y: n.y, m: n.m }; })();
+  function calHtml(y, m, inline) {
+    var first = new Date(Date.UTC(y, m, 1)).getUTCDay(), dim = new Date(Date.UTC(y, m + 1, 0)).getUTCDate(), n = nowParts();
+    var cells = '', i;
+    for (i = 0; i < first; i++) cells += '<i></i>';
+    for (i = 1; i <= dim; i++) {
+      var td = (y === n.y && m === n.m && i === n.d), dw = (first + i - 1) % 7;
+      cells += '<b class="' + (td ? 'td ' : '') + (dw === 5 ? 'fr' : '') + '">' + i + '</b>';
+    }
+    var hij = ''; try { hij = fHij.format(new Date(Date.UTC(y, m, y === n.y && m === n.m ? n.d : 1, 9))); } catch (e) { }
+    return '<div class="mc' + (inline ? ' mci' : '') + '"><div class="mch"><button type="button" class="s" onclick="calNav(-1)" aria-label="الشهر السابق">›</button><span>' + MONTHS[m] + ' ' + y + '</span><button type="button" class="s" onclick="calNav(1)" aria-label="الشهر التالي">‹</button></div>' +
+      '<div class="mcw">' + DAYS.map(function (d) { return '<u>' + d.slice(0, 2) + '</u>'; }).join('') + '</div><div class="mcg">' + cells + '</div>' +
+      '<div class="mcf"><span>' + hij + '</span><button type="button" class="s" onclick="calToday()">اليوم</button></div></div>';
+  }
+  function calRedraw() {
+    var p = document.getElementById('calp'), hc = document.getElementById('hcal');
+    if (p) p.innerHTML = calHtml(CAL.y, CAL.m, false);
+    if (hc) hc.innerHTML = calHtml(CAL.y, CAL.m, true);
+  }
+  window.calNav = function (d) { CAL.m += d; if (CAL.m < 0) { CAL.m = 11; CAL.y--; } if (CAL.m > 11) { CAL.m = 0; CAL.y++; } calRedraw(); };
+  window.calToday = function () { var n = nowParts(); CAL.y = n.y; CAL.m = n.m; calRedraw(); };
+  window.calToggle = function (ev) {
+    if (ev) ev.stopPropagation();
+    var p = document.getElementById('calp');
+    if (p) { p.remove(); return; }
+    var b = document.getElementById('calbtn'); if (!b) return;
+    p = document.createElement('div'); p.id = 'calp'; p.className = 'calp'; calToday(); p.innerHTML = calHtml(CAL.y, CAL.m, false);
+    document.body.appendChild(p);
+    var r = b.getBoundingClientRect(), w = 260; p.style.top = (r.bottom + 6) + 'px';
+    p.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+  };
+  document.addEventListener('click', function (e) { var p = document.getElementById('calp'); if (p && !p.contains(e.target) && !(e.target.closest && e.target.closest('.mc')) && e.target.id !== 'calbtn' && !(e.target.closest && e.target.closest('#calbtn'))) p.remove(); });
+
+  /* ---------- شريط علوي: زر التقويم + مفتاح الترجمة ---------- */
+  var sh0 = window.shell;
+  window.shell = function () {
+    sh0.apply(this, arguments);
+    var ck = document.getElementById('clock'); if (!ck || document.getElementById('calbtn')) return;
+    var b = document.createElement('button'); b.id = 'calbtn'; b.type = 'button'; b.className = 's calbtn'; b.title = 'التقويم'; b.setAttribute('aria-label', 'التقويم');
+    b.innerHTML = '<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><em>' + nowParts().d + '</em>';
+    b.onclick = window.calToggle; ck.parentNode.insertBefore(b, ck);
+    var tgs = document.querySelector('.tgs');
+    if (tgs && !document.getElementById('tg_t')) {
+      var t = document.createElement('button'); t.id = 'tg_t'; t.type = 'button'; t.className = 's'; t.title = 'ترجمة تلقائية عند تحديد نص إنجليزي'; t.textContent = 'ترجمة';
+      t.setAttribute('aria-pressed', lsG('sw_tr', '1') === '1'); t.onclick = function () { lsS('sw_tr', lsG('sw_tr', '1') === '1' ? '0' : '1'); t.setAttribute('aria-pressed', lsG('sw_tr', '1') === '1'); hideTr(); toast(lsG('sw_tr', '1') === '1' ? 'الترجمة التلقائية مفعّلة' : 'الترجمة التلقائية متوقفة'); };
+      tgs.appendChild(t);
+    }
+    tick2(); schedConv();
+  };
+
+  /* ---------- الترجمة التلقائية ---------- */
+  var trT = null, trBox = null, trSeq = 0;
+  function hideTr() { if (trBox) { trBox.remove(); trBox = null; } trSeq++; }
+  function selInfo() {
+    var a = document.activeElement, txt = '', rect = null;
+    if (a && (a.tagName === 'TEXTAREA' || (a.tagName === 'INPUT' && /^(text|search)$/.test(a.type))) && typeof a.selectionStart === 'number' && a.selectionEnd > a.selectionStart) {
+      txt = a.value.slice(a.selectionStart, a.selectionEnd); rect = a.getBoundingClientRect(); return { t: txt, r: rect, anchored: false };
+    }
+    var s = window.getSelection && window.getSelection();
+    if (s && s.rangeCount && !s.isCollapsed) { txt = String(s); try { rect = s.getRangeAt(0).getBoundingClientRect(); } catch (e) { } }
+    return { t: txt, r: rect, anchored: true };
+  }
+  function isEn(t) {
+    var lat = (t.match(/[A-Za-z]/g) || []).length, ar = (t.match(/[\u0600-\u06FF]/g) || []).length;
+    return lat >= 3 && lat > ar * 2;
+  }
+  function showTr(txt, rect, pt) {
+    hideTr(); var my = ++trSeq;
+    var b = document.createElement('div'); b.className = 'trb no12'; b.dir = 'rtl'; b.innerHTML = '<div class="trh"><span>ترجمة</span><button type="button" aria-label="إغلاق">×</button></div><div class="trt"><i class="spin"></i> جارٍ الترجمة…</div>';
+    document.body.appendChild(b); trBox = b; b.querySelector('button').onclick = hideTr;
+    var x = rect ? rect.left + rect.width / 2 : pt.x, y = rect ? rect.bottom + 8 : pt.y + 12, w = 300;
+    b.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, x - w / 2)) + 'px';
+    b.style.top = Math.max(8, Math.min(window.innerHeight - 140, y)) + 'px';
+    rpc('tr.text', { text: txt }).then(function (r) {
+      if (my !== trSeq || !trBox) return;
+      var o = trBox.querySelector('.trt'); o.textContent = r.t || 'لا توجد ترجمة';
+      var c = document.createElement('button'); c.type = 'button'; c.className = 's'; c.textContent = 'نسخ'; c.onclick = function () { try { navigator.clipboard.writeText(r.t); toast('تم النسخ'); } catch (e) { } };
+      trBox.appendChild(c);
+    }).catch(function (e) { if (my !== trSeq || !trBox) return; trBox.querySelector('.trt').textContent = 'تعذرت الترجمة: ' + e.message; });
+  }
+  function onSel(e) {
+    if (lsG('sw_tr', '1') !== '1') return;
+    if (e && e.target && e.target.closest && e.target.closest('.trb')) return;
+    var pt = { x: (e && (e.clientX || (e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientX))) || window.innerWidth / 2, y: (e && (e.clientY || (e.changedTouches && e.changedTouches[0] && e.changedTouches[0].clientY))) || 120 };
+    clearTimeout(trT);
+    trT = setTimeout(function () {
+      var s = selInfo(), t = (s.t || '').replace(/\s+/g, ' ').trim();
+      if (t.length < 2 || t.length > 1500 || !isEn(t)) return;
+      showTr(t, s.anchored && s.r && s.r.width ? s.r : null, pt);
+    }, 400);
+  }
+  document.addEventListener('mouseup', onSel); document.addEventListener('touchend', onSel);
+  document.addEventListener('mousedown', function (e) { if (trBox && !trBox.contains(e.target)) hideTr(); });
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape') hideTr(); });
+  window.addEventListener('scroll', function () { if (trBox) hideTr(); }, true);
+
+  /* ---------- أدوات مشتركة ---------- */
+  function linkify(s) {
+    return h(s).replace(/(https?:\/\/[^\s<]+)/g, function (u) {
+      var t = '', m = u.match(/[).,؛،!?]+$/); if (m) { t = m[0]; u = u.slice(0, -t.length); }
+      return '<a href="' + u + '" target="_blank" rel="noopener noreferrer">' + u + '</a>' + t;
+    });
+  }
+  function fmtAt(at) {
+    var m = /^(\d{4})-(\d{2})-(\d{2})(?: (\d{2}):(\d{2}))?/.exec(String(at || '')); if (!m) return h(at || '');
+    var d = new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));
+    return DAYS[d.getUTCDay()] + ' ' + (+m[3]) + ' ' + MONTHS[+m[2] - 1] + ' ' + m[1] + (m[4] ? ' — ' + t12(m[4], m[5]) : '');
+  }
+  function kb(n) { return n >= 1048576 ? (n / 1048576).toFixed(1) + ' MB' : Math.max(1, Math.round(n / 1024)) + ' KB'; }
+  function b64(file) { return new Promise(function (res, rej) { var fr = new FileReader(); fr.onerror = function () { rej(new Error('تعذر قراءة الملف')); }; fr.onload = function () { res(String(fr.result).split(',')[1] || ''); }; fr.readAsDataURL(file); }); }
+  function blobOf(r) { var bin = atob(r.data), a = new Uint8Array(bin.length); for (var i = 0; i < bin.length; i++) a[i] = bin.charCodeAt(i); return new Blob([a], { type: r.mime || 'application/octet-stream' }); }
+  function saveBlob(bl, name) { var u = URL.createObjectURL(bl), a = document.createElement('a'); a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function () { URL.revokeObjectURL(u); }, 4000); }
+  function copyText(t) { try { navigator.clipboard.writeText(t).then(function () { toast('تم النسخ'); }); } catch (e) { var ta = document.createElement('textarea'); ta.value = t; document.body.appendChild(ta); ta.select(); try { document.execCommand('copy'); toast('تم النسخ'); } catch (x) { } ta.remove(); } }
+
+  /* ---------- دفتر الملاحظات ---------- */
+  IC.nb = 'M6 3h11a2 2 0 012 2v14a2 2 0 01-2 2H6zM6 3v18M10 8h6M10 12h6';
+  IC.mail = 'M3 6h18v12H3zM3 7l9 6 9-6';
+  for (var vi = 0; vi < VIEWS.length; vi++) if (VIEWS[vi][0] === 'guide') { VIEWS.splice(vi + 1, 0, ['nb', 'دفتر الملاحظات'], ['mail', 'الإيميلات']); break; }
+
+  var NB = { list: [], edit: null, pend: [], keep: [], q: '' };
+  function nbDraw() {
+    var m = document.getElementById('main'); if (!m) return;
+    var d = new Date();
+    m.innerHTML = '<div class="card nbc" id="nbcard"><div class="nbd" id="nbstamp"></div>' +
+      '<input id="nbt" type="text" maxlength="120" placeholder="عنوان (اختياري)" autocomplete="off">' +
+      '<textarea id="nbx" rows="5" placeholder="اكتب هنا، أو الصق نصاً أو رابطاً أو صورة (Ctrl+V)، أو اسحب أي ملف وأفلته…"></textarea>' +
+      '<div id="nbf" class="nbf"></div>' +
+      '<div class="nbr"><label class="s nbfl">إرفاق ملفات<input type="file" id="nbi" multiple hidden></label><button type="button" id="nbs">حفظ</button><button type="button" class="s" id="nbk" hidden>إلغاء التعديل</button></div></div>' +
+      '<div class="nbq"><input id="nbq" type="search" placeholder="بحث في دفتر الملاحظات…" autocomplete="off"></div><div id="nbl"></div>';
+    tick2(); nbFiles(); nbList();
+    var x = document.getElementById('nbx'), card = document.getElementById('nbcard');
+    x.addEventListener('paste', function (e) {
+      var cd = e.clipboardData; if (!cd) return;
+      var fs = [].slice.call(cd.files || []);
+      if (!fs.length && cd.items) [].forEach.call(cd.items, function (it) { if (it.kind === 'file') { var f = it.getAsFile(); if (f) fs.push(f); } });
+      if (!fs.length) return;
+      fs.forEach(function (f) { var nm = f.name && f.name !== 'image.png' ? f.name : (f.type.indexOf('image/') === 0 ? 'صورة-' + Date.now() + '.' + (f.type.split('/')[1] || 'png') : 'ملف-' + Date.now()); nbAdd(f, nm); });
+      e.stopPropagation();
+      if (!(cd.getData('text/plain') || '').trim()) e.preventDefault();
+    });
+    ['dragenter', 'dragover'].forEach(function (ev) { card.addEventListener(ev, function (e) { e.preventDefault(); card.classList.add('drag'); }); });
+    ['dragleave', 'drop'].forEach(function (ev) { card.addEventListener(ev, function (e) { e.preventDefault(); card.classList.remove('drag'); }); });
+    card.addEventListener('drop', function (e) { [].forEach.call((e.dataTransfer && e.dataTransfer.files) || [], function (f) { nbAdd(f, f.name); }); });
+    document.getElementById('nbi').onchange = function () { [].forEach.call(this.files, function (f) { nbAdd(f, f.name); }); this.value = ''; };
+    document.getElementById('nbs').onclick = nbSave;
+    document.getElementById('nbk').onclick = function () { nbReset(); };
+    document.getElementById('nbq').oninput = function () { NB.q = this.value.trim().toLowerCase(); nbList(); };
+  }
+  function nbAdd(f, name) {
+    if (f.size > 7 * 1048576) { toast('الملف "' + name + '" أكبر من 7 ميجا', true); return; }
+    NB.pend.push({ file: f, name: name, type: f.type, size: f.size, url: f.type.indexOf('image/') === 0 ? URL.createObjectURL(f) : '' }); nbFiles();
+  }
+  function nbFiles() {
+    var el = document.getElementById('nbf'); if (!el) return;
+    el.innerHTML = NB.keep.map(function (f, i) { return '<span class="nbch">' + h(f.n) + ' <small>' + kb(f.s) + '</small><button type="button" onclick="nbRmKeep(' + i + ')" aria-label="حذف">×</button></span>'; }).join('') +
+      NB.pend.map(function (f, i) { return '<span class="nbch">' + (f.url ? '<img src="' + f.url + '" alt="">' : '') + h(f.name) + ' <small>' + kb(f.size) + '</small><button type="button" onclick="nbRmPend(' + i + ')" aria-label="حذف">×</button></span>'; }).join('');
+  }
+  window.nbRmKeep = function (i) { NB.keep.splice(i, 1); nbFiles(); };
+  window.nbRmPend = function (i) { NB.pend.splice(i, 1); nbFiles(); };
+  function nbReset() {
+    NB.edit = null; NB.pend = []; NB.keep = [];
+    var t = document.getElementById('nbt'), x = document.getElementById('nbx'), s = document.getElementById('nbs'), k = document.getElementById('nbk');
+    if (t) t.value = ''; if (x) x.value = ''; if (s) { s.textContent = 'حفظ'; s.disabled = false; } if (k) k.hidden = true; nbFiles();
+  }
+  function nbSave() {
+    var t = document.getElementById('nbt').value, x = document.getElementById('nbx').value, s = document.getElementById('nbs');
+    if (!t.trim() && !x.trim() && !NB.pend.length && !NB.keep.length) { toast('اكتب شيئاً أو أرفق ملفاً أولاً', true); return; }
+    s.disabled = true; s.textContent = 'جارٍ الحفظ…';
+    var files = NB.keep.slice(), seq = Promise.resolve();
+    NB.pend.forEach(function (f, i) {
+      seq = seq.then(function () { s.textContent = 'رفع ' + (i + 1) + ' من ' + NB.pend.length + '…'; return b64(f.file); })
+        .then(function (data) { return rpc('nb.upload', { name: f.name, mime: f.type, data: data }); })
+        .then(function (r) { files.push(r); });
+    });
+    seq.then(function () { return rpc('nb.save', { id: NB.edit || '', title: t, text: x, files: files }); })
+      .then(function () { toast('تم الحفظ'); nbReset(); return nbLoad(); })
+      .catch(function (e) { toast(e.message, true); s.disabled = false; s.textContent = NB.edit ? 'حفظ التعديل' : 'حفظ'; });
+  }
+  function nbLoad() { return rpc('nb.list').then(function (l) { NB.list = l || []; nbList(); }); }
+  var nbIO = null;
+  function nbList() {
+    var el = document.getElementById('nbl'); if (!el) return;
+    var q = NB.q, rows = NB.list.filter(function (r) { return !q || (r.title + ' ' + r.text + ' ' + r.files.map(function (f) { return f.n; }).join(' ')).toLowerCase().indexOf(q) >= 0; });
+    if (!rows.length) { el.innerHTML = '<div class="card"><p class="muted">' + (NB.list.length ? 'لا نتائج مطابقة.' : 'لا توجد ملاحظات بعد. دفترك خاص بك ولا يراه غيرك.') + '</p></div>'; return; }
+    el.innerHTML = rows.map(function (r) {
+      var imgs = r.files.filter(function (f) { return /^image\//.test(f.t) && f.s <= 2097152; }), oth = r.files.filter(function (f) { return imgs.indexOf(f) < 0; });
+      return '<div class="card nbe" data-id="' + h(r.id) + '"><div class="nbeh"><b>' + fmtAt(r.at) + '</b>' + (r.upd && r.upd !== r.at ? '<small class="muted"> · عُدّلت ' + fmtAt(r.upd) + '</small>' : '') + '</div>' +
+        (r.title ? '<h3>' + h(r.title) + '</h3>' : '') + (r.text ? '<div class="nbtx">' + linkify(r.text) + '</div>' : '') +
+        (imgs.length ? '<div class="nbim">' + imgs.map(function (f) { return '<button type="button" class="nbth" data-f="' + h(f.f) + '" data-n="' + h(f.n) + '" title="' + h(f.n) + '"><i class="spin"></i></button>'; }).join('') + '</div>' : '') +
+        (oth.length ? '<div class="nbf">' + oth.map(function (f) { return '<button type="button" class="nbch dl" data-f="' + h(f.f) + '" data-n="' + h(f.n) + '">' + h(f.n) + ' <small>' + kb(f.s) + '</small></button>'; }).join('') + '</div>' : '') +
+        '<div class="nbr"><button type="button" class="s" data-a="edit">تعديل</button><button type="button" class="s" data-a="copy">نسخ النص</button><button type="button" class="s" data-a="del">حذف</button></div></div>';
+    }).join('');
+    if (nbIO) nbIO.disconnect();
+    if (window.IntersectionObserver) {
+      nbIO = new IntersectionObserver(function (es) {
+        es.forEach(function (en) { if (!en.isIntersecting) return; nbIO.unobserve(en.target); nbThumb(en.target); });
+      }, { rootMargin: '200px' });
+      [].forEach.call(el.querySelectorAll('.nbth'), function (b) { nbIO.observe(b); });
+    } else [].forEach.call(el.querySelectorAll('.nbth'), nbThumb);
+  }
+  function nbThumb(b) {
+    rpc('nb.file', { f: b.dataset.f, n: b.dataset.n }).then(function (r) {
+      var u = URL.createObjectURL(blobOf(r)); b.innerHTML = '<img src="' + u + '" alt="' + h(b.dataset.n) + '">'; b.dataset.u = u;
+    }).catch(function () { b.innerHTML = '<small>تعذر التحميل</small>'; });
+  }
+  document.addEventListener('click', function (e) {
+    var t = e.target.closest && e.target.closest('#nbl button'); if (!t) return;
+    if (t.classList.contains('nbth')) {
+      if (!t.dataset.u) return;
+      var ov = document.createElement('div'); ov.className = 'nbov'; ov.innerHTML = '<img src="' + t.dataset.u + '" alt=""><button type="button" class="s">إغلاق</button>';
+      ov.onclick = function () { ov.remove(); }; document.body.appendChild(ov); return;
+    }
+    if (t.classList.contains('dl')) {
+      t.disabled = true; rpc('nb.file', { f: t.dataset.f, n: t.dataset.n }).then(function (r) { saveBlob(blobOf(r), t.dataset.n); }).catch(function (x) { toast(x.message, true); }).then(function () { t.disabled = false; });
+      return;
+    }
+    var card = t.closest('.nbe'), id = card && card.dataset.id, r = NB.list.filter(function (x) { return x.id === id; })[0]; if (!r) return;
+    if (t.dataset.a === 'copy') copyText((r.title ? r.title + '\n' : '') + r.text);
+    else if (t.dataset.a === 'edit') {
+      NB.edit = r.id; NB.keep = r.files.slice(); NB.pend = [];
+      document.getElementById('nbt').value = r.title; document.getElementById('nbx').value = r.text;
+      document.getElementById('nbs').textContent = 'حفظ التعديل'; document.getElementById('nbk').hidden = false; nbFiles();
+      window.scrollTo({ top: 0, behavior: 'smooth' }); document.getElementById('nbx').focus();
+    } else if (t.dataset.a === 'del') confirmBox('حذف هذه الملاحظة وملفاتها نهائياً؟', true, 'حذف').then(function (ok) { if (!ok) return; run(rpc('nb.del', { id: r.id }), 'تم الحذف').then(nbLoad); });
+  });
+  R.nb = function () { NB.q = ''; NB.pend = []; NB.keep = []; NB.edit = null; nbDraw(); return nbLoad().catch(function (e) { var l = document.getElementById('nbl'); if (l) l.innerHTML = '<div class="msg bad">' + h(e.message) + '</div>'; }); };
+
+  /* ---------- قسم الإيميلات ---------- */
+  var LEX = {
+    angry: /غير مقبول|مرفوض|أسوأ|اسوأ|سيء جد|سيئ جد|مستاء|غاضب|قرف|مقرف|فاسد|تسمم|احتيال|نصب|سأبلغ|سابلغ|وزارة التجارة|حماية المستهلك|محامي|قضائ|أرفع شكو|ارفع شكو|استهتار|إهمال|اهمال|لن أتعامل|لن اتعامل|آخر مرة|اخر مرة|فضيحة|مهزلة|وقاح|unacceptable|terrible|worst|awful|disgust|furious|angry|outrag|ridiculous|scam|fraud|lawyer|legal action|never again|food poison|\bsue\b/gi,
+    neg: /مشكلة|للأسف|لم يصل|ما وصل|تأخر|تأخير|خطأ|غلط|ناقص|نقص|ما استلمت|لم أستلم|لم استلم|تالف|مكسور|ذائب|ذاب|شكوى|غير راضي|خيبة|سيئ|سيء|استرجاع|استرداد|تعويض|إلغاء|الغاء|problem|issue|\blate\b|delay|missing|wrong|damaged|broken|melted|disappoint|complain|refund|cancel|unhappy|not received|never arrived/gi,
+    pos: /شكرا|شكراً|شكرًا|أشكركم|اشكركم|ممتاز|رائع|جميل|لذيذ|مميز|تسلم|يعطيكم العافية|أحببت|احببت|سعيد|إبداع|تجربة رائعة|بارك|جزاكم|thank|great|excellent|amazing|\blove|delicious|wonderful|perfect|happy|pleased|appreciate|awesome/gi
+  };
+  var TOPICS = [
+    ['quality', 'ملاحظة على جودة المنتج', /طعم|جودة|فاسد|ذاب|ذائب|تالف|مكسور|قديم|تسمم|quality|taste|spoil|melted|damaged|stale/i],
+    ['delay', 'تأخر توصيل', /توصيل|تأخر|التوصيل|لم يصل|ما وصل|delivery|\blate\b|delay|shipping|courier|not received/i],
+    ['refund', 'طلب استرجاع / تعويض', /استرجاع|استرداد|تعويض|إرجاع|ارجاع|refund|compensat|money back|return/i],
+    ['wrong', 'خطأ في الطلب', /ناقص|غلط|مختلف|ليس ما طلبت|wrong item|missing item|incorrect|not what i ordered/i],
+    ['price', 'استفسار أسعار', /سعر|أسعار|اسعار|كم سعر|عرض سعر|price|cost|quote|how much/i],
+    ['bulk', 'طلب مناسبة / كمية', /حجز|كمية|مناسبة|زواج|حفل|زفاف|تجهيز|bulk|wedding|event|catering|reserve|booking/i],
+    ['partner', 'تعاون / توريد', /شراكة|تعاون|توريد|جملة|supplier|partnership|collaborat|wholesale/i],
+    ['thanks', 'شكر وإشادة', /شكر|ممتاز|رائع|thank|appreciate|excellent/i]
+  ];
+  function cnt(s, rx) { var m = s.match(rx); return m ? m.length : 0; }
+  function mailAnalyze(t) {
+    var lat = cnt(t, /[A-Za-z]/g), ar = cnt(t, /[\u0600-\u06FF]/g), lang = lat > ar ? 'en' : 'ar';
+    var a = cnt(t, LEX.angry), n = cnt(t, LEX.neg), p = cnt(t, LEX.pos), ex = cnt(t, /[!！]{1,}/g), caps = cnt(t, /\b[A-Z]{4,}\b/g);
+    var anger = a * 2 + (ex >= 3 ? 2 : 0) + (caps >= 2 ? 2 : 0), neg = n + a, tone;
+    if (anger >= 4) tone = 'angry'; else if (neg >= 2 && neg > p) tone = 'negative'; else if (p > neg && p >= 1) tone = 'positive'; else if (neg >= 1 && p === 0) tone = 'negative'; else tone = 'neutral';
+    var topic = ['other', 'استفسار عام'];
+    for (var i = 0; i < TOPICS.length; i++) if (TOPICS[i][2].test(t)) { topic = [TOPICS[i][0], TOPICS[i][1]]; break; }
+    if (tone === 'positive' && topic[0] === 'quality') topic = ['thanks', 'شكر وإشادة'];
+    var risks = [];
+    if (/وزارة التجارة|حماية المستهلك|محامي|قضائ|lawyer|legal|\bsue\b|court/i.test(t)) risks.push('تهديد بجهة رسمية أو قانونية: لا تجب قبل عرض الرسالة على الإدارة.');
+    if (/تسمم|حساسية|مرض|دخل المستشفى|poison|allerg|\bsick\b|hospital/i.test(t)) risks.push('بلاغ صحي أو حساسية: اعتبره عاجلاً، ولا ترد بتبرير قبل التحقق من المنتج والدفعة.');
+    if (/تويتر|سناب|انستقرام|إنستقرام|سأنشر|سانشر|تقييم سيء|twitter|instagram|post online|review online|social media/i.test(t)) risks.push('تلميح بالنشر على وسائل التواصل: الرد السريع والهادئ أهم من الدفاع.');
+    var urgent = /عاجل|فوراً|فورا|الآن|خلال ساعة|اليوم|urgent|asap|immediately|right now/i.test(t);
+    var facts = [];
+    var rx = [[/(?:رقم\s*)?(?:الفاتورة|الطلب|الحجز|invoice|order|booking)[^\d#]{0,8}#?\s*([A-Za-z0-9\-]{3,})/gi, 'رقم المرجع'], [/(?:\+?966|0)5\d{8}/g, 'جوال'], [/\d{4}-\d{2}-\d{2}|\b\d{1,2}\/\d{1,2}(?:\/\d{2,4})?\b/g, 'تاريخ'], [/\d+(?:[.,]\d+)?\s*(?:ريال|SAR|SR|ر\.س)/gi, 'مبلغ']];
+    rx.forEach(function (r) { var m, seen = {}; r[0].lastIndex = 0; while ((m = r[0].exec(t)) && Object.keys(seen).length < 3) { var v = (m[1] || m[0]).trim(); if (!seen[v]) { seen[v] = 1; facts.push([r[1], v]); } } });
+    var name = ''; var fm = /(?:^|\n)\s*(?:From|من)\s*:\s*([^<\n]+?)\s*(?:<|\n|$)/i.exec(t);
+    if (fm) name = fm[1].replace(/["']/g, '').trim();
+    if (!name) { var lines = t.trim().split(/\n+/).map(function (x) { return x.trim(); }).filter(Boolean), last = lines[lines.length - 1] || ''; if (lines.length > 2 && last.length <= 28 && !/[.؟?!:،,]/.test(last) && !/\d/.test(last)) name = last; }
+    var conf = Math.min(95, 45 + (a + n + p) * 8 + (anger ? 10 : 0));
+    return { lang: lang, tone: tone, topic: topic, risks: risks, urgent: urgent, facts: facts, name: name, conf: conf, words: t.trim().split(/\s+/).length };
+  }
+  var TONE_AR = { angry: 'غاضب', negative: 'سلبي', neutral: 'عادي', positive: 'إيجابي' };
+  var TONE_COL = { angry: '#FF453A', negative: '#FF9F0A', neutral: '#0A84FF', positive: '#34C759' };
+  var MODES = [['positive', 'إيجابي'], ['normal', 'عادي'], ['negative', 'سلبي'], ['firm', 'غاضب (حازم)']];
+  var PURP = [['justify', 'تبرير'], ['reply', 'رد / حل'], ['apology', 'اعتذار'], ['decline', 'رفض مهذب']];
+  var STY = [['formal', 'رسمي'], ['friendly', 'ودّي'], ['brief', 'مختصر'], ['detailed', 'مفصّل']];
+  var ACK = {
+    ar: { quality: 'اطلعنا على ملاحظتك بخصوص جودة المنتج', delay: 'اطلعنا على ملاحظتك بخصوص تأخر التوصيل', refund: 'اطلعنا على طلبك بخصوص الاسترجاع / التعويض', wrong: 'اطلعنا على ملاحظتك بخصوص الاختلاف في الطلب', price: 'بخصوص استفسارك عن الأسعار', bulk: 'بخصوص طلبك ومناسبتك', partner: 'بخصوص عرض التعاون المقدّم', thanks: 'اطلعنا على رسالتك', other: 'اطلعنا على رسالتك' },
+    en: { quality: 'we have reviewed your feedback about the product quality', delay: 'we have reviewed your concern about the delivery delay', refund: 'we have reviewed your refund / compensation request', wrong: 'we have reviewed your concern about the order discrepancy', price: 'regarding your pricing inquiry', bulk: 'regarding your order and occasion', partner: 'regarding your partnership proposal', thanks: 'we have read your message', other: 'we have read your message' }
+  };
+  function mailBuild(o) {
+    var ar = o.lang === 'ar', nm = o.name || '', me = (S.boot && S.boot.user && S.boot.user.name) || '', top = ACK[o.lang][o.topic] || ACK[o.lang].other, L = [];
+    var gr = ar ? ({ formal: 'السلام عليكم ورحمة الله وبركاته،\nالعميل الكريم ' + nm + '،', friendly: 'هلا والله ' + nm + '،', brief: 'السلام عليكم ' + nm + '،', detailed: 'السلام عليكم ورحمة الله وبركاته،\nالعميل الكريم ' + nm + '،' })[o.style] : ({ formal: 'Dear ' + (nm || 'Valued Customer') + ',', friendly: 'Hi ' + (nm || 'there') + ',', brief: 'Hello ' + nm + ',', detailed: 'Dear ' + (nm || 'Valued Customer') + ',' })[o.style];
+    L.push(gr.replace(/\s+،/g, '،').replace(/ ,/g, ','));
+    var op = ar ? { positive: 'يسعدنا تواصلك معنا، ونشكر لك ثقتك بسوار.', normal: 'شكراً لتواصلك مع معرض سوار للشوكولاتة والحلويات.', negative: 'نشكرك على تواصلك، ونقدّر إتاحتك الفرصة لنوضح لك الموقف.', firm: 'تلقينا رسالتك ونأخذ ما ورد فيها بجدية تامة.' } :
+      { positive: 'Thank you for reaching out and for your trust in Siwar.', normal: 'Thank you for contacting Siwar Chocolate & Confectionery.', negative: 'Thank you for contacting us, and for giving us the chance to clarify the situation.', firm: 'We received your message and are treating its content with full seriousness.' };
+    L.push(op[o.mode] + (o.topic === 'thanks' || o.topic === 'other' ? (ar ? ' ' + top + '.' : '') : ' ' + (ar ? top + '.' : 'Specifically, ' + top + '.')));
+    var B = ar ? {
+      apology: 'نعتذر عن ما حصل ونتفهّم انزعاجك، فهذا ليس المستوى الذي نحرص على تقديمه لعملائنا. وقد رفعنا الموضوع للمختصين لمراجعته وسنوافيك بالنتيجة.',
+      justify: 'ونود أن نوضح لك سبب ما حدث: [اذكر السبب الفعلي بوضوح وبدون مبالغة]. ونؤكد أن ذلك لم يكن مقصوداً، وقد اتخذنا [الإجراء] لتفادي تكراره.',
+      reply: 'ولمعالجة الموضوع نقترح [الحل: استبدال / إعادة تجهيز / رد المبلغ / تعويض] خلال [المدة]. يرجى تأكيد ما يناسبك لنباشر فوراً.',
+      decline: 'وبعد مراجعة الحالة، يؤسفنا إبلاغك بأننا لا نستطيع [الطلب] بسبب [السبب وفق السياسة المعتمدة]. ويسعدنا أن نقدّم لك بديلاً: [البديل].'
+    } : {
+      apology: 'We sincerely apologise for what happened and understand your frustration. This is not the standard we aim to deliver. We have escalated this to the responsible team and will update you with the outcome.',
+      justify: 'We would like to explain what happened: [state the actual reason clearly and without exaggeration]. It was not intentional, and we have taken [action] to prevent it from recurring.',
+      reply: 'To resolve this, we propose [solution: replacement / re-preparation / refund / compensation] within [timeframe]. Please confirm what suits you and we will proceed right away.',
+      decline: 'After reviewing the case, we regret that we are unable to [request] because [reason per our policy]. We would be glad to offer an alternative: [alternative].'
+    };
+    var extra = ar ? {
+      firm: 'نؤكد حرصنا على حقوق عملائنا وعلى معايير الجودة لدينا. ولنتمكن من التحقق واتخاذ الإجراء المناسب، نرجو تزويدنا برقم الفاتورة وصور المنتج.',
+      detailed: 'وسنوافيك بالتحديث خلال [المدة]، ويمكنك التواصل معنا مباشرة على [رقم/بريد المعرض] في أي وقت.'
+    } : {
+      firm: 'We stand firmly by our customers\' rights and our quality standards. To verify and act appropriately, please send us the invoice number and photos of the product.',
+      detailed: 'We will update you within [timeframe], and you can reach us directly at [showroom phone/email] at any time.'
+    };
+    if (o.mode === 'positive' && o.purpose === 'reply' && o.topic === 'thanks') L.push(ar ? 'كلماتك دافع لنا ولفريق العمل، وسننقلها لزملائك في المعرض والتحضير.' : 'Your words mean a lot to our whole team, and we will share them with the showroom and preparation staff.');
+    else {
+      if (o.purpose === 'justify' || o.mode === 'negative' && o.purpose === 'decline') { }
+      if (o.purpose === 'justify' && (o.tone === 'angry' || o.tone === 'negative')) L.push(B.apology);
+      L.push(B[o.purpose]);
+    }
+    if (o.mode === 'firm' && o.style !== 'brief') L.push(extra.firm);
+    if (o.style === 'detailed') L.push(extra.detailed);
+    var cl = ar ? ({ formal: 'ونقدّر لك تفهمك، ونؤكد حرصنا على خدمتك.\nمع خالص التحية،', friendly: 'تسعدنا خدمتك دائماً.\nتحياتي،', brief: 'شاكرين لك.', detailed: 'ونقدّر لك تفهمك وصبرك، ونؤكد حرصنا على خدمتك.\nمع خالص التحية والتقدير،' })[o.style] :
+      ({ formal: 'We appreciate your understanding and remain at your service.\nKind regards,', friendly: 'Always happy to help.\nBest,', brief: 'Thank you.', detailed: 'We appreciate your understanding and patience, and remain at your service.\nWith best regards,' })[o.style];
+    L.push(cl); L.push((me ? me + '\n' : '') + (ar ? 'معرض سوار للشوكولاتة والحلويات' : 'Siwar Chocolate & Confectionery'));
+    return L.join('\n\n');
+  }
+  function mailAdvice(o, a) {
+    var out = [];
+    var mm = { positive: 'إيجابي: نبرة دافئة تناسب الشكر والاستفسارات اللطيفة، ولا تناسب عميلاً غاضباً.', normal: 'عادي: محايد ومهني، آمن في أغلب الحالات.', negative: 'سلبي: لإبلاغ العميل بما لا نستطيع فعله (رفض/اعتذار عن عدم التنفيذ) بأدب وبدون وعود.', firm: 'غاضب (حازم): ليس غضباً من جانبنا؛ هو رد حازم ومهذب يحمي حق المعرض ويطلب إثباتات، ويناسب الادعاءات غير المدعومة أو التهديد.' };
+    var pp = { justify: 'تبرير: تشرح سبب ما حدث. استخدمه بعد الاعتذار وبجملة أو جملتين فقط، فالتبرير الطويل يُفهم دفاعاً.', reply: 'رد / حل: تعطي العميل ما يريد معرفته (ماذا سنفعل ومتى). هو الأنسب في أغلب الشكاوى.', apology: 'اعتذار: اعتراف واضح بالخطأ من غير تبرير. يناسب الخطأ الثابت من طرفنا.', decline: 'رفض مهذب: عندما يكون الطلب مخالفاً للسياسة. اذكر السبب وقدّم بديلاً حتى لا يشعر العميل أنه أُغلق في وجهه.' };
+    out.push(mm[o.mode]); out.push(pp[o.purpose]);
+    if (a.tone === 'angry' && o.mode === 'positive') out.push('تنبيه: الإيميل غاضب، والرد المرح قد يُفهم استخفافاً. الأفضل: عادي + اعتذار أو رد/حل.');
+    if (a.tone === 'angry' && o.purpose === 'justify') out.push('تنبيه: مع العميل الغاضب ابدأ بالاعتذار ثم الحل، والتبرير في آخر الرسالة وباختصار.');
+    if (a.tone === 'positive' && (o.purpose === 'apology' || o.purpose === 'decline')) out.push('تنبيه: الإيميل إيجابي، فالاعتذار أو الرفض غير مناسب إلا إن كان هناك طلب يجب رفضه.');
+    if (o.style === 'brief' && a.tone === 'angry') out.push('تنبيه: الرد المختصر جداً على عميل غاضب قد يبدو باردًا؛ فكّر بأسلوب رسمي أو مفصّل.');
+    if (a.risks.length) out.push('مهم: ' + a.risks.join(' '));
+    out.push('الأقواس المربعة [ ] معلومات لا يعرفها النظام؛ عبّئها بالحقيقة قبل الإرسال، ولا تعد بشيء لا يوافق عليه المعرض.');
+    return out;
+  }
+  var MS = { mode: 'normal', purpose: 'reply', style: 'formal', lang: 'auto' };
+  function seg(id, items, cur) { return '<div class="seg" id="' + id + '">' + items.map(function (x) { return '<button type="button" class="' + (x[0] === cur ? 'on' : '') + '" data-v="' + x[0] + '">' + x[1] + '</button>'; }).join('') + '</div>'; }
+  var MA = null;
+  function mailRecommend(a) {
+    var m = { angry: ['normal', 'apology', 'formal'], negative: ['normal', 'reply', 'formal'], positive: ['positive', 'reply', 'friendly'], neutral: ['normal', 'reply', 'formal'] }[a.tone];
+    MS.mode = m[0]; MS.purpose = m[1]; MS.style = m[2];
+    if (a.tone === 'angry' && a.risks.length) MS.style = 'detailed';
+    if (a.topic[0] === 'thanks') { MS.mode = 'positive'; MS.purpose = 'reply'; MS.style = 'friendly'; }
+  }
+  function mailOut() {
+    if (!MA) return; var lang = MS.lang === 'auto' ? MA.lang : MS.lang;
+    var txt = mailBuild({ lang: lang, mode: MS.mode, purpose: MS.purpose, style: MS.style, tone: MA.tone, topic: MA.topic[0], name: MA.name });
+    var ta = document.getElementById('mlOut'); if (ta) ta.value = txt;
+    var ad = document.getElementById('mlAdv'); if (ad) ad.innerHTML = mailAdvice({ mode: MS.mode, purpose: MS.purpose, style: MS.style }, MA).map(function (x) { return '<li>' + h(x) + '</li>'; }).join('');
+    ['mlMode', 'mlPurp', 'mlSty', 'mlLang'].forEach(function (id) {
+      var k = { mlMode: 'mode', mlPurp: 'purpose', mlSty: 'style', mlLang: 'lang' }[id];
+      [].forEach.call(document.querySelectorAll('#' + id + ' button'), function (b) { b.classList.toggle('on', b.dataset.v === MS[k]); });
+    });
+  }
+  function mailDraw() {
+    var m = document.getElementById('main'); if (!m) return;
+    m.innerHTML = '<div class="card"><h3>الصق الإيميل</h3><textarea id="mlIn" rows="9" class="no12" placeholder="الصق نص الإيميل الذي وصلك هنا (عربي أو إنجليزي)…"></textarea><div class="nbr"><button type="button" id="mlGo">حلّل الإيميل</button><button type="button" class="s" id="mlClr">مسح</button></div>' +
+      '<p class="muted" style="margin-top:8px">التحليل يتم داخل المتصفح بقواعد لغوية، ولا يُرسَل الإيميل لأي جهة. هو مساعد للصياغة وليس بديلاً عن قراءتك للرسالة.</p></div><div id="mlRes"></div>';
+    document.getElementById('mlGo').onclick = mailRun;
+    document.getElementById('mlClr').onclick = function () { document.getElementById('mlIn').value = ''; document.getElementById('mlRes').innerHTML = ''; MA = null; };
+  }
+  function mailRun() {
+    var t = document.getElementById('mlIn').value; if (t.trim().length < 8) { toast('الصق نص الإيميل أولاً', true); return; }
+    MA = mailAnalyze(t); mailRecommend(MA);
+    var c = TONE_COL[MA.tone];
+    var res = '<div class="card mla" style="--c:' + c + '"><div class="mlh"><div><small class="muted">نبرة الإيميل</small><h2>' + TONE_AR[MA.tone] + '</h2></div><div class="mlc"><span>ثقة التحليل تقريبية</span><div class="bar"><i style="width:' + MA.conf + '%"></i></div></div></div>' +
+      '<div class="kvs"><div><small>الموضوع</small><b>' + h(MA.topic[1]) + '</b></div><div><small>اللغة</small><b>' + (MA.lang === 'ar' ? 'عربي' : 'إنجليزي') + '</b></div><div><small>الأولوية</small><b>' + (MA.urgent || MA.tone === 'angry' || MA.risks.length ? 'عاجل' : 'عادية') + '</b></div><div><small>الطول</small><b>' + MA.words + ' كلمة</b></div></div>' +
+      (MA.risks.length ? '<div class="msg bad">' + MA.risks.map(h).join('<br>') + '</div>' : '') +
+      (MA.facts.length ? '<p class="muted">معلومات وردت في الإيميل: ' + MA.facts.map(function (f) { return h(f[0]) + ' <b class="no12">' + h(f[1]) + '</b>'; }).join(' · ') + '</p>' : '') + '</div>' +
+      '<div class="card"><h3>اختر طريقة الرد</h3><p class="muted">اخترنا لك الأنسب حسب النبرة، وتقدر تغيّر أي خيار والنص يتحدث فوراً.</p>' +
+      '<label>نبرة ردّك</label>' + seg('mlMode', MODES, MS.mode) + '<label>الغرض</label>' + seg('mlPurp', PURP, MS.purpose) + '<label>الأسلوب</label>' + seg('mlSty', STY, MS.style) + '<label>لغة الرد</label>' + seg('mlLang', [['auto', 'نفس لغة الإيميل'], ['ar', 'عربي'], ['en', 'English']], MS.lang) + '</div>' +
+      '<div class="card"><h3>شرح الاختيار</h3><ul class="mlad" id="mlAdv"></ul></div>' +
+      '<div class="card"><h3>مسودة الرد</h3><textarea id="mlOut" rows="14" class="no12"></textarea><div class="nbr"><button type="button" id="mlCp">نسخ الرد</button><button type="button" class="s" id="mlMl">فتح في البريد</button></div></div>';
+    document.getElementById('mlRes').innerHTML = res; mailOut();
+    [['mlMode', 'mode'], ['mlPurp', 'purpose'], ['mlSty', 'style'], ['mlLang', 'lang']].forEach(function (p) {
+      document.getElementById(p[0]).onclick = function (e) { var b = e.target.closest('button'); if (!b) return; MS[p[1]] = b.dataset.v; mailOut(); };
+    });
+    document.getElementById('mlCp').onclick = function () { copyText(document.getElementById('mlOut').value); };
+    document.getElementById('mlMl').onclick = function () { var b = document.getElementById('mlOut').value; location.href = 'mailto:?body=' + encodeURIComponent(b); };
+    document.getElementById('mlRes').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+  R.mail = function () { MA = null; mailDraw(); return Promise.resolve(); };
+  window.__mail = { analyze: mailAnalyze, build: mailBuild };
+
+  /* الرئيسية: تقويم داخل بطاقة الساعة */
+  var hm0 = window.R && R.home;
+})();
+
 </script>
 </body>
 </html>
