@@ -2190,18 +2190,18 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       a.qty += q; if (!a.name && H.nm !== undefined) a.name = String(r[H.nm] || '').trim(); st.used++;
       var t2 = tot[cKey] || (tot[cKey] = { q: 0, a: 0 }); t2.q += q; if (H.amt !== undefined) t2.a += numOf(r[H.amt]);
     }
-    var rows = [], dates = {}, items = {}, unknown = {};
-    var known = {}; (S.boot.products || []).forEach(function (p) { known[String(p.code).toUpperCase().replace(/\s/g, '')] = 1; });
+    var rows = [], dates = {}, items = {}, unknown = {}, stopped = {};
+    var known = {}; (S.boot.products || []).forEach(function (p) { known[String(p.code).toUpperCase().replace(/\s/g, '')] = 1; }); var inact = {}; (S.boot.inact || []).forEach(function (c) { inact[String(c).toUpperCase().replace(/\s/g, '')] = 1; });
     Object.keys(agg).forEach(function (k) {
       var a = agg[k], cu = a.code.toUpperCase().replace(/\s/g, ''), t = tot[cu], svc = /^S-/i.test(a.code);
       var unit = svc ? 'piece' : (H.amt !== undefined && t.q > 0 && t.a > 0 ? (t.a / t.q < 5 ? 'Gram' : 'piece') : (/^(CK|LI|PAR|HO)|^TEMP00[12]$/i.test(a.code) ? 'Gram' : 'piece'));
       rows.push({ date: a.date, code: a.code, name: a.name, kind: svc ? 'Services' : '', unit: unit, qty: Math.round(a.qty * 1000) / 1000 });
       dates[a.date] = 1; items[cu] = 1;
-      if (!svc && !known[cu.replace(/\s/g, '')]) { var u = unknown[cu] || (unknown[cu] = { code: a.code, name: a.name, qty: 0 }); u.qty += a.qty; }
+      if (!svc && !known[cu.replace(/\s/g, '')]) { var bk = inact[cu] ? stopped : unknown, u = bk[cu] || (bk[cu] = { code: a.code, name: a.name, qty: 0, unit: unit }); u.qty += a.qty; }
     });
     lines.forEach(function (l) { var cu = l.code.toUpperCase().replace(/\s/g, ''), t = totAll[cu] || { q: 0, a: 0 }; l.unit = /^S-/i.test(l.code) ? 'piece' : (H.amt !== undefined && t.q > 0 && t.a > 0 ? (t.a / t.q < 5 ? 'Gram' : 'piece') : (/^(CK|LI|PAR|HO)|^TEMP00[12]$/i.test(l.code) ? 'Gram' : 'piece')); });
     var ds = Object.keys(dates).sort(); if (!ds.length) return { err: 'قرأت تصدير الطلبات لكن ما فيه أسطر معتمدة (Submit / Ready to deliver / Delivered) بقناة صحيحة.' + (st.badDate ? ' وفيه ' + st.badDate + ' سطر تاريخه غير مفهوم (مثل «' + st.badDateEx + '»).' : ''), diag: 'أسطر مقروءة ' + st.lines + '، مستبعدة بالحالة ' + st.exStateN + '، بالقناة ' + st.exChan };
-    st.used = rows.length; st.unknown = Object.keys(unknown).map(function (k) { return unknown[k]; }).sort(function (a, b) { return b.qty - a.qty; });
+    st.used = rows.length; st.unknown = Object.keys(unknown).map(function (k) { return unknown[k]; }).sort(function (a, b) { return b.qty - a.qty; }); st.stopped = Object.keys(stopped).map(function (k) { return stopped[k]; }).sort(function (a, b) { return b.qty - a.qty; });
     var hd1 = aoa[hi] || [], colL = function (n) { var s = '', k = n + 1; while (k > 0) { var m2 = (k - 1) % 26; s = String.fromCharCode(65 + m2) + s; k = Math.floor((k - 1) / 26); } return s; }, cm = [], CM = function (role, idx, rule) { if (idx !== undefined && idx !== null) cm.push({ role: role, head: String(hd1[idx] === undefined ? '' : hd1[idx]).trim(), col: colL(idx), rule: rule }); };
     CM('تاريخ التسليم', H.d, 'يُجمَّع كل يوم لحاله. أي سطر تاريخه غير مفهوم يُعدّ ويظهر تنبيهاً'); CM('كود الصنف', H.c, 'مفتاح التجميع (لا فرق بين الحروف الكبيرة والصغيرة ولا المسافات)'); CM('الكمية', H.q, 'تُجمع لكل (كود + يوم). الصفر والسالب يُهمل. الجرام يتحول لكيلو والحبة تبقى حبة');
     CM('حالة الطلب', H.st, 'يُحسب فقط Submit وReady to deliver وDelivered وUnder preparation. غيرها (Cancel وDraft…) يُستبعد'); (H.ch || []).forEach(function (x) { CM('قناة الطلب', x, 'يُحسب السطر إذا واحدة من القنوات الثلاث = 1 (Occasion Section أو C Service أو Showroom)'); });
@@ -2345,7 +2345,8 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     return '<div class="msg ok"><b>تصدير طلبات ERP.</b> حسبت الكميات بنفس معادلة ملف Siwar daily Orders: مجموع الكمية لكل كود وتاريخ تسليم، للطلبات Submit أو Ready to deliver أو Delivered وقناتها Occasion Section أو C Service أو Showroom.</div>' +
       (st.badDate ? '<p class="warn">⚠ ' + st.badDate + ' سطر لم أفهم تاريخه (مثل «' + h(st.badDateEx) + '») وكميتها ' + Math.round(st.badDateQty) + ' غير محسوبة. صحّح التاريخ في الملف.</p>' : '') + '<p class="muted">أسطر مقروءة ' + st.lines + '، محسوبة ' + st.used + ' (صنف × يوم)' + (st.exStateN ? '. مستبعدة بسبب الحالة: ' + ex : '') + (st.exChan ? '. مستبعدة لأن قناتها غير Occasion/C Service/Showroom: ' + st.exChan + ' سطر (' + Math.round(st.exChanQty) + ' وحدة)' : '') + (st.noState ? '. ما لقيت عمود Workflow State فما طبقت شرط الحالة' : '') + (st.exTest ? '. مستبعدة (عملاء test): ' + st.exTest + ' سطر' : '') + (st.exCall ? '. مستبعدة لأنها In Call: ' + st.exCall + ' سطر (' + Math.round(st.exCallQty) + ' وحدة)' : '') + (st.noChan ? '. هذا تصدير Sales Order بدون أعمدة القناة (Occasion/C Service/Showroom)، فاستبعدت أسطر In Call فقط. للدقة الكاملة استخدم تصدير cr data' : '') + '</p>' +
       (Object.keys(st.exCode).length ? '<p class="muted">لم تُدخل (خدمات إيجار/عينات/حجز مؤقت): ' + Object.keys(st.exCode).map(function (k) { return h(k) + ' ' + Math.round(st.exCode[k]); }).join('، ') + '</p>' : '') +
-      (st.unknown.length ? '<div class="msg bad"><b>أكواد غير موجودة في المنتجات (' + st.unknown.length + '):</b> ' + st.unknown.slice(0, 12).map(function (u) { return h(u.code) + ' ' + h(u.name) + ' — ' + Math.round(u.qty); }).join('، ') + (st.unknown.length > 12 ? '…' : '') + '<br>تدخل في الكميات، لكن أضفها في المنتجات ليظهر نوعها ووزنها بشكل صحيح.</div>' : '') +
+      (st.unknown.length ? (Q.miss = st.unknown, '<div class="msg bad"><b>أكواد غير موجودة في المنتجات (' + st.unknown.length + '):</b> ' + st.unknown.slice(0, 15).map(function (u) { return h(u.code) + ' ' + h(u.name) + ' — ' + Math.round(u.qty); }).join('، ') + (st.unknown.length > 15 ? '…' : '') + '<br>النظام لا يضيف المنتجات تلقائيًا، وهي تدخل في الكميات حسب تخمين نوعها من الكود والاسم. ' + (can('استيراد_البيانات') ? '<button class="s" type="button" onclick="qtyAddMissing(this)">إضافة هذه الأكواد للمنتجات الآن</button>' : 'اطلب من المسؤول إضافتها في المنتجات.') + '</div>') : '') +
+      (st.stopped && st.stopped.length ? '<div class="msg warn"><b>أكواد موقوفة في المنتجات (' + st.stopped.length + '):</b> ' + st.stopped.slice(0, 15).map(function (u) { return h(u.code) + ' ' + h(u.name) + ' — ' + Math.round(u.qty); }).join('، ') + (st.stopped.length > 15 ? '…' : '') + '<br>هذه موجودة في المنتجات لكنها موقوفة (غير ضمن القائمة المعتمدة)، وتدخل في الكميات. إذا تبيعها فعلًا فعّلها من المنتجات.</div>' : '') +
       cmapHtml(p.cmap) + '<details><summary>إجمالي الكيلو لكل يوم (لمطابقتها مع صف Day Total)</summary><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:6px">' + days + '</div></details>';
   }
   /* v4.3.1: طلبات تاريخ اليوم داخل الملف المرفوع */
@@ -2423,6 +2424,22 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var plain = !k && !q && !Q.top && !Q.item;
     return { items: items, dayKg: plain ? d.dayKg.slice() : sum(false), saltKg: plain ? d.saltKg.slice() : sum(true) };
   }
+  function missCat(u) {
+    var s = (u.code + ' ' + u.name), g = /^(gram|جم)$/i.test(u.unit || '');
+    if (/^box/i.test(u.code) || /بوكس/.test(u.name)) return 'بوكسات';
+    if (/بيتيت|بتيت|كاتو|petit/i.test(s) || /^len/i.test(u.code)) return 'بيتيت كاتو';
+    if (/مشروب|لاتيه|سحلب|موهيتو/.test(s)) return 'مشروبات';
+    if (!g) return 'بيتيت كاتو';
+    return /معجنات|مالح|موالح|بسكويت|كراكرز|كراركرز|أصابع|اصابع|ماشروم|زيتون|جبن/.test(s) ? 'معجنات' : 'شوكولاتة';
+  }
+  window.qtyAddMissing = function (btn) {
+    var L = Q.miss || []; if (!L.length) return;
+    var rows = L.map(function (u) { var g = /^(gram|جم)$/i.test(u.unit || ''); return { code: u.code, name: u.name || u.code, cat: missCat(u), unit: g ? 'كجم' : 'حبة', notes: 'أُضيف تلقائيًا من ملف الكميات، راجع السعر والوزن' }; });
+    confirmBox('إضافة ' + rows.length + ' كود إلى المنتجات كأصناف فعّالة؟ الفئة والوحدة تُخمَّن من الكود والاسم، وتراجع بعدها من المنتجات.', false, 'نعم، أضفها').then(function (ok) {
+      if (!ok) return;
+      rpc('import.products', { rows: rows, last: true, fileName: 'إضافة من الكميات' }).then(function (r) { toast('أُضيف ' + r.added + ' منتج' + (r.errors && r.errors.length ? ' (مرفوض ' + r.errors.length + ')' : '')); return rpc('bootstrap').then(function (b) { S.boot.products = b.products; S.boot.inact = b.inact; Q.miss = []; var m = btn && btn.closest && btn.closest('.msg'); if (m && m.parentNode) m.parentNode.removeChild(m); }); }).catch(function (e) { toast(e.message, true); });
+    });
+  };
   function matrixHtml(v) {
     var d = Q.d, th = d.limitDay, ts = d.limitSalt, mx = 0, hasSalt = v.items.some(function (it) { return it.salt; }); v.items.forEach(function (it) { it.kg.forEach(function (x) { if (x > mx) mx = x; }); });
     var head1 = '<tr><th colspan="4" class="qtl s0">إجمالي اليوم شامل المالح (كجم) — الحد ' + th + '</th>' + v.dayKg.map(function (x, i) { return '<th class="qd' + (d.dayKg[i] >= th ? ' hi' : '') + '">' + (x ? fmtKg(x) : '0') + '</th>'; }).join('') + '</tr>' +
