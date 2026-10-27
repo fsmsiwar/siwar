@@ -2404,7 +2404,16 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   window.qtyUploadOpen = function () { var el = $('qy_up'); if (el) { el.open = true; el.scrollIntoView({ block: 'center' }); } else go('qty'); };
 
   /* ---------- العرض ---------- */
-  function load() { var q = { from: Q.from, to: Q.to }; if (!Q.from && !Q.to) q.last = Q.last || 0; return rpc('qty.list', q).then(function (d) { Q.d = d; return d; }); }
+  function addDays(iso, n) { var t = new Date(iso + 'T12:00:00'); t.setDate(t.getDate() + n); return t.getFullYear() + '-' + ('0' + (t.getMonth() + 1)).slice(-2) + '-' + ('0' + t.getDate()).slice(-2); }
+  function load() {
+    if (!Q.init) { Q.init = 1; if (!Q.from && !Q.to && S.boot && S.boot.today) { Q.from = S.boot.today; Q.to = addDays(S.boot.today, 29); Q.last = 0; Q.auto = 1; } }
+    var q = { from: Q.from, to: Q.to }; if (!Q.from && !Q.to) q.last = Q.last || 0;
+    return rpc('qty.list', q).then(function (d) {
+      if (Q.auto && !d.dates.length && d.allCount) { Q.auto = 0; Q.from = Q.to = ''; Q.last = 14; return load(); }
+      Q.auto = 0; Q.d = d; return d;
+    });
+  }
+  window.qtyAhead = function (n) { var t = S.boot.today; Q.from = t; Q.to = addDays(t, n - 1); Q.last = 0; Q.auto = 0; qtyReload(); };
   function visible() {
     var d = Q.d, k = Q.kind, q = nrm(Q.q);
     var items = d.items.filter(function (it) { return (!k || kindAr(it.kind) === k) && (!q || nrm(it.code + ' ' + it.name).indexOf(q) >= 0); });
@@ -2421,7 +2430,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var head2 = '<tr class="qhd"><th class="s1">الكود</th><th class="s2">الصنف</th><th class="s3">النوع</th><th class="s4">الإجمالي<small>كجم / حبة</small></th>' + d.dates.map(function (x) { return '<th class="qdt" onclick="qtyDay(\'' + x + '\',\'d\')" style="cursor:pointer" title="تفاصيل اليوم: ' + h(x) + '"><b>' + h(dayLbl(x)) + '</b><small>' + h(wdName(x)) + '</small></th>'; }).join('') + '</tr>';
     var body = v.items.map(function (it) {
       var gram = isGram(it.unit), kc = kcls(it);
-      return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + (it.lim ? ' <small class="muted">(حد ' + it.lim + (gram ? ' كجم' : ' حبة') + ')</small>' : '') + '</td><td class="s3">' + h(kindAr(it.kind)) + '</td><td class="s4"><b>' + (gram || it.total > 0 ? fmtKg(it.total) : fmtN(it.q.reduce(function (a, b) { return a + b; }, 0)) + ' <small>حبة</small>') + '</b></td>' + it.kg.map(function (x, ci) {
+      return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + (it.lim ? ' <small class="muted">(حد ' + it.lim + (gram ? ' كجم' : ' حبة') + ')</small>' : '') + '</td><td class="s3">' + h(kindAr(it.kind)) + '<small class="qum">' + (gram ? 'جرام' : 'حبة') + '</small></td><td class="s4"><b>' + (gram || it.total > 0 ? fmtKg(it.total) : fmtN(it.q.reduce(function (a, b) { return a + b; }, 0)) + ' <small>حبة</small>') + '</b></td>' + it.kg.map(function (x, ci) {
         var a = x > 0 && mx ? Math.min(.85, .12 + x / mx * .8) : 0, m = gram ? x : it.q[ci], pc = it.lim && m > 0 ? m / it.lim * 100 : 0, cl = pc >= 100 ? ' qo' : pc >= 85 ? ' qw' : '';
         return '<td class="qc' + cl + '"' + (a && !cl ? ' style="background:rgba(var(--qrgb,59,111,200),' + a.toFixed(2) + ')"' : '') + (cl ? ' title="' + (pc >= 100 ? 'وصل الحد الأعلى للصنف' : 'اقتراب من الحد') + ' (' + Math.round(pc) + '% من ' + it.lim + ')"' : '') + '>' + (pc >= 100 ? '⚠ ' : '') + (gram || x > 0 ? fmtG(x) : (it.q[ci] ? '<span class="qpc">' + fmtN(it.q[ci]) + '</span>' : '')) + '</td>';
       }).join('') + '</tr>';
@@ -2617,7 +2626,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   R.qty = function (m) {
     var canUp = can('استيراد_البيانات'), yr = +S.boot.today.slice(0, 4);
     m.innerHTML = (canUp ? '<details class="card" id="qy_up"><summary><b>رفع ملف الكميات اليومية (Excel)</b></summary><p class="muted">الملف بنفس شكل جدولكم: أعمدة Code واسم الصنف وU.M وKind، وبعدها عمود لكل تاريخ بالكمية (جرام أو كيلو حسب عمود الوحدة). صف إجمالي الأيام يُحسب تلقائياً ولا يُقرأ من الملف.</p><div class="grid"><div><label>ملف Excel</label><input id="qy_file" type="file" accept=".xlsx,.xls,.csv" onchange="qtyPick(this)"></div><div><label>السنة (إذا التواريخ بدون سنة مثل 20 October)</label><select id="qy_year" onchange="qtyYear()"><option value="0">حسب التاريخ الحالي</option>' + [yr + 1, yr, yr - 1].map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join('') + '</select></div></div><div id="qy_prev"></div></details>' : '') +
-      '<div class="card"><div class="bar-actions"><b>الفترة:</b>' + [7, 14, 30, 0].map(function (n) { return '<button class="s" onclick="qtyRange(' + n + ')">' + (n ? 'آخر ' + n + ' يوم' : 'كل الأيام') + '</button>'; }).join('') + '<input id="qy_from" type="date" style="max-width:150px"><input id="qy_to" type="date" style="max-width:150px"><button class="s" onclick="qtyCustom()">عرض</button>' + (can('إدارة_الإعدادات') ? '<button class="s" onclick="qtyClear()">حذف المعروض</button>' : '') + '</div></div><div id="qy_body"><div class="spinbox sm"><i class="spin"></i></div></div>';
+      '<div class="card"><div class="bar-actions"><b>الفترة:</b>' + [14, 30, 60].map(function (n) { return '<button class="s" onclick="qtyAhead(' + n + ')">من اليوم ' + n + ' يوم</button>'; }).join('') + [7, 14, 30, 0].map(function (n) { return '<button class="s" onclick="qtyRange(' + n + ')">' + (n ? 'آخر ' + n + ' يوم' : 'كل الأيام') + '</button>'; }).join('') + '<input id="qy_from" type="date" style="max-width:150px"><input id="qy_to" type="date" style="max-width:150px"><button class="s" onclick="qtyCustom()">عرض</button>' + (can('إدارة_الإعدادات') ? '<button class="s" onclick="qtyClear()">حذف المعروض</button>' : '') + '</div></div><div id="qy_body"><div class="spinbox sm"><i class="spin"></i></div></div>';
     return load().then(function () { if (Q.d && Q.d.allCount && !Q.from && $('qy_up')) $('qy_up').open = false; else if ($('qy_up')) $('qy_up').open = true; draw(); });
   };
 
@@ -4967,6 +4976,7 @@ var FX = (function () {
 
 </script>
 <style>
+.qum{display:block;font-size:10px;opacity:.65}
 .qgt{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--brand2,#5d4037);color:#fff;border-radius:12px 12px 0 0;padding:9px 14px;font-weight:700;font-size:14px;margin-top:8px}
 .qgt em{font-style:normal;font-weight:500;font-size:12px;opacity:.85;margin-inline-start:8px}
 .qt.stk thead tr.qhd th{background:var(--brand2,#5d4037)!important;color:#fff!important;font-weight:800;border-bottom:3px solid var(--acc,#b8863b)}
