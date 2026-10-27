@@ -2679,7 +2679,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   function soAgg(aoa) {
     var H = (aoa[0] || []).map(function (x) { return String(x === null || x === undefined ? '' : x).trim(); });
     function ix(n) { return H.indexOf(n); }
-    var c = { st: ix('Workflow State'), id: ix('ID'), dt: ix('Delivery Date Order'), cu: ix('Customer Name'), lo: ix('location'), dep: ix('Deposit'), sup: ix('Supervision'), code: ix('Item Code (Sales Order Item)'), name: ix('Item Name (Sales Order Item)'), q: ix('Quantity (Sales Order Item)'), a: ix('Amount (Sales Order Item)'), cr: ix('CR-Date'), ow: ix('owner') };
+    var c = { st: ix('Workflow State'), id: ix('ID'), dt: ix('Delivery Date Order'), cu: ix('Customer Name'), lo: ix('location'), dep: ix('Deposit'), sup: ix('Supervision'), code: ix('Item Code (Sales Order Item)'), name: ix('Item Name (Sales Order Item)'), q: ix('Quantity (Sales Order Item)'), a: ix('Amount (Sales Order Item)'), cr: (function () { for (var i = 0; i < H.length; i++) { var k = H[i].toLowerCase().replace(/[^a-z0-9]/g, ''); if (k === 'crdate' || k === 'creation' || k === 'creationdate' || k === 'created' || k === 'createdon') return i; } return -1; })(), ow: ix('owner') };
     var miss = []; ['st', 'id', 'dt', 'code', 'q', 'a', 'ow'].forEach(function (k) { if (c[k] < 0) miss.push(k); });
     if (miss.length) throw new Error('الملف ليس تصدير Sales Order من ERPNext: أعمدة ناقصة (' + miss.join('، ') + ')');
     var orders = {}, order = [], items = {}, ratio = {}, res = { rows: 0, test: 0, bad: 0, skipped: 0, states: {} }, testIds = {};
@@ -2701,6 +2701,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     }
     var itemRows = Object.keys(items).map(function (k) { var it = items[k], rt = ratio[it.code.toUpperCase()]; return { date: it.date, code: it.code, name: it.name, qty: Math.round(it.qty * 1000) / 1000, amt: Math.round(it.amt * 100) / 100, orders: it.orders, unit: rt && rt.q > 0 && rt.a / rt.q > 0 ? (rt.a / rt.q < 5 ? 'g' : 'pc') : (/^(CK|LI|PAR|HO)/i.test(it.code) || /^TEMP00[12]$/i.test(it.code) ? 'g' : 'pc') }; });
     var from = '', to = ''; order.forEach(function (o) { o.total = Math.round(o.total * 100) / 100; if (!from || o.date < from) from = o.date; if (!to || o.date > to) to = o.date; });
+    res.crCol = c.cr >= 0; res.crN = order.filter(function (o) { return o.created; }).length;
     return { orders: order, items: itemRows, from: from, to: to, stats: res };
   }
 
@@ -2938,7 +2939,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
           if (!a.orders.length) throw new Error('لا توجد طلبات صالحة في الملف');
           SO.pend = { a: a, file: f.name };
           var sc = a.stats.states, st = Object.keys(sc).map(function (k) { return '<div>' + stTag(k, { 'Delivered': 'تم التوصيل', 'Submit': 'مُعتمدة', 'Ready to deliver': 'جاهزة للتوصيل', 'Draft': 'مسودة', 'Cancel': 'ملغية' }[k]) + ' <b>' + n0(sc[k]) + '</b></div>'; }).join('');
-          msg('<div class="msg ok"><b>جاهز للرفع</b> — ورقة «' + h(pick) + '»<br>' + n0(a.orders.length) + ' طلب من ' + h(a.from) + ' إلى ' + h(a.to) + '، و' + n0(a.items.length) + ' سطر صنف/يوم.' + (a.stats.test ? '<br>استُبعدت ' + a.stats.test + ' فاتورة تجربة (test).' : '') + (a.stats.bad ? '<br>تحذير: ' + a.stats.bad + ' صف بدون تاريخ تسليم تم تجاهله.' : '') + '<div class="so-legend" style="margin-top:6px">' + st + '</div></div><button class="p" style="margin:8px 0 0" onclick="soSend()">اعتماد الرفع (يستبدل الفترة ' + h(a.from) + ' → ' + h(a.to) + ')</button>');
+          msg((a.stats.crN === 0 ? '<div class="msg warn">لم أجد تاريخ إنشاء الفواتير' + (a.stats.crCol ? ' (عمود CR-Date فارغ)' : ' (لا يوجد عمود CR-Date في الملف)') + '، فلن يعمل تبويب «الفواتير المنشأة» لهذا الملف.</div>' : '') + '<div class="msg ok"><b>جاهز للرفع</b> — ورقة «' + h(pick) + '»<br>' + n0(a.orders.length) + ' طلب من ' + h(a.from) + ' إلى ' + h(a.to) + '، و' + n0(a.items.length) + ' سطر صنف/يوم.' + (a.stats.test ? '<br>استُبعدت ' + a.stats.test + ' فاتورة تجربة (test).' : '') + (a.stats.bad ? '<br>تحذير: ' + a.stats.bad + ' صف بدون تاريخ تسليم تم تجاهله.' : '') + '<div class="so-legend" style="margin-top:6px">' + st + '</div></div><button class="p" style="margin:8px 0 0" onclick="soSend()">اعتماد الرفع (يستبدل الفترة ' + h(a.from) + ' → ' + h(a.to) + ')</button>');
         } catch (e) { msg('<div class="msg bad">' + h(e.message) + '</div>'); }
       }, 50);
     };
