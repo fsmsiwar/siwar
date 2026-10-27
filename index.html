@@ -2416,11 +2416,11 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   window.qtyAhead = function (n) { var t = S.boot.today; Q.from = t; Q.to = addDays(t, n - 1); Q.last = 0; Q.auto = 0; qtyReload(); };
   function visible() {
     var d = Q.d, k = Q.kind, q = nrm(Q.q);
-    var items = d.items.filter(function (it) { return (!k || kindAr(it.kind) === k) && (!q || nrm(it.code + ' ' + it.name).indexOf(q) >= 0); });
+    var items = d.items.filter(function (it) { return (!k || kindAr(it.kind) === k) && (!Q.item || String(it.code) === Q.item) && (!q || nrm(it.code + ' ' + it.name).indexOf(q) >= 0); });
     items.sort(function (a, b) { return Q.sort === 'code' ? String(a.code).localeCompare(String(b.code)) : Q.sort === 'name' ? String(a.name).localeCompare(String(b.name), 'ar') : b.total - a.total; });
     if (Q.top > 0) items = items.slice(0, Q.top);
     var sum = function (salt) { return d.dates.map(function (x, i) { return items.reduce(function (s, it) { return s + (!salt || it.salt ? it.kg[i] : 0); }, 0); }); };
-    var plain = !k && !q && !Q.top;
+    var plain = !k && !q && !Q.top && !Q.item;
     return { items: items, dayKg: plain ? d.dayKg.slice() : sum(false), saltKg: plain ? d.saltKg.slice() : sum(true) };
   }
   function matrixHtml(v) {
@@ -2456,7 +2456,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       '<div class="card"><h3>لوحة الأيام</h3><p class="muted">كل بطاقة تلخص يوم: إجمالي الكيلو وعدد التوصيل والإشراف وحبات البيتيت كاتو. اضغط على اليوم لرؤية كل الأصناف وكمياتها.</p>' + dayCards(Q.dm, d.dates, 'd', d.limitDay, d.supMax) + '</div>' +
       '<div class="card"><h3>الكميات بالكيلو لكل يوم</h3><p class="muted">الأيام الحمراء وصلت أو تجاوزت ' + h(String(d.limitDay)) + ' كجم (شامل المالح). الحد يتغير من الإعدادات: حد_الكميات_اليومية_كجم وحد_المالح_اليومي_كجم.</p>' + dayBars(v) + '</div>' +
       '<div class="card"><h3>حسب النوع</h3>' + kindBars(v) + '</div>' +
-      '<div class="card"><h3>الأوزان لكل صنف في كل يوم (جرام)</h3><div class="bar-actions"><input id="qy_q" style="max-width:220px" placeholder="بحث بالكود أو الاسم" value="' + h(Q.q) + '" oninput="qtySet(\'q\',this.value,1)"><select onchange="qtySet(\'kind\',this.value)"><option value="">كل الأنواع</option>' + Object.keys(kinds).map(function (k) { return '<option' + (Q.kind === k ? ' selected' : '') + '>' + h(k) + '</option>'; }).join('') + '</select><select onchange="qtySet(\'sort\',this.value)"><option value="total"' + (Q.sort === 'total' ? ' selected' : '') + '>الأعلى كمية</option><option value="code"' + (Q.sort === 'code' ? ' selected' : '') + '>بالكود</option><option value="name"' + (Q.sort === 'name' ? ' selected' : '') + '>بالاسم</option></select><select onchange="qtySet(\'top\',+this.value)"><option value="0">كل الأصناف</option>' + [10, 20, 50].map(function (n) { return '<option value="' + n + '"' + (Q.top === n ? ' selected' : '') + '>أعلى ' + n + '</option>'; }).join('') + '</select></div><div id="qy_mx">' + matrixHtml(v) + '</div>' + (d.unknown ? '<p class="muted">' + d.unknown + ' سطر بدون وزن معروف لم يدخل في الإجماليات.</p>' : '') + '</div>' +
+      '<div class="card"><h3>الأوزان لكل صنف في كل يوم (جرام)</h3><div class="bar-actions"><input id="qy_q" style="max-width:220px" placeholder="بحث بالكود أو الاسم" value="' + h(Q.q) + '" oninput="qtySet(\'q\',this.value,1)"><select title="عرض صنف واحد فقط" style="max-width:230px" onchange="qtySet(\'item\',this.value,1)"><option value="">كل الأصناف</option>' + d.items.slice().sort(function (a, b) { return String(a.name).localeCompare(String(b.name), 'ar'); }).map(function (it) { return '<option value="' + h(it.code) + '"' + (Q.item === String(it.code) ? ' selected' : '') + '>' + h(it.name) + ' (' + h(it.code) + ')</option>'; }).join('') + '</select><select onchange="qtySet(\'kind\',this.value)"><option value="">كل الأنواع</option>' + Object.keys(kinds).map(function (k) { return '<option' + (Q.kind === k ? ' selected' : '') + '>' + h(k) + '</option>'; }).join('') + '</select><select onchange="qtySet(\'sort\',this.value)"><option value="total"' + (Q.sort === 'total' ? ' selected' : '') + '>الأعلى كمية</option><option value="code"' + (Q.sort === 'code' ? ' selected' : '') + '>بالكود</option><option value="name"' + (Q.sort === 'name' ? ' selected' : '') + '>بالاسم</option></select><select onchange="qtySet(\'top\',+this.value)"><option value="0">كل الأصناف</option>' + [10, 20, 50].map(function (n) { return '<option value="' + n + '"' + (Q.top === n ? ' selected' : '') + '>أعلى ' + n + '</option>'; }).join('') + '</select></div><div id="qy_mx">' + matrixHtml(v) + '</div>' + (d.unknown ? '<p class="muted">' + d.unknown + ' سطر بدون وزن معروف لم يدخل في الإجماليات.</p>' : '') + '</div>' +
       '<div class="card" id="qs_d"><p class="muted">جارٍ تحميل ملخص الفواتير…</p></div>';
     Q.sm.d = Q.sm.d || {}; rpc('qty.linesget', { from: d.dates[0], to: d.dates[d.dates.length - 1] }).then(function (r) { Q.sl.d = r.lines || []; drawSum('d'); }).catch(function (e) { if ($('qs_d')) $('qs_d').innerHTML = '<div class="msg bad">تعذر تحميل ملخص الفواتير: ' + h(e.message) + '</div>'; });
   }
@@ -2517,12 +2517,16 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   window.qtyFull = function (id) { var e = $(id); if (!e) return; e.classList.toggle('full'); }
   Q.kf = {}; Q.pvd = {};
   function pivotHtml(rows, dates, id) { Q.pvd[id] = { rows: rows, dates: dates }; return '<div id="' + id + '_w">' + pivotInner(rows, dates, id) + '</div>'; }
+  window.qtyPF = function (id, v) { (Q.pf = Q.pf || {})[id] = v; var d = Q.pvd[id], w = $(id + '_w'); if (d && w) w.innerHTML = pivotInner(d.rows, d.dates, id); };
   window.qtyKF = function (id, k) { Q.kf[id] = Q.kf[id] === k ? '' : k; var d = Q.pvd[id], w = $(id + '_w'); if (d && w) w.innerHTML = pivotInner(d.rows, d.dates, id); };
   function pivotInner(rows, dates, id) {
     var items = {}, order = [], kf = Q.kf[id] || '';
     rows.forEach(function (r) { var k = String(r.code).toUpperCase(); var it = items[k]; if (!it) { it = items[k] = { code: r.code, name: r.name, unit: r.unit, kind: r.kind, q: {}, tot: 0, mx: 0 }; order.push(k); } it.q[r.date] = (it.q[r.date] || 0) + r.qty; it.tot += r.qty; if (!it.name) it.name = r.name; });
     order.sort(function (a, b) { return String(items[a].code).localeCompare(String(items[b].code)); });
+    var pf = (Q.pf = Q.pf || {})[id] || '';
+    var allOrder = order.slice();
     if (kf) order = order.filter(function (k) { return kcls(items[k]) === kf; });
+    if (pf) order = order.filter(function (k) { return k === pf; });
     order.forEach(function (k) { var it = items[k]; dates.forEach(function (x) { if ((it.q[x] || 0) > it.mx) it.mx = it.q[x]; }); });
     var head = '<tr><th class="s1">الكود</th><th class="s2">الصنف</th><th class="s3">الوحدة</th><th class="s4">الإجمالي</th>' + dates.map(function (x) { return '<th onclick="qtyDay(\'' + x + '\',\'p\')" style="cursor:pointer" title="تفاصيل اليوم">' + h(dayLbl(x)) + '<br><small>' + h(wdOf(x)) + '</small></th>'; }).join('') + '</tr>';
     var dk = {}, dp = {}; order.forEach(function (k) { var it = items[k], kc = kcls(it); if (kc === 'sv') return; dates.forEach(function (x) { var q = it.q[x] || 0; if (!q) return; if (kc === 'pt' && !isGram(it.unit)) dp[x] = (dp[x] || 0) + q; else if (isGram(it.unit)) dk[x] = (dk[x] || 0) + q / 1000; }); });
@@ -2533,7 +2537,8 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + '</td><td class="s3">' + h(isGram(it.unit) ? 'جرام' : 'حبة') + '</td><td class="s4"><b>' + n0q(it.tot) + '</b></td>' + dates.map(function (x) { var q = it.q[x]; return '<td class="qc"' + (q && rgb ? ' style="background:rgba(' + rgb + ',' + (.14 + .6 * q / (it.mx || 1)).toFixed(2) + ')"' : '') + '>' + (q ? n0q(q) : '') + '</td>'; }).join('') + '</tr>';
     }).join('');
     var lg = [['ch', 'شوكولاتة'], ['sl', 'مالح'], ['pt', 'بيتيت كاتو'], ['sv', 'خدمات'], ['bx', 'بوكسات']].map(function (x) { return '<button type="button" class="k-' + x[0] + (kf === x[0] ? ' on' : '') + '" onclick="qtyKF(\'' + id + '\',\'' + x[0] + '\')">' + (kf === x[0] ? '✔ ' : '') + x[1] + '</button>'; }).join('');
-    return '<div class="qlg">' + lg + (kf ? '<button type="button" class="qall" onclick="qtyKF(\'' + id + '\',\'' + kf + '\')">عرض الكل</button>' : '') + '<span class="muted" style="font-size:12px">اضغط على نوع لعرضه وحده وإجماليه</span></div>' +
+    var isel = '<select style="max-width:230px;margin-inline-start:6px" title="عرض صنف واحد فقط" onchange="qtyPF(\'' + id + '\',this.value)"><option value="">كل الأصناف</option>' + allOrder.slice().sort(function (a, b) { return String(items[a].name).localeCompare(String(items[b].name), 'ar'); }).map(function (k) { return '<option value="' + h(k) + '"' + (pf === k ? ' selected' : '') + '>' + h(items[k].name) + ' (' + h(items[k].code) + ')</option>'; }).join('') + '</select>';
+    return '<div class="qlg">' + lg + isel + (kf ? '<button type="button" class="qall" onclick="qtyKF(\'' + id + '\',\'' + kf + '\')">عرض الكل</button>' : '') + '<span class="muted" style="font-size:12px">اضغط على نوع لعرضه وحده وإجماليه</span></div>' +
       '<div class="qpv" id="' + id + '"><button type="button" class="s qfb" onclick="qtyFull(\'' + id + '\')">تكبير / تصغير</button><table class="qt stk"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>';
   }
   /* ---------- ملخص الفواتير: أيام، فواتير، توصيل، إشراف، بيتيت، مالح/حالي، قيمة (مع فلتر التاريخ والحالة) ---------- */
@@ -2710,7 +2715,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     return { from: f, to: e };
   }
   var PERS = [['day', 'اليوم'], ['7', 'آخر 7 أيام'], ['30', 'آخر 30 يوم'], ['month', 'هذا الشهر'], ['pm', 'الشهر الماضي'], ['year', 'هذه السنة'], ['all', 'كل البيانات']];
-  var TABS = [['ov', 'النظرة العامة'], ['it', 'الأصناف'], ['em', 'الموظفون'], ['cx', 'الطلبات الملغاة']];
+  var TABS = [['ov', 'النظرة العامة'], ['it', 'الأصناف'], ['em', 'الموظفون'], ['cx', 'الطلبات الملغاة'], ['mr', 'التقرير الشهري']];
 
   R.sales = function (m) {
     return rpc('so.status', {}).then(function (st) { SO.st = st; return loadTab().then(function () { draw(m); }); });
@@ -2721,6 +2726,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     if (SO.tab === 'ov') return rpc('so.dash', base).then(function (d) { SO.d.ov = d; });
     if (SO.tab === 'it') return rpc('so.items', { from: r.from, to: r.to, gran: SO.gran, kind: SO.kind, q: SO.q, by: SO.by, top: 25 }).then(function (d) { SO.d.it = d; });
     if (SO.tab === 'em') return rpc('so.emps', { from: r.from, to: r.to, withExcluded: SO.ex }).then(function (d) { SO.d.em = d; });
+    if (SO.tab === 'mr') return rpc('so.monthly', { year: SO.myear || '', withExcluded: SO.ex }).then(function (d) { SO.d.mr = d; });
     return rpc('so.cancels', { from: r.from, to: r.to, email: SO.emp, withExcluded: SO.ex }).then(function (d) { SO.d.cx = d; });
   }
   function head() {
@@ -2729,14 +2735,14 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       (can('استيراد_البيانات') ? '<button class="p" style="margin:0" onclick="soUploadOpen()">رفع ملف الطلبات</button>' : '') + '</div>' +
       '<p class="muted" style="margin:6px 0 0">' + (st && st.orders ? 'البيانات: ' + n0(st.orders) + ' طلب من ' + h(st.from) + ' إلى ' + h(st.to) + (st.meta && st.meta.incomplete ? ' <b class="so-c">⚠ رفع سابق لم يكتمل: أعد رفع الملف</b>' : '') + (st.meta && st.meta.at ? ' — آخر رفع ' + h(st.meta.at) + ' بواسطة ' + h(st.meta.by) + (st.meta.test ? ' (استُبعدت ' + st.meta.test + ' فاتورة تجربة)' : '') : '') : 'لا توجد بيانات بعد. ارفع تصدير Sales Order من ERPNext.') + '</p>' +
       '<details id="so_up" style="margin-top:8px"><summary>رفع ملف طلبات جديد</summary><div style="padding:8px 0"><p class="muted">ارفع ملف Excel الخام (ورقة Sales Order) كما يخرج من ERPNext. تُحسب الأيام حسب تاريخ التسليم. الرفع يستبدل الفترة التي يغطيها الملف ولا يكرر أي طلب، فارفع ملفاً يغطي الفترة كاملة (من أول طلب لآخر طلب) حتى لا تبقى أصناف قديمة لطلبات تغيّر تاريخها. يُستبعد تلقائياً عملاء التجربة (test).</p><input type="file" id="so_f" accept=".xlsx,.xls" onchange="soPick(this)"><div id="so_msg" style="margin-top:8px"></div></div></details>' +
-      '<div class="sub" style="margin-top:10px">' + PERS.map(function (x) { return '<button class="s ' + (SO.p === x[0] ? 'on' : '') + '" onclick="soPer(\'' + x[0] + '\')">' + x[1] + '</button>'; }).join('') + '</div>' +
+      (SO.tab === 'mr' ? '' : '<div class="sub" style="margin-top:10px">' + PERS.map(function (x) { return '<button class="s ' + (SO.p === x[0] ? 'on' : '') + '" onclick="soPer(\'' + x[0] + '\')">' + x[1] + '</button>'; }).join('') + '</div>' +
       '<div class="bar-actions" style="margin-top:6px"><label>من</label><input type="date" id="so_from" style="max-width:150px" value="' + h(r.from) + '" onchange="soCustom()"><label>إلى</label><input type="date" id="so_to" style="max-width:150px" value="' + h(r.to) + '" onchange="soCustom()">' +
-      (SO.tab === 'ov' || SO.tab === 'it' ? '<label>التجميع</label><select onchange="soGran(this.value)" style="max-width:120px">' + opts([{ v: 'day', l: 'يومي' }, { v: 'week', l: 'أسبوعي' }, { v: 'month', l: 'شهري' }], SO.gran) + '</select>' : '') + '</div>' +
+      (SO.tab === 'ov' || SO.tab === 'it' ? '<label>التجميع</label><select onchange="soGran(this.value)" style="max-width:120px">' + opts([{ v: 'day', l: 'يومي' }, { v: 'week', l: 'أسبوعي' }, { v: 'month', l: 'شهري' }], SO.gran) + '</select>' : '') + '</div>' ) +
       '<div class="sub" style="margin-top:8px">' + TABS.map(function (x) { return '<button class="s ' + (SO.tab === x[0] ? 'on' : '') + '" onclick="soTab(\'' + x[0] + '\')">' + x[1] + '</button>'; }).join('') + '</div></div>';
   }
   function draw(m) {
     if (!SO.st || !SO.st.orders) { m.innerHTML = head(); return; }
-    m.innerHTML = head() + '<div id="so_body">' + ({ ov: ovHtml, it: itHtml, em: emHtml, cx: cxHtml }[SO.tab])() + '</div>';
+    m.innerHTML = head() + '<div id="so_body">' + ({ ov: ovHtml, it: itHtml, em: emHtml, cx: cxHtml, mr: mrHtml }[SO.tab])() + '</div>';
   }
   window.soPer = function (p) { SO.p = p; go('sales'); };
   window.soCustom = function () { SO.p = 'c'; SO.from = val('so_from'); SO.to = val('so_to'); if (SO.from && SO.to) go('sales'); };
@@ -2814,6 +2820,50 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       (d.rows.map(function (r) { return '<tr><td>' + h(r.id) + '</td><td>' + h(r.date) + '</td><td>' + h(r.created) + '</td><td class="qn">' + h(r.emp) + '</td><td>' + h(r.loc) + '</td><td class="so-c"><b>' + money(r.amt) + '</b>' + (r.amt >= 100000 ? ' <span class="tag warn">قيمة غير معتادة</span>' : '') + '</td></tr>'; }).join('') || '<tr><td colspan="6" class="muted">لا توجد فواتير ملغاة</td></tr>') + '</tbody></table></div>' + (d.total > d.rows.length ? '<p class="muted">يعرض أعلى ' + d.rows.length + ' فاتورة بالقيمة من ' + n0(d.total) + '.</p>' : '') + '</div>';
   }
 
+  /* ---- التقرير الشهري ---- */
+  var MRK = [['الحالي', 'الشوكولاتة (الحالي)'], ['المالح', 'المالح'], ['بيتيت كاتو', 'بيتيت كاتو'], ['بوكسات', 'البوكسات']];
+  var MON = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  function monName(k) { return k === 'ALL' ? 'كل السنة' : (MON[+k.slice(5, 7) - 1] + ' ' + k.slice(0, 4)); }
+  function mrSel() {
+    var d = SO.d.mr; if (!d) return null;
+    if (SO.mk === 'ALL') return { cur: d.all, prev: null, k: 'ALL' };
+    var ks = d.months.map(function (x) { return x.k; }), k = SO.mk && ks.indexOf(SO.mk) >= 0 ? SO.mk : (ks.indexOf(S.boot.today.slice(0, 7)) >= 0 ? S.boot.today.slice(0, 7) : ks[0]);
+    var i = ks.indexOf(k); return { cur: d.months[i], prev: d.months[i + 1] || null, k: k };
+  }
+  function mrPeriod(c, p) {
+    var rows = [['عدد الطلبات', c.orders, p && p.orders], ['إجمالي المبيعات (ريال)', c.total, p && p.total], ['متوسط الفاتورة', c.avg, p && p.avg], ['فواتير التوصيل', c.delivN, p && p.delivN], ['قيمة التوصيل', c.delivAmt, p && p.delivAmt], ['فواتير الإشراف', c.supN, p && p.supN], ['قيمة الإشراف', c.supAmt, p && p.supAmt], ['فواتير الإيجار', c.rentN, p && p.rentN], ['فواتير ملغاة', c.cancelN, p && p.cancelN], ['قيمة الملغاة', c.cancelAmt, p && p.cancelAmt], ['كجم (حالي + مالح)', c.kg, p && p.kg], ['حبات بيتيت كاتو', c.petit, p && p.petit]];
+    return rows;
+  }
+  function mrHtml() {
+    var d = SO.d.mr, s = mrSel();
+    var yrs = '<select onchange="soMrYear(this.value)" style="max-width:110px">' + opts(d.years, d.year, 'كل السنوات') + '</select>';
+    var mos = '<select onchange="soMrMon(this.value)" style="max-width:190px">' + d.months.map(function (x) { return '<option value="' + x.k + '"' + (s && s.k === x.k ? ' selected' : '') + '>' + h(monName(x.k)) + '</option>'; }).join('') + '<option value="ALL"' + (s && s.k === 'ALL' ? ' selected' : '') + '>إجمالي ' + (d.year ? d.year : 'كل الفترة') + '</option></select>';
+    var bar = '<div class="card"><div class="bar-actions"><label>السنة</label>' + yrs + '<label>الشهر</label>' + mos + '<button class="s" onclick="soMrPrint()">طباعة / PDF</button><button class="s" onclick="soMrXls()">تنزيل Excel</button></div><p class="muted" style="margin:6px 0 0">محسوب من الطلبات المعتمدة والمسلّمة، والملغاة تُحسب منفصلة. أسماء الموظفين من بريد منشئ الطلب (جدول الموظفين).</p></div>';
+    if (!s || !s.cur) return bar + '<div class="card"><p class="muted">لا توجد بيانات لهذه الفترة.</p></div>';
+    var c = s.cur, p = s.prev;
+    var kp = '<div class="grid">' + mrPeriod(c, p).map(function (r) { return '<div class="kpi' + (/ملغاة|الملغاة/.test(r[0]) ? ' bad' : '') + '"><small>' + h(r[0]) + '</small><b>' + n1(r[1]) + '</b>' + (p ? delta(r[1], r[2]) : '') + '</div>'; }).join('') + '</div>';
+    var tops = MRK.map(function (kk) {
+      var a = c.tops[kk[0]] || [];
+      return '<div class="card"><h3>أكثر ' + h(kk[1]) + ' مبيعًا — ' + h(monName(s.k)) + '</h3>' + (a.length ? '<div class="tw qtw"><table class="qt"><thead><tr><th>#</th><th class="qn">الصنف</th><th>الكمية</th><th>المبلغ</th></tr></thead><tbody>' + a.map(function (x, i) { return '<tr><td>' + (i + 1) + '</td><td class="qn">' + h(x.name) + ' <small class="muted">' + h(x.code) + '</small></td><td><b>' + n1(x.qty) + '</b> ' + h(x.unit) + '</td><td>' + money(x.amt) + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<p class="muted">لا توجد مبيعات.</p>') + '</div>';
+    }).join('');
+    var em = '<div class="card"><h3>الموظفون ومبيعاتهم بالترتيب</h3>' + (c.emps.length ? '<div class="tw qtw"><table class="qt"><thead><tr><th>#</th><th class="qn">الموظف</th><th>الفواتير</th><th>المبيعات</th><th>المتوسط</th><th>ملغاة</th><th>قيمة الملغاة</th></tr></thead><tbody>' + c.emps.map(function (x, i) { return '<tr><td>' + (i + 1) + '</td><td class="qn">' + h(x.name) + '</td><td>' + n0(x.orders) + '</td><td><b>' + money(x.sales) + '</b></td><td>' + money(x.avg) + '</td><td class="' + (x.cancelN ? 'so-c' : '') + '">' + n0(x.cancelN) + '</td><td>' + money(x.cancelAmt) + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<p class="muted">لا يوجد.</p>') + '</div>';
+    var cx = '<div class="card"><h3>الفواتير الملغاة (' + n0(c.cancelN) + ' — ' + money(c.cancelAmt) + ' ريال)</h3>' + (c.cancels.length ? '<div class="tw qtw"><table class="qt"><thead><tr><th>الطلب</th><th>التاريخ</th><th class="qn">الموظف</th><th>المنطقة</th><th>القيمة</th></tr></thead><tbody>' + c.cancels.map(function (x) { return '<tr><td>' + h(x.id) + '</td><td>' + h(x.date) + '</td><td class="qn">' + h(x.emp) + '</td><td>' + h(x.loc) + '</td><td class="so-c"><b>' + money(x.amt) + '</b></td></tr>'; }).join('') + '</tbody></table></div>' : '<p class="muted">لا توجد فواتير ملغاة.</p>') + '</div>';
+    var all = '<div class="card"><h3>ملخص كل الأشهر</h3><div class="tw qtw"><table class="qt"><thead><tr><th class="qn">الشهر</th><th>الطلبات</th><th>المبيعات</th><th>توصيل</th><th>إشراف</th><th>ملغاة</th><th>قيمة الملغاة</th><th>كجم</th><th>بيتيت (حبة)</th><th class="qn">الأول مبيعًا (شوكولاتة)</th></tr></thead><tbody>' + d.months.map(function (x) { var t = (x.tops['الحالي'] || [])[0]; return '<tr' + (x.k === s.k ? ' style="font-weight:700"' : '') + '><td class="qn"><a href="#" onclick="soMrMon(\'' + x.k + '\');return false">' + h(monName(x.k)) + '</a></td><td>' + n0(x.orders) + '</td><td>' + money(x.total) + '</td><td>' + n0(x.delivN) + '</td><td>' + n0(x.supN) + '</td><td class="so-c">' + n0(x.cancelN) + '</td><td>' + money(x.cancelAmt) + '</td><td>' + n1(x.kg) + '</td><td>' + n1(x.petit) + '</td><td class="qn">' + (t ? h(t.name) : '-') + '</td></tr>'; }).join('') + (d.all ? '<tr style="font-weight:700"><td class="qn">الإجمالي</td><td>' + n0(d.all.orders) + '</td><td>' + money(d.all.total) + '</td><td>' + n0(d.all.delivN) + '</td><td>' + n0(d.all.supN) + '</td><td class="so-c">' + n0(d.all.cancelN) + '</td><td>' + money(d.all.cancelAmt) + '</td><td>' + n1(d.all.kg) + '</td><td>' + n1(d.all.petit) + '</td><td></td></tr>' : '') + '</tbody></table></div></div>';
+    return bar + '<div class="card"><h3>ملخص ' + h(monName(s.k)) + (p ? ' <small class="muted">(المقارنة مع ' + h(monName(p.k)) + ')</small>' : '') + '</h3>' + kp + '</div>' + tops + em + cx + all;
+  }
+  window.soMrYear = function (v) { SO.myear = v; SO.mk = ''; go('sales'); };
+  window.soMrMon = function (v) { SO.mk = v; var d = SO.d.mr; if (d) { SO.d.mr = d; } go('sales'); };
+  window.soMrPrint = function () { var e = $('so_body'); if (e) printHtml('التقرير الشهري — ' + monName(mrSel().k), e.innerHTML); };
+  window.soMrXls = function () {
+    var d = SO.d.mr, s = mrSel(); if (!s || !s.cur) return; var c = s.cur, sheets = [];
+    sheets.push({ name: 'الملخص', head: ['البند', 'القيمة'], rows: mrPeriod(c, null).map(function (r) { return [r[0], r[1]]; }) });
+    MRK.forEach(function (kk) { sheets.push({ name: kk[1], head: ['#', 'الصنف', 'الكود', 'الكمية', 'الوحدة', 'المبلغ'], rows: (c.tops[kk[0]] || []).map(function (x, i) { return [i + 1, x.name, x.code, x.qty, x.unit, x.amt]; }) }); });
+    sheets.push({ name: 'الموظفون', head: ['#', 'الموظف', 'الفواتير', 'المبيعات', 'المتوسط', 'ملغاة', 'قيمة الملغاة'], rows: c.emps.map(function (x, i) { return [i + 1, x.name, x.orders, x.sales, x.avg, x.cancelN, x.cancelAmt]; }) });
+    sheets.push({ name: 'الملغاة', head: ['الطلب', 'التاريخ', 'الموظف', 'المنطقة', 'القيمة'], rows: c.cancels.map(function (x) { return [x.id, x.date, x.emp, x.loc, x.amt]; }) });
+    sheets.push({ name: 'كل الأشهر', head: ['الشهر', 'الطلبات', 'المبيعات', 'توصيل', 'إشراف', 'ملغاة', 'قيمة الملغاة', 'كجم', 'بيتيت'], rows: d.months.map(function (x) { return [x.k, x.orders, x.total, x.delivN, x.supN, x.cancelN, x.cancelAmt, x.kg, x.petit]; }) });
+    xlsxOut(sheets, 'تقرير_' + s.k);
+  };
+
   /* ---- الرفع ---- */
   function msg(html) { var e = $('so_msg'); if (e) e.innerHTML = html; }
   window.soPick = function (inp) {
@@ -2888,7 +2938,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
 
   /* ---------- كاش القراءات: يعيد النتيجة فوراً ويحدّثها بصمت ---------- */
   var RC = {}, TTL = 180000, REFRESH = 15000;
-  var READ = /^(dashboard|capacity\.matrix|search|bootstrap2?|report\.items|report\.sales|data\.sets|dash\.daily|erp\.status|table\.list|team\.today|emp\.profile|shift\.week|sku\.analysis|qty\.list|efile\.list|file\.list|empt\.list|booking\.list|cash\.list|cash\.preview|tasks\.today|notes\.list|supply\.list|waste\.list|leaves\.list|taste\.list|[a-z]+\.(week|report|history|analysis|dash|items|emps|cancels|status|matrix))$|^(chk\.get|mod\.list|so\.status)$/;
+  var READ = /^(dashboard|capacity\.matrix|search|bootstrap2?|report\.items|report\.sales|data\.sets|dash\.daily|erp\.status|table\.list|team\.today|emp\.profile|shift\.week|sku\.analysis|qty\.list|efile\.list|file\.list|empt\.list|booking\.list|cash\.list|cash\.preview|tasks\.today|notes\.list|supply\.list|waste\.list|leaves\.list|taste\.list|[a-z]+\.(week|report|history|analysis|dash|items|emps|cancels|status|matrix|monthly))$|^(chk\.get|mod\.list|so\.status)$/;
   var NOCACHE = /^(log\.recent|alerts\.list|file\.get|efile\.get|booking\.get|bin\.list|bin\.peek|backup\.list|ai\.status)$/;
   var base = rpc;
   /* دمج القراءات المتزامنة في طلب واحد للخادم (يوفّر مصادقة وذهاباً وإياباً) */
