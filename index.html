@@ -2732,7 +2732,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     return { from: f, to: e };
   }
   var PERS = [['day', 'اليوم'], ['7', 'آخر 7 أيام'], ['30', 'آخر 30 يوم'], ['month', 'هذا الشهر'], ['pm', 'الشهر الماضي'], ['year', 'هذه السنة'], ['all', 'كل البيانات']];
-  var TABS = [['ov', 'النظرة العامة'], ['it', 'الأصناف'], ['em', 'الموظفون'], ['cx', 'الطلبات الملغاة'], ['mr', 'التقرير الشهري']];
+  var TABS = [['ov', 'النظرة العامة'], ['it', 'الأصناف'], ['em', 'الموظفون'], ['cx', 'الطلبات الملغاة'], ['mr', 'التقرير الشهري'], ['cr', 'الفواتير المنشأة']];
 
   R.sales = function (m) {
     return rpc('so.status', {}).then(function (st) { SO.st = st; return loadTab().then(function () { draw(m); }); });
@@ -2743,6 +2743,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     if (SO.tab === 'ov') return rpc('so.dash', base).then(function (d) { SO.d.ov = d; });
     if (SO.tab === 'it') return rpc('so.items', { from: r.from, to: r.to, gran: SO.gran, kind: SO.kind, q: SO.q, by: SO.by, top: 25 }).then(function (d) { SO.d.it = d; });
     if (SO.tab === 'em') return rpc('so.emps', { from: r.from, to: r.to, withExcluded: SO.ex }).then(function (d) { SO.d.em = d; });
+    if (SO.tab === 'cr') return rpc('so.created', { date: SO.cd || '', onlyValid: !!SO.conly, withExcluded: SO.ex }).then(function (d) { SO.d.cr = d; });
     if (SO.tab === 'mr') return rpc('so.monthly', { year: SO.myear || '', withExcluded: SO.ex }).then(function (d) { SO.d.mr = d; });
     return rpc('so.cancels', { from: r.from, to: r.to, email: SO.emp, withExcluded: SO.ex }).then(function (d) { SO.d.cx = d; });
   }
@@ -2752,14 +2753,14 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       (can('استيراد_البيانات') ? '<button class="p" style="margin:0" onclick="soUploadOpen()">رفع ملف الطلبات</button>' : '') + '</div>' +
       '<p class="muted" style="margin:6px 0 0">' + (st && st.orders ? 'البيانات: ' + n0(st.orders) + ' طلب من ' + h(st.from) + ' إلى ' + h(st.to) + (st.meta && st.meta.incomplete ? ' <b class="so-c">⚠ رفع سابق لم يكتمل: أعد رفع الملف</b>' : '') + (st.meta && st.meta.at ? ' — آخر رفع ' + h(st.meta.at) + ' بواسطة ' + h(st.meta.by) + (st.meta.test ? ' (استُبعدت ' + st.meta.test + ' فاتورة تجربة)' : '') : '') : 'لا توجد بيانات بعد. ارفع تصدير Sales Order من ERPNext.') + '</p>' +
       '<details id="so_up" style="margin-top:8px"><summary>رفع ملف طلبات جديد</summary><div style="padding:8px 0"><p class="muted">ارفع ملف Excel الخام (ورقة Sales Order) كما يخرج من ERPNext. تُحسب الأيام حسب تاريخ التسليم. الرفع يستبدل الفترة التي يغطيها الملف ولا يكرر أي طلب، فارفع ملفاً يغطي الفترة كاملة (من أول طلب لآخر طلب) حتى لا تبقى أصناف قديمة لطلبات تغيّر تاريخها. يُستبعد تلقائياً عملاء التجربة (test).</p><input type="file" id="so_f" accept=".xlsx,.xls" onchange="soPick(this)"><div id="so_msg" style="margin-top:8px"></div></div></details>' +
-      (SO.tab === 'mr' ? '' : '<div class="sub" style="margin-top:10px">' + PERS.map(function (x) { return '<button class="s ' + (SO.p === x[0] ? 'on' : '') + '" onclick="soPer(\'' + x[0] + '\')">' + x[1] + '</button>'; }).join('') + '</div>' +
+      (SO.tab === 'mr' || SO.tab === 'cr' ? '' : '<div class="sub" style="margin-top:10px">' + PERS.map(function (x) { return '<button class="s ' + (SO.p === x[0] ? 'on' : '') + '" onclick="soPer(\'' + x[0] + '\')">' + x[1] + '</button>'; }).join('') + '</div>' +
       '<div class="bar-actions" style="margin-top:6px"><label>من</label><input type="date" id="so_from" style="max-width:150px" value="' + h(r.from) + '" onchange="soCustom()"><label>إلى</label><input type="date" id="so_to" style="max-width:150px" value="' + h(r.to) + '" onchange="soCustom()">' +
       (SO.tab === 'ov' || SO.tab === 'it' ? '<label>التجميع</label><select onchange="soGran(this.value)" style="max-width:120px">' + opts([{ v: 'day', l: 'يومي' }, { v: 'week', l: 'أسبوعي' }, { v: 'month', l: 'شهري' }], SO.gran) + '</select>' : '') + '</div>' ) +
       '<div class="sub" style="margin-top:8px">' + TABS.map(function (x) { return '<button class="s ' + (SO.tab === x[0] ? 'on' : '') + '" onclick="soTab(\'' + x[0] + '\')">' + x[1] + '</button>'; }).join('') + '</div></div>';
   }
   function draw(m) {
     if (!SO.st || !SO.st.orders) { m.innerHTML = head(); return; }
-    m.innerHTML = head() + '<div id="so_body">' + ({ ov: ovHtml, it: itHtml, em: emHtml, cx: cxHtml, mr: mrHtml }[SO.tab])() + '</div>';
+    m.innerHTML = head() + '<div id="so_body">' + ({ ov: ovHtml, it: itHtml, em: emHtml, cx: cxHtml, mr: mrHtml, cr: crHtml }[SO.tab])() + '</div>';
   }
   window.soPer = function (p) { SO.p = p; go('sales'); };
   window.soCustom = function () { SO.p = 'c'; SO.from = val('so_from'); SO.to = val('so_to'); if (SO.from && SO.to) go('sales'); };
@@ -2881,6 +2882,41 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     xlsxOut(sheets, 'تقرير_' + s.k);
   };
 
+  /* ---- الفواتير المنشأة (حسب تاريخ الإنشاء) ---- */
+  var WD = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+  function wdOf(s) { return WD[parseIso(s).getDay()]; }
+  var STAR = { 'Delivered': 'تم التوصيل', 'Submit': 'مُعتمدة', 'Ready to deliver': 'جاهزة للتوصيل', 'Draft': 'مسودة', 'Cancel': 'ملغاة' };
+  function crDay(x, title) {
+    var rows = x.byEmp.map(function (b) { return '<tr><td class="qn">' + h(b.name) + '</td><td><b>' + n0(b.n) + '</b></td><td>' + n0(b.valid) + '</td><td class="' + (b.cancel ? 'so-c' : '') + '">' + n0(b.cancel) + '</td><td>' + n0(b.draft) + '</td><td>' + money(b.sales) + '</td></tr>'; }).join('');
+    var det = x.list.map(function (o) { return '<tr><td>' + h(o.id) + '</td><td class="qn">' + h(o.emp) + '</td><td>' + stTag(o.state, STAR[o.state]) + '</td><td>' + h(o.loc || '') + '</td><td>' + h(o.delivery || '') + '</td><td>' + money(o.amt) + '</td></tr>'; }).join('');
+    return '<div class="card"><h3>' + h(title) + ' — ' + h(wdOf(x.date)) + ' ' + h(x.date) + '</h3>' +
+      '<div class="grid">' + kpi('فواتير أُنشئت', n0(x.total)) + kpi('معتمدة/مسلّمة', n0(x.valid)) + kpi('ملغاة', n0(x.cancel), x.cancel ? 'bad' : '') + kpi('مسودات', n0(x.draft)) + kpi('قيمة المعتمدة', money(x.sales)) + '</div>' +
+      (x.total ? '<div class="tw qtw"><table class="qt"><thead><tr><th class="qn">الموظف</th><th>الفواتير</th><th>معتمدة</th><th>ملغاة</th><th>مسودة</th><th>القيمة</th></tr></thead><tbody>' + rows + '</tbody></table></div>' +
+        '<details style="margin-top:8px"><summary>تفاصيل الفواتير (' + n0(x.list.length) + ')</summary><div class="tw qtw"><table class="qt"><thead><tr><th>رقم الطلب</th><th class="qn">الموظف</th><th>الحالة</th><th>المنطقة</th><th>تاريخ التسليم</th><th>القيمة</th></tr></thead><tbody>' + det + '</tbody></table></div></details>' : '<p class="muted">لا توجد فواتير أُنشئت في هذا اليوم.</p>') + '</div>';
+  }
+  function crHtml() {
+    var d = SO.d.cr, M = d.month, td = S.boot.today;
+    var bar = '<div class="card"><div class="bar-actions"><label>التاريخ</label><input type="date" value="' + h(d.date) + '" onchange="soCrDate(this.value)" style="max-width:160px"><button class="s" onclick="soCrDate(\'' + td + '\')">اليوم</button><button class="s" onclick="soCrDate(\'' + addD(td, -1) + '\')">أمس</button><button class="s" onclick="soCrDate(addD(\'' + d.date + '\',-30))">◀ شهر سابق</button><button class="s" onclick="soCrDate(addD(\'' + d.date + '\',30))">شهر لاحق ▶</button>' +
+      '<label><input type="checkbox" ' + (SO.conly ? 'checked' : '') + ' onchange="soCrOnly(this.checked)"> المعتمدة فقط في جدول الشهر</label><label><input type="checkbox" ' + (SO.ex ? 'checked' : '') + ' onchange="soEx(this.checked)"> الحسابات المستثناة</label><button class="s" onclick="soCrPrint()">طباعة / PDF</button><button class="s" onclick="soCrXls()">تنزيل Excel</button></div>' +
+      '<p class="muted" style="margin:6px 0 0">الحساب حسب تاريخ إنشاء الفاتورة (وليس تاريخ التسليم). اليوم والأمس لكل موظف أدناه، ثم جدول الشهر.</p></div>';
+    var mx = 0; M.emps.forEach(function (e) { e.perDay.forEach(function (x) { if (x > mx) mx = x; }); });
+    var head = '<tr><th class="qn s2">الموظف</th>' + M.dates.map(function (x) { var wd = parseIso(x).getDay(); return '<th title="' + h(wdOf(x)) + ' ' + h(x) + '" style="min-width:30px;' + (wd === 5 ? 'color:var(--bad)' : '') + (x === d.date ? ';background:var(--acc);color:#2a1d17' : '') + '">' + (+x.slice(8)) + '</th>'; }).join('') + '<th>الإجمالي</th></tr>';
+    var body = M.emps.map(function (e) { return '<tr><td class="qn s2"><b>' + h(e.name) + '</b></td>' + e.perDay.map(function (x) { return '<td style="text-align:center;' + (x ? 'background:rgba(184,134,59,' + (0.12 + 0.5 * x / (mx || 1)).toFixed(2) + ');font-weight:600' : 'color:var(--mut);opacity:.45') + '">' + (x || '·') + '</td>'; }).join('') + '<td style="text-align:center"><b>' + n0(e.total) + '</b></td></tr>'; }).join('');
+    var foot = '<tr style="font-weight:700;background:var(--soft)"><td class="qn s2">الإجمالي</td>' + M.dayTotals.map(function (x) { return '<td style="text-align:center">' + (x || '·') + '</td>'; }).join('') + '<td style="text-align:center">' + n0(M.total) + '</td></tr>';
+    var tbl = '<div class="card"><h3>جدول ' + h(monName(M.k)) + ' — عدد الفواتير لكل موظف في كل يوم' + (M.onlyValid ? ' (المعتمدة فقط)' : ' (كل الفواتير المنشأة)') + '</h3>' +
+      (M.emps.length ? '<div class="tw qtw"><table class="qt" id="cr_tbl"><thead>' + head + '</thead><tbody>' + body + foot + '</tbody></table></div>' : '<p class="muted">لا توجد فواتير في هذا الشهر.</p>') + '</div>';
+    return bar + crDay(d.days[0], d.date === td ? 'اليوم' : 'اليوم المحدد') + crDay(d.days[1], 'اليوم السابق') + tbl;
+  }
+  window.soCrDate = function (v) { if (!v) return; SO.cd = v; go('sales'); };
+  window.soCrOnly = function (v) { SO.conly = v; go('sales'); };
+  window.soCrPrint = function () { var e = $('so_body'); if (e) printHtml('الفواتير المنشأة — ' + (SO.d.cr ? SO.d.cr.date : ''), e.innerHTML); };
+  window.soCrXls = function () {
+    var d = SO.d.cr; if (!d) return; var M = d.month, sheets = [];
+    sheets.push({ name: 'جدول الشهر', head: ['الموظف'].concat(M.dates.map(function (x) { return x.slice(8); }), ['الإجمالي']), rows: M.emps.map(function (e) { return [e.name].concat(e.perDay, [e.total]); }).concat([['الإجمالي'].concat(M.dayTotals, [M.total])]) });
+    d.days.forEach(function (x) { sheets.push({ name: 'يوم ' + x.date, head: ['رقم الطلب', 'الموظف', 'الحالة', 'المنطقة', 'تاريخ التسليم', 'القيمة'], rows: x.list.map(function (o) { return [o.id, o.emp, STAR[o.state] || o.state, o.loc, o.delivery, o.amt]; }) }); });
+    xlsxOut(sheets, 'الفواتير_المنشأة_' + M.k);
+  };
+
   /* ---- الرفع ---- */
   function msg(html) { var e = $('so_msg'); if (e) e.innerHTML = html; }
   window.soPick = function (inp) {
@@ -2955,7 +2991,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
 
   /* ---------- كاش القراءات: يعيد النتيجة فوراً ويحدّثها بصمت ---------- */
   var RC = {}, TTL = 180000, REFRESH = 15000;
-  var READ = /^(dashboard|capacity\.matrix|search|bootstrap2?|report\.items|report\.sales|data\.sets|dash\.daily|erp\.status|table\.list|team\.today|emp\.profile|shift\.week|sku\.analysis|qty\.list|efile\.list|file\.list|empt\.list|booking\.list|cash\.list|cash\.preview|tasks\.today|notes\.list|supply\.list|waste\.list|leaves\.list|taste\.list|[a-z]+\.(week|report|history|analysis|dash|items|emps|cancels|status|matrix|monthly))$|^(chk\.get|mod\.list|so\.status)$/;
+  var READ = /^(dashboard|capacity\.matrix|search|bootstrap2?|report\.items|report\.sales|data\.sets|dash\.daily|erp\.status|table\.list|team\.today|emp\.profile|shift\.week|sku\.analysis|qty\.list|efile\.list|file\.list|empt\.list|booking\.list|cash\.list|cash\.preview|tasks\.today|notes\.list|supply\.list|waste\.list|leaves\.list|taste\.list|[a-z]+\.(week|report|history|analysis|dash|items|emps|cancels|status|matrix|monthly|created))$|^(chk\.get|mod\.list|so\.status)$/;
   var NOCACHE = /^(log\.recent|alerts\.list|file\.get|efile\.get|booking\.get|bin\.list|bin\.peek|backup\.list|ai\.status)$/;
   var base = rpc;
   /* دمج القراءات المتزامنة في طلب واحد للخادم (يوفّر مصادقة وذهاباً وإياباً) */
