@@ -2119,6 +2119,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   var MON = { jan: 1, feb: 2, mar: 3, apr: 4, may: 5, jun: 6, jul: 7, aug: 8, sep: 9, oct: 10, nov: 11, dec: 12, 'يناير': 1, 'فبراير': 2, 'مارس': 3, 'ابريل': 4, 'أبريل': 4, 'مايو': 5, 'يونيو': 6, 'يوليو': 7, 'اغسطس': 8, 'أغسطس': 8, 'سبتمبر': 9, 'اكتوبر': 10, 'أكتوبر': 10, 'نوفمبر': 11, 'ديسمبر': 12 };
   function dayLbl(iso) { var p = iso.split('-'); return +p[2] + '/' + +p[1]; }
   function fmtKg(n) { return Number(n).toLocaleString('en-US', { maximumFractionDigits: n >= 100 ? 0 : 1 }); }
+  function fmtN(n) { return Number(n).toLocaleString('en-US', { maximumFractionDigits: 2 }); }
   function fmtG(kg) { var g = Math.round(kg * 1000); return g ? g.toLocaleString('en-US') : ''; }
 
   /* ---------- قراءة التاريخ من ترويسة العمود ---------- */
@@ -2417,15 +2418,15 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var d = Q.d, th = d.limitDay, ts = d.limitSalt, mx = 0, hasSalt = v.items.some(function (it) { return it.salt; }); v.items.forEach(function (it) { it.kg.forEach(function (x) { if (x > mx) mx = x; }); });
     var head1 = '<tr><th colspan="4" class="qtl s0">إجمالي اليوم شامل المالح (كجم) — الحد ' + th + '</th>' + v.dayKg.map(function (x, i) { return '<th class="qd' + (d.dayKg[i] >= th ? ' hi' : '') + '">' + (x ? fmtKg(x) : '0') + '</th>'; }).join('') + '</tr>' +
       (hasSalt ? '<tr><th colspan="4" class="qtl s0">المالح والمعجنات (كجم) — الحد ' + ts + '</th>' + v.saltKg.map(function (x, i) { return '<th class="qd' + (d.saltKg[i] >= ts ? ' hi' : '') + '">' + (x ? fmtKg(x) : '0') + '</th>'; }).join('') + '</tr>' : '');
-    var head2 = '<tr><th class="s1">الكود</th><th class="s2">الصنف</th><th class="s3">النوع</th><th class="s4">الإجمالي كجم</th>' + d.dates.map(function (x) { return '<th onclick="qtyDay(\'' + x + '\',\'d\')" style="cursor:pointer" title="تفاصيل اليوم">' + h(dayLbl(x)) + '</th>'; }).join('') + '</tr>';
+    var head2 = '<tr class="qhd"><th class="s1">الكود</th><th class="s2">الصنف</th><th class="s3">النوع</th><th class="s4">الإجمالي<small>كجم / حبة</small></th>' + d.dates.map(function (x) { return '<th class="qdt" onclick="qtyDay(\'' + x + '\',\'d\')" style="cursor:pointer" title="تفاصيل اليوم: ' + h(x) + '"><b>' + h(dayLbl(x)) + '</b><small>' + h(wdName(x)) + '</small></th>'; }).join('') + '</tr>';
     var body = v.items.map(function (it) {
       var gram = isGram(it.unit), kc = kcls(it);
-      return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + (it.lim ? ' <small class="muted">(حد ' + it.lim + (gram ? ' كجم' : ' حبة') + ')</small>' : '') + '</td><td class="s3">' + h(kindAr(it.kind)) + '</td><td class="s4"><b>' + fmtKg(it.total) + '</b></td>' + it.kg.map(function (x, ci) {
+      return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + (it.lim ? ' <small class="muted">(حد ' + it.lim + (gram ? ' كجم' : ' حبة') + ')</small>' : '') + '</td><td class="s3">' + h(kindAr(it.kind)) + '</td><td class="s4"><b>' + (gram || it.total > 0 ? fmtKg(it.total) : fmtN(it.q.reduce(function (a, b) { return a + b; }, 0)) + ' <small>حبة</small>') + '</b></td>' + it.kg.map(function (x, ci) {
         var a = x > 0 && mx ? Math.min(.85, .12 + x / mx * .8) : 0, m = gram ? x : it.q[ci], pc = it.lim && m > 0 ? m / it.lim * 100 : 0, cl = pc >= 100 ? ' qo' : pc >= 85 ? ' qw' : '';
-        return '<td class="qc' + cl + '"' + (a && !cl ? ' style="background:rgba(var(--qrgb,59,111,200),' + a.toFixed(2) + ')"' : '') + (cl ? ' title="' + (pc >= 100 ? 'وصل الحد الأعلى للصنف' : 'اقتراب من الحد') + ' (' + Math.round(pc) + '% من ' + it.lim + ')"' : '') + '>' + (pc >= 100 ? '⚠ ' : '') + fmtG(x) + '</td>';
+        return '<td class="qc' + cl + '"' + (a && !cl ? ' style="background:rgba(var(--qrgb,59,111,200),' + a.toFixed(2) + ')"' : '') + (cl ? ' title="' + (pc >= 100 ? 'وصل الحد الأعلى للصنف' : 'اقتراب من الحد') + ' (' + Math.round(pc) + '% من ' + it.lim + ')"' : '') + '>' + (pc >= 100 ? '⚠ ' : '') + (gram || x > 0 ? fmtG(x) : (it.q[ci] ? '<span class="qpc">' + fmtN(it.q[ci]) + '</span>' : '')) + '</td>';
       }).join('') + '</tr>';
     }).join('');
-    return '<div class="tw qtw qpv" id="qpv_d"><button type="button" class="s qfb" onclick="qtyFull(\'qpv_d\')">تكبير / تصغير</button><table class="qt stk"><thead>' + head1 + head2 + '</thead><tbody>' + (body || '<tr><td colspan="' + (4 + d.dates.length) + '" class="muted">لا توجد أصناف بهذا الفلتر</td></tr>') + '</tbody></table></div>';
+    return '<div class="qgt"><span class="qg1">الأصناف ▸</span><span class="qg2">الكميات حسب تاريخ التسليم ◂ <em>الشوكولاتة والمالح بالجرام · بيتيت كاتو والبوكسات بالحبة</em></span></div><div class="tw qtw qpv" id="qpv_d"><button type="button" class="s qfb" onclick="qtyFull(\'qpv_d\')">تكبير / تصغير</button><table class="qt stk"><thead>' + head1 + head2 + '</thead><tbody>' + (body || '<tr><td colspan="' + (4 + d.dates.length) + '" class="muted">لا توجد أصناف بهذا الفلتر</td></tr>') + '</tbody></table></div>';
   }
   function dayBars(v) {
     var d = Q.d, mx = Math.max.apply(null, v.dayKg.concat([1])), th = d.limitDay;
@@ -4965,5 +4966,15 @@ var FX = (function () {
 })();
 
 </script>
+<style>
+.qgt{display:flex;justify-content:space-between;gap:10px;align-items:center;background:var(--brand2,#5d4037);color:#fff;border-radius:12px 12px 0 0;padding:9px 14px;font-weight:700;font-size:14px;margin-top:8px}
+.qgt em{font-style:normal;font-weight:500;font-size:12px;opacity:.85;margin-inline-start:8px}
+.qt.stk thead tr.qhd th{background:var(--brand2,#5d4037)!important;color:#fff!important;font-weight:800;border-bottom:3px solid var(--acc,#b8863b)}
+.qt.stk thead tr.qhd th small{display:block;font-size:10.5px;font-weight:500;opacity:.85}
+.qt.stk thead tr.qhd .qdt b{font-size:15px;letter-spacing:.3px}
+.qt.stk td .qpc{display:inline-block;min-width:34px;background:#ffd84d;color:#3b2a00;border-radius:8px;padding:2px 8px;font-weight:800}
+.qt.stk td.qc:has(.qpc){background:rgba(255,216,77,.22)}
+.qt.stk .s4 small{font-size:10px;opacity:.7;font-weight:500}
+</style>
 </body>
 </html>
