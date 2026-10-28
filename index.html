@@ -373,18 +373,21 @@ function bar(p, st) { return '<div class="bar"><i class="' + (st === 'إيقاف
 function can(p) { return S.boot && S.boot.perms[p]; }
 
 var NAV = { id: 0, load: false };
+var PFL = []; function PF(a, tot, srv, ok) { PFL.push({ a: a, t: tot, s: srv === undefined || srv === null ? null : srv, ok: ok, at: Date.now() }); if (PFL.length > 300) PFL.shift(); }
 function rpc(action, p) {
   var tok = NAV.load ? NAV.id : -1; /* طلب تحميل العرض: يُهمل لو غادر المستخدم الصفحة قبل وصول الرد */
   return new Promise(function (res0, rej0) {
     var res = function (v) { if (tok >= 0 && tok !== NAV.id) return; res0(v); }, rej = function (e) { if (tok >= 0 && tok !== NAV.id) return; rej0(e); };
+    var t0 = Date.now();
     google.script.run
       .withSuccessHandler(function (r) {
+        try { PF(action, Date.now() - t0, r && r.ms, !!(r && r.ok)); } catch (x) { }
         if (r && r.ok) return res(r.data);
         var m = (r && r.error) || 'خطأ غير معروف';
         if (/انتهت الجلسة/.test(m)) logout(true);
         rej(new Error(m));
       })
-      .withFailureHandler(function (e) { rej(new Error(e && e.message ? e.message : 'تعذر الاتصال بالخادم')); })
+      .withFailureHandler(function (e) { try { PF(action, Date.now() - t0, null, false); } catch (x) { } rej(new Error(e && e.message ? e.message : 'تعذر الاتصال بالخادم')); })
       .api(S.token, action, p || {});
   });
 }
@@ -5273,5 +5276,38 @@ var FX = (function () {
 })();
 </script>
 
+<style>
+.pfm{width:100%;border-collapse:collapse;font-size:13px}.pfm th,.pfm td{padding:5px 7px;border-bottom:1px solid var(--line);text-align:right}.pfm td.n{text-align:center;font-variant-numeric:tabular-nums}
+.pfs{color:var(--bad);font-weight:700}
+</style>
+<script>
+/* ===== v4.9: قياس السرعة (ما يأخذه الخادم وما تأخذه الشبكة) ===== */
+(function () {
+  var XL = [];
+  function wrapX() { if (!window.XLSX || window.XLSX.__pf || !window.XLSX.read) return false; var r0 = window.XLSX.read; window.XLSX.read = function () { var s = performance.now(), v = r0.apply(this, arguments); XL.push({ t: Math.round(performance.now() - s), at: Date.now() }); return v; }; window.XLSX.__pf = 1; return true; }
+  var iv = setInterval(function () { if (wrapX()) clearInterval(iv); }, 800);
+  function avg(a) { return a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length) : 0; }
+  window.perfPanel = function () {
+    var g = {}; PFL.forEach(function (x) { var o = g[x.a] || (g[x.a] = { a: x.a, n: 0, t: [], s: [], bad: 0 }); o.n++; o.t.push(x.t); if (x.s !== null) o.s.push(x.s); if (!x.ok) o.bad++; });
+    var rows = Object.keys(g).map(function (k) { var o = g[k]; return { a: o.a, n: o.n, t: avg(o.t), mx: Math.max.apply(null, o.t), s: o.s.length ? avg(o.s) : null, bad: o.bad }; }).sort(function (a, b) { return b.t - a.t; });
+    var slow = rows.filter(function (r) { return r.t > 2500; }).length;
+    var tr = rows.slice(0, 25).map(function (r) { var net = r.s === null ? null : Math.max(0, r.t - r.s); return '<tr><td dir="ltr" style="text-align:left">' + h(r.a) + '</td><td class="n">' + r.n + '</td><td class="n ' + (r.t > 2500 ? 'pfs' : '') + '">' + r.t + '</td><td class="n">' + r.mx + '</td><td class="n">' + (r.s === null ? '—' : r.s) + '</td><td class="n">' + (net === null ? '—' : net) + '</td></tr>'; }).join('');
+    var xl = XL.length ? '<p>قراءة ملفات Excel في المتصفح: ' + XL.map(function (x) { return x.t + ' م.ث'; }).join('، ') + '</p>' : '';
+    var o = document.createElement('div'); o.className = 'ov';
+    o.innerHTML = '<div class="mdl" role="dialog" aria-modal="true" style="max-width:640px"><h3>قياس السرعة</h3><div class="mb"><p class="muted" style="margin-top:0">الأزمنة بالمللي ثانية، آخر الطلبات الفعلية للخادم في هذه الجلسة (القراءات من الكاش لا تظهر). «الخادم» زمن تنفيذ الكود وقراءة الشيت، و«الشبكة» الباقي (اتصال وبدء تشغيل Apps Script).</p>' +
+      (rows.length ? '<div class="tw"><table class="pfm"><thead><tr><th>الإجراء</th><th>مرات</th><th>متوسط الكل</th><th>الأعلى</th><th>الخادم</th><th>الشبكة</th></tr></thead><tbody>' + tr + '</tbody></table></div>' : '<p>لا توجد طلبات بعد، افتح بعض الأقسام ثم أعد فتح هذه النافذة.</p>') + xl +
+      '<p class="muted">' + (slow ? 'أحمر = متوسط أكثر من 2.5 ثانية. أرسل لي لقطة من هذه النافذة لأحدد السبب.' : '') + '</p></div><div class="mf"><button class="s" id="pfx">إغلاق</button><button class="s" id="pfc">نسخ النتائج</button></div></div>';
+    document.body.appendChild(o);
+    document.getElementById('pfx').onclick = function () { o.parentNode.removeChild(o); };
+    o.addEventListener('mousedown', function (e) { if (e.target === o) o.parentNode.removeChild(o); });
+    document.getElementById('pfc').onclick = function () { var s = rows.map(function (r) { return [r.a, r.n, r.t, r.mx, r.s === null ? '' : r.s].join('\t'); }).join('\n'); try { navigator.clipboard.writeText('action\tn\tavg\tmax\tserver\n' + s); toast('نُسخت النتائج'); } catch (e) { toast('تعذر النسخ', true); } };
+  };
+  var st1 = window.shell;
+  if (typeof st1 === 'function') window.shell = function () {
+    st1.apply(this, arguments);
+    var box = document.querySelector('.tgs'); if (box && !document.getElementById('tg_pf')) { var b = document.createElement('button'); b.id = 'tg_pf'; b.className = 's'; b.title = 'قياس السرعة'; b.setAttribute('aria-label', 'قياس السرعة'); b.textContent = '⏱'; b.onclick = window.perfPanel; box.appendChild(b); }
+  };
+})();
+</script>
 </body>
 </html>
