@@ -5203,5 +5203,61 @@ var FX = (function () {
 })();
 </script>
 
+<style>
+.tdg{display:grid;grid-template-columns:repeat(auto-fit,minmax(128px,1fr));gap:10px;margin-top:10px}
+.tdt{background:var(--soft);border:1px solid var(--line);border-radius:14px;padding:11px 13px;position:relative;overflow:hidden;min-width:0}
+.tdt:before{content:"";position:absolute;inset-inline-start:0;top:0;bottom:0;width:4px;background:var(--c,var(--acc))}
+.tdt small{display:block;color:var(--mut);font-size:12px;margin-bottom:3px}
+.tdt b{display:block;font-size:24px;line-height:1.15;font-variant-numeric:tabular-nums;color:var(--ink)}
+.tdt b i{font-style:normal;font-size:12px;color:var(--mut);font-weight:500;margin-inline-start:3px}
+.tdt span{display:block;color:var(--mut);font-size:12px;margin-top:3px}
+.tdt.big{grid-column:span 2}@media(max-width:420px){.tdt.big{grid-column:span 1}}
+.tdt.big b{font-size:28px}
+</style>
+<script>
+/* ===== v4.8: لوحات اليوم الصغيرة في الرئيسية ===== */
+(function () {
+  var TD = { date: '' };
+  function nn(x, d) { return Number(x || 0).toLocaleString('en-US', { maximumFractionDigits: d === undefined ? 0 : d }); }
+  function tile(label, main, unit, sub, c, cls) { return '<div class="tdt ' + (cls || '') + '" style="--c:' + c + '"><small>' + h(label) + '</small><b>' + main + (unit ? '<i>' + h(unit) + '</i>' : '') + '</b><span>' + sub + '</span></div>'; }
+  function fill(d) {
+    var el = document.getElementById('tdg'); if (!el) return;
+    if (!d.orders && !d.cash) { var c0 = document.getElementById('tdp'); if (c0) c0.style.display = 'none'; return; }
+    var t = '', K = d.kinds;
+    if (d.orders) {
+      t += tile('إجمالي قيمة طلبات اليوم', nn(d.orders.total), 'ريال', nn(d.orders.n) + ' طلب' + (d.orders.cancelN ? ' · ' + nn(d.orders.cancelN) + ' ملغاة (' + nn(d.orders.cancelAmt) + ')' : ''), '#B8863B', 'big');
+      t += tile('البوكسات', nn(K['بوكسات'].pcs), 'بوكس', nn(K['بوكسات'].amt) + ' ريال', '#AF52DE');
+      t += tile('الموالح', nn(K['المالح'].kg, 1), 'كجم', nn(K['المالح'].amt) + ' ريال', '#FF9F0A');
+      t += tile('الشوكولاتة', nn(K['الحالي'].kg, 1), 'كجم', nn(K['الحالي'].amt) + ' ريال', '#8D5A3B');
+      t += tile('البيتيت كاتو', nn(K['بيتيت كاتو'].pcs), 'حبة', nn(K['بيتيت كاتو'].amt) + ' ريال', '#FF375F');
+    }
+    if (d.cash) {
+      var c = d.cash;
+      t += tile('الكاش اليومي', nn(c.closed ? c.actual : c.net, 2), 'ريال', c.closed ? 'مقفل · المتوقع ' + nn(c.expected, 2) + (c.diff ? ' · الفرق ' + nn(c.diff, 2) : '') : 'كاش الحجوزات الصافي، الصندوق لم يُقفل بعد' + (c.refund ? ' (بعد استرداد ' + nn(c.refund, 2) + ')' : ''), '#30D158');
+    }
+    el.innerHTML = t;
+    var lb = document.getElementById('tdd'); if (lb) lb.value = d.date;
+    var up = document.getElementById('tdu'); if (up) up.textContent = 'آخر تحديث ' + d.at.slice(11);
+  }
+  function load() {
+    var el = document.getElementById('tdg'); if (!el) return Promise.resolve();
+    return rpc('dash.tiles', { date: TD.date || '' }).then(fill).catch(function (e) { if (el) el.innerHTML = '<p class="muted">تعذر تحميل اللوحات: ' + h(e.message) + '</p>'; });
+  }
+  window.tdSet = function (v) { if (v) { TD.date = v; load(); } };
+  window.tdShift = function (n) { var d = document.getElementById('tdd'), cur = (d && d.value) || S.boot.today, p = cur.split('-'), x = new Date(+p[0], +p[1] - 1, +p[2] + n, 12); TD.date = x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-' + ('0' + x.getDate()).slice(-2); load(); };
+  window.tdReload = load;
+  var prev = R.home;
+  R.home = function (m) {
+    return Promise.resolve(prev(m)).then(function () {
+      if (!can('عرض_التقارير') && !can('إقفال_الجرد')) return;
+      var card = '<div class="card" id="tdp"><div class="bar-actions" style="align-items:center"><h3 style="margin:0;flex:1">لوحة اليوم <small class="muted" id="tdu"></small></h3><button class="s" title="اليوم السابق" onclick="tdShift(-1)">▶</button><input type="date" id="tdd" value="' + h(TD.date || S.boot.today) + '" style="max-width:150px" onchange="tdSet(this.value)"><button class="s" title="اليوم التالي" onclick="tdShift(1)">◀</button><button class="s" onclick="tdSet(S.boot.today)">اليوم</button><button class="s" title="تحديث" onclick="tdReload()">⟳</button></div><div class="tdg" id="tdg"><p class="muted">جارٍ التحميل…</p></div></div>';
+      var anchor = m.querySelector('.rclk-card');
+      if (anchor) anchor.insertAdjacentHTML('afterend', card); else m.insertAdjacentHTML('afterbegin', card);
+      load();
+    });
+  };
+})();
+</script>
+
 </body>
 </html>
