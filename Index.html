@@ -2170,7 +2170,13 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     for (i = hi + 1; i < aoa.length; i++) {
       var r = aoa[i] || [], code = String(r[H.c] === undefined ? '' : r[H.c]).trim(), d = parseDay(r[H.d], year); if (code && !d && r[H.d] !== undefined && String(r[H.d]).trim() !== '' && numOf(r[H.q]) > 0 && !/^(total|المجموع)/i.test(code)) { st.badDate = (st.badDate || 0) + 1; st.badDateQty = (st.badDateQty || 0) + numOf(r[H.q]); if (!st.badDateEx) st.badDateEx = String(r[H.d]); } var xq = numOf(r[H.q]), xi = H.inv !== undefined ? String(r[H.inv] === undefined ? '' : r[H.inv]).trim() : '', xs = H.st !== undefined ? String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' ') : '', XP = function (w) { xr.push({ d: d || '', i: xi, s: xs, code: code, q: xq, w: w }); };
       if (code && !d) XP('nodate'); if (!code || !d) continue; st.lines++;
-      var q = numOf(r[H.q]), s0 = ''; if (q <= 0) { XP('qty0'); continue; }
+      var q = numOf(r[H.q]), s0 = '';
+      if (H.st !== undefined && !(H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim()))) { var sx = String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' ');
+        /* v4.9.2: الملغاة/المسودة تُسجَّل دائماً (حتى لو كميتها صفر أو In Call أو كود خدمة) ليطابق عدد الفواتير Excel */
+        if (sx && !OK_STATE[sx.toLowerCase()]) { var kk0 = sx; st.exState[kk0] = (st.exState[kk0] || 0) + 1; st.exStateN++; XP('state');
+          lines.push({ d: d, i: xi, s: sx, c: (H.ic !== undefined && numOf(r[H.ic]) === 1) ? 1 : 0, code: code, name: H.nm !== undefined ? String(r[H.nm] || '').trim() : '', q: (NONPROD.test(code) || q <= 0) ? 0 : q, a: (NONPROD.test(code) || q <= 0) ? 0 : (H.amt !== undefined ? numOf(r[H.amt]) : 0) });
+          continue; } }
+      if (q <= 0) { XP('qty0'); continue; }
       if (H.st !== undefined) { s0 = String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' '); if (!OK_STATE[s0.toLowerCase()]) { var kk = s0 || '(بدون حالة)'; st.exState[kk] = (st.exState[kk] || 0) + 1; st.exStateN++; XP('state');
         /* v3.7: الأسطر الملغاة/المسودة تُحفظ للعرض بفلتر مستقل ولا تدخل الكميات */
         if (!NONPROD.test(code) && !(H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim()))) lines.push({ d: d, i: xi, s: s0, c: (H.ic !== undefined && numOf(r[H.ic]) === 1) ? 1 : 0, code: code, name: H.nm !== undefined ? String(r[H.nm] || '').trim() : '', q: q, a: H.amt !== undefined ? numOf(r[H.amt]) : 0 });
@@ -2527,11 +2533,12 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     return infoBox(wdOf(date) + ' ' + date, body);
   };
   /* جدول صنف × تاريخ بالكميات الأصلية (للمطابقة مع الملف) */
-  var SALTRX = /مال?ح|موالح|مملح|معجنات|كانابيه|سمبوس|فطير|بيتزا|ترافل (با?ل?(جبن|زعتر|سمسم|سماق))|أصابع (الزعتر|السماق)|كراكرز|كراركرز|روي السمسم|مالفيه جبن/;
+  var SALTRX = /مال?ح|موالح|مملح|معجنات|كانابيه|سمبوس|فطير|بيتزا|ترافل (با?ل?(جبن|زعتر|سمسم|سماق))|أصابع (الزعتر|السماق)|كراكرز|كراركرز|مالفيه جبن/;
+  function saltName(n) { n = String(n || ''); if (/ذر[ةه] ?مال?ح|روي ?(ال)?سمسم/.test(n)) return false; return SALTRX.test(n); }
   function kcls(o) {
     var c = String(o.code || ''), n = String(o.name || '');
     if (/^S-/i.test(c) || /services|خدمات/i.test(String(o.kind || ''))) return 'sv'; if (isPetit(o)) return 'pt'; if (/^box|^بوكس/i.test(c + ' ' + n.trim()) || /boxes|بوكسات/i.test(String(o.kind || ''))) return 'bx';
-    return o.salt || SALTRX.test(n) ? 'sl' : 'ch';
+    return o.salt || saltName(n) ? 'sl' : 'ch';
   }
   var KRGB = { ch: '120,72,40', sl: '46,125,50', pt: '240,170,0', sv: '21,101,192', bx: '110,110,110' };
   window.qtyFull = function (id) { var e = $(id); if (!e) return; e.classList.toggle('full'); }
@@ -2563,7 +2570,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   }
   /* ---------- ملخص الفواتير: أيام، فواتير، توصيل، إشراف، بيتيت، مالح/حالي، قيمة (مع فلتر التاريخ والحالة) ---------- */
   Q.sm = { p: {}, d: {} }; Q.sl = { p: [], d: [] };
-  function normLine(l) { var svc = /^S-/i.test(l.code); return { d: l.d, i: l.i, s: l.s, c: l.c, code: l.code, name: l.name, kind: svc ? 'Services' : '', unit: l.unit, q: l.q, x: l.x ? 1 : 0, kg: !svc && isGram(l.unit) ? l.q / 1000 : 0, a: l.a || 0, salt: !svc && SALTRX.test(String(l.name || '')) }; }
+  function normLine(l) { var svc = /^S-/i.test(l.code); return { d: l.d, i: l.i, s: l.s, c: l.c, code: l.code, name: l.name, kind: svc ? 'Services' : '', unit: l.unit, q: l.q, x: l.x ? 1 : 0, kg: !svc && isGram(l.unit) ? l.q / 1000 : 0, a: l.a || 0, salt: !svc && saltName(l.name) }; }
   function badSt(l) { return !OK_STATE[String(l.s).toLowerCase()]; }
   function sumFilter(lines, f) {
     var a = f.f || '', b = f.t || '', st = f.s || '';
@@ -2574,7 +2581,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       if (st === 'withcall') return !cd;
       if (st === 'call') return !!l.c && !cd;
       if (st === 'nochan') return !!l.x && !cd;
-      return !l.c && String(l.s).toLowerCase() === st;
+      return (badSt(l) || !l.c) && String(l.s).toLowerCase() === st;
     });
   }
   function sumStats(L) {
@@ -2598,9 +2605,9 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var box = $('qs_' + ctx); if (!box) return; var all = Q.sl[ctx] || [], f = Q.sm[ctx];
     if (!all.length) { box.innerHTML = '<h3>ملخص الفواتير</h3><p class="muted">لا توجد سطور فواتير محفوظة. تظهر هذه اللوحة عند رفع تصدير الطلبات (Sales Order أو cr data).</p>'; return; }
     var ds = all.map(function (l) { return l.d; }).sort(), mn = ds[0], mx = ds[ds.length - 1], L = sumFilter(all, f), st = sumStats(L);
-    var states = {}; all.forEach(function (l) { if (!l.c && l.s) states[String(l.s).toLowerCase()] = l.s; });
+    var states = {}; all.forEach(function (l) { if ((!l.c || badSt(l)) && l.s) states[String(l.s).toLowerCase()] = l.s; });
     var cnt = {}, addC = function (k, l) { (cnt[k] = cnt[k] || {})[l.i || l.d + l.code] = 1; };
-    all.forEach(function (l) { if ((f.f && l.d < f.f) || (f.t && l.d > f.t)) return; var cd = badSt(l); if (!cd && !l.c) addC('', l); if (!cd) addC('withcall', l); if (l.c && !cd) addC('call', l); if (l.x && !cd) addC('nochan', l); if (!l.c) addC(String(l.s).toLowerCase(), l); });
+    all.forEach(function (l) { if ((f.f && l.d < f.f) || (f.t && l.d > f.t)) return; var cd = badSt(l); if (!cd && !l.c) addC('', l); if (!cd) addC('withcall', l); if (l.c && !cd) addC('call', l); if (l.x && !cd) addC('nochan', l); if (!l.c || cd) addC(String(l.s).toLowerCase(), l); });
     var SORD = ['submit', 'ready to deliver', 'under preparation', 'delivered', 'cancel', 'draft'], fk = Object.keys(states).sort(function (a, b) { var x = SORD.indexOf(a), y = SORD.indexOf(b); return (x < 0 ? 99 : x) - (y < 0 ? 99 : y); });
     var FOPT = [['', 'الكل (بدون Cancel وDraft وبدون In Call)'], ['withcall', 'الكل مع In Call']].concat(fk.map(function (k) { return [k, states[k] + (OK_STATE[k] ? '' : ' (لا تدخل الكميات)') + ' — وحدها']; })).concat([['call', 'In Call فقط'], ['nochan', 'بدون قناة (لا تدخل الكميات) فقط']]);
     var opts2 = FOPT.map(function (o) { return '<option value="' + h(o[0]) + '"' + ((f.s || '') === o[0] ? ' selected' : '') + '>' + h(o[1]) + '</option>'; }).join('');
