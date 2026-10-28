@@ -373,7 +373,7 @@ function bar(p, st) { return '<div class="bar"><i class="' + (st === 'إيقاف
 function can(p) { return S.boot && S.boot.perms[p]; }
 
 var NAV = { id: 0, load: false };
-var PFL = []; function PF(a, tot, srv, ok) { PFL.push({ a: a, t: tot, s: srv === undefined || srv === null ? null : srv, ok: ok, at: Date.now() }); if (PFL.length > 300) PFL.shift(); }
+var PFL = []; function PF(a, tot, srv, ok, rt) { PFL.push({ a: a, t: tot, s: srv === undefined || srv === null ? null : srv, ok: ok, rt: rt || '', at: Date.now() }); if (PFL.length > 300) PFL.shift(); }
 function rpc(action, p) {
   var tok = NAV.load ? NAV.id : -1; /* طلب تحميل العرض: يُهمل لو غادر المستخدم الصفحة قبل وصول الرد */
   return new Promise(function (res0, rej0) {
@@ -381,7 +381,7 @@ function rpc(action, p) {
     var t0 = Date.now();
     google.script.run
       .withSuccessHandler(function (r) {
-        try { PF(action, Date.now() - t0, r && r.ms, !!(r && r.ok)); } catch (x) { }
+        try { PF(action, Date.now() - t0, r && r.ms, !!(r && r.ok), r && r.rt); } catch (x) { }
         if (r && r.ok) return res(r.data);
         var m = (r && r.error) || 'خطأ غير معروف';
         if (/انتهت الجلسة/.test(m)) logout(true);
@@ -2780,9 +2780,10 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       (SO.tab === 'ov' || SO.tab === 'it' ? '<label>التجميع</label><select onchange="soGran(this.value)" style="max-width:120px">' + opts([{ v: 'day', l: 'يومي' }, { v: 'week', l: 'أسبوعي' }, { v: 'month', l: 'شهري' }], SO.gran) + '</select>' : '') + '</div>' ) +
       '<div class="sub" style="margin-top:8px">' + TABS.map(function (x) { return '<button class="s ' + (SO.tab === x[0] ? 'on' : '') + '" onclick="soTab(\'' + x[0] + '\')">' + x[1] + '</button>'; }).join('') + '</div></div>';
   }
+  function soKeepUp() { if (SO.pend && SO.pmsg) { var e = $('so_msg'); if (e) e.innerHTML = SO.pmsg; var d = $('so_up'); if (d) d.open = true; } }
   function draw(m) {
-    if (!SO.st || !SO.st.orders) { m.innerHTML = head(); return; }
-    m.innerHTML = head() + '<div id="so_body">' + ({ ov: ovHtml, it: itHtml, em: emHtml, cx: cxHtml, mr: mrHtml, cr: crHtml }[SO.tab])() + '</div>';
+    if (!SO.st || !SO.st.orders) { m.innerHTML = head(); soKeepUp(); return; }
+    m.innerHTML = head() + '<div id="so_body">' + ({ ov: ovHtml, it: itHtml, em: emHtml, cx: cxHtml, mr: mrHtml, cr: crHtml }[SO.tab])() + '</div>'; soKeepUp();
   }
   window.soPer = function (p) { SO.p = p; go('sales'); };
   window.soCustom = function () { SO.p = 'c'; SO.from = val('so_from'); SO.to = val('so_to'); if (SO.from && SO.to) go('sales'); };
@@ -2940,7 +2941,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   };
 
   /* ---- الرفع ---- */
-  function msg(html) { var e = $('so_msg'); if (e) e.innerHTML = html; }
+  function msg(html) { SO.pmsg = html; var e = $('so_msg'); if (e) e.innerHTML = html; }
   window.soPick = function (inp) {
     var f = inp.files && inp.files[0]; if (!f) return;
     msg('<p class="muted">جارٍ قراءة الملف (قد تستغرق دقيقة للملفات الكبيرة)…</p>');
@@ -5306,10 +5307,10 @@ var FX = (function () {
   var iv = setInterval(function () { if (wrapX()) clearInterval(iv); }, 800);
   function avg(a) { return a.length ? Math.round(a.reduce(function (x, y) { return x + y; }, 0) / a.length) : 0; }
   window.perfPanel = function () {
-    var g = {}; PFL.forEach(function (x) { var o = g[x.a] || (g[x.a] = { a: x.a, n: 0, t: [], s: [], bad: 0 }); o.n++; o.t.push(x.t); if (x.s !== null) o.s.push(x.s); if (!x.ok) o.bad++; });
-    var rows = Object.keys(g).map(function (k) { var o = g[k]; return { a: o.a, n: o.n, t: avg(o.t), mx: Math.max.apply(null, o.t), s: o.s.length ? avg(o.s) : null, bad: o.bad }; }).sort(function (a, b) { return b.t - a.t; });
+    var g = {}; PFL.forEach(function (x) { var o = g[x.a] || (g[x.a] = { a: x.a, n: 0, t: [], s: [], bad: 0, rt: '' }); if (x.rt) o.rt = x.rt; o.n++; o.t.push(x.t); if (x.s !== null) o.s.push(x.s); if (!x.ok) o.bad++; });
+    var rows = Object.keys(g).map(function (k) { var o = g[k]; return { a: o.a, n: o.n, t: avg(o.t), mx: Math.max.apply(null, o.t), s: o.s.length ? avg(o.s) : null, bad: o.bad, rt: o.rt }; }).sort(function (a, b) { return b.t - a.t; });
     var slow = rows.filter(function (r) { return r.t > 2500; }).length;
-    var tr = rows.slice(0, 25).map(function (r) { var net = r.s === null ? null : Math.max(0, r.t - r.s); return '<tr><td dir="ltr" style="text-align:left">' + h(r.a) + '</td><td class="n">' + r.n + '</td><td class="n ' + (r.t > 2500 ? 'pfs' : '') + '">' + r.t + '</td><td class="n">' + r.mx + '</td><td class="n">' + (r.s === null ? '—' : r.s) + '</td><td class="n">' + (net === null ? '—' : net) + '</td></tr>'; }).join('');
+    var tr = rows.slice(0, 25).map(function (r) { var net = r.s === null ? null : Math.max(0, r.t - r.s); return '<tr><td dir="ltr" style="text-align:left">' + h(r.a) + '</td><td class="n">' + r.n + '</td><td class="n ' + (r.t > 2500 ? 'pfs' : '') + '">' + r.t + '</td><td class="n">' + r.mx + '</td><td class="n">' + (r.s === null ? '—' : r.s) + '</td><td class="n">' + (net === null ? '—' : net) + '</td></tr>' + (r.rt ? '<tr><td colspan="6" class="muted" dir="ltr" style="text-align:left;font-size:11px">↳ ' + h(r.rt) + '</td></tr>' : ''); }).join('');
     var xl = XL.length ? '<p>قراءة ملفات Excel في المتصفح: ' + XL.map(function (x) { return x.t + ' م.ث'; }).join('، ') + '</p>' : '';
     var o = document.createElement('div'); o.className = 'ov';
     o.innerHTML = '<div class="mdl" role="dialog" aria-modal="true" style="max-width:640px"><h3>قياس السرعة</h3><div class="mb"><p class="muted" style="margin-top:0">الأزمنة بالمللي ثانية، آخر الطلبات الفعلية للخادم في هذه الجلسة (القراءات من الكاش لا تظهر). «الخادم» زمن تنفيذ الكود وقراءة الشيت، و«الشبكة» الباقي (اتصال وبدء تشغيل Apps Script).</p>' +
@@ -5318,7 +5319,7 @@ var FX = (function () {
     document.body.appendChild(o);
     document.getElementById('pfx').onclick = function () { o.parentNode.removeChild(o); };
     o.addEventListener('mousedown', function (e) { if (e.target === o) o.parentNode.removeChild(o); });
-    document.getElementById('pfc').onclick = function () { var s = rows.map(function (r) { return [r.a, r.n, r.t, r.mx, r.s === null ? '' : r.s].join('\t'); }).join('\n'); try { navigator.clipboard.writeText('action\tn\tavg\tmax\tserver\n' + s); toast('نُسخت النتائج'); } catch (e) { toast('تعذر النسخ', true); } };
+    document.getElementById('pfc').onclick = function () { var s = rows.map(function (r) { return [r.a, r.n, r.t, r.mx, r.s === null ? '' : r.s, r.rt || ''].join('\t'); }).join('\n'); try { navigator.clipboard.writeText('action\tn\tavg\tmax\tserver\ttables\n' + s); toast('نُسخت النتائج'); } catch (e) { toast('تعذر النسخ', true); } };
   };
   var st1 = window.shell;
   if (typeof st1 === 'function') window.shell = function () {
