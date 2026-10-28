@@ -2189,7 +2189,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
         if (!NONPROD.test(code) && !(H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim()))) lines.push({ d: d, i: xi, s: s0, c: (H.ic !== undefined && numOf(r[H.ic]) === 1) ? 1 : 0, code: code, name: H.nm !== undefined ? String(r[H.nm] || '').trim() : '', q: q, a: H.amt !== undefined ? numOf(r[H.amt]) : 0 });
         continue; } }
       if (H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim())) { st.exTest = (st.exTest || 0) + 1; XP('test'); continue; }
-      if (NONPROD.test(code)) { st.exCode[code.toUpperCase()] = (st.exCode[code.toUpperCase()] || 0) + q; XP('code'); continue; }
+      if (NONPROD.test(code)) { st.exCode[code.toUpperCase()] = (st.exCode[code.toUpperCase()] || 0) + q; XP('code'); /* v4.9.5: الفاتورة تُعدّ حتى لو كل أسطرها إيجار/تصاميم/عينات (بدون كمية) لتطابق عدد Excel */ lines.push({ d: d, i: xi, s: s0, c: (H.ic !== undefined && numOf(r[H.ic]) === 1) ? 1 : 0, code: code, name: H.nm !== undefined ? String(r[H.nm] || '').trim() : '', q: 0, a: 0 }); continue; }
       if (H.ch.length && !H.ch.some(function (x) { return numOf(r[x]) === 1; })) {
         st.exChan++; st.exChanQty += q; XP('chan');
         /* v3.6: السطر بلا قناة يظهر في الملخص (علامة x) ولا يدخل الكميات اليومية */
@@ -2444,7 +2444,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var s = (u.code + ' ' + u.name), g = /^(gram|جم)$/i.test(u.unit || '');
     if (/^box/i.test(u.code) || /بوكس/.test(u.name)) return 'بوكسات';
     if (/بيتيت|بتيت|كاتو|petit/i.test(s) || /^len/i.test(u.code)) return 'بيتيت كاتو';
-    if (/مشروب|لاتيه|سحلب|موهيتو/.test(s)) return 'مشروبات';
+    if (/مشروب|لاتيه|سحلب|موهيتو|كركديه|آيس|ايس ?كريم|عصير|فوار/.test(s) || /^DRI/i.test(u.code)) return 'مشروبات';
     if (!g) return 'بيتيت كاتو';
     return /معجنات|مالح|موالح|بسكويت|كراكرز|كراركرز|أصابع|اصابع|ماشروم|زيتون|جبن/.test(s) ? 'معجنات' : 'شوكولاتة';
   }
@@ -2541,6 +2541,9 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   };
   /* جدول صنف × تاريخ بالكميات الأصلية (للمطابقة مع الملف) */
   var SALTRX = /مال?ح|موالح|مملح|معجنات|كانابيه|سمبوس|فطير|بيتزا|ترافل (با?ل?(جبن|زعتر|سمسم|سماق))|أصابع (الزعتر|السماق)|كراكرز|كراركرز|مالفيه جبن/;
+  var PCM = { n: -1, m: {} };
+  function prodCatOf(code) { var P = S.boot.products || []; if (PCM.n !== P.length) { PCM.n = P.length; PCM.m = {}; P.forEach(function (p) { PCM.m[String(p.code).toUpperCase().replace(/\s/g, '')] = String(p.cat || ''); }); } var k = String(code || '').toUpperCase().replace(/\s/g, ''); return Object.prototype.hasOwnProperty.call(PCM.m, k) ? PCM.m[k] : null; }
+  function isSaltLine(l) { var c = prodCatOf(l.code); if (c !== null && c !== '') return /معجنات|مالح|موالح/.test(c); return saltName(l.name); }
   function saltName(n) { n = String(n || ''); if (/ذر[ةه] ?مال?ح|روي ?(ال)?سمسم/.test(n)) return false; return SALTRX.test(n); }
   function kcls(o) {
     var c = String(o.code || ''), n = String(o.name || '');
@@ -2577,7 +2580,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   }
   /* ---------- ملخص الفواتير: أيام، فواتير، توصيل، إشراف، بيتيت، مالح/حالي، قيمة (مع فلتر التاريخ والحالة) ---------- */
   Q.sm = { p: {}, d: {} }; Q.sl = { p: [], d: [] };
-  function normLine(l) { var svc = /^S-/i.test(l.code); return { d: l.d, i: l.i, s: l.s, c: l.c, code: l.code, name: l.name, kind: svc ? 'Services' : '', unit: l.unit, q: l.q, x: l.x ? 1 : 0, kg: !svc && isGram(l.unit) ? l.q / 1000 : 0, a: l.a || 0, salt: !svc && saltName(l.name) }; }
+  function normLine(l) { var svc = /^S-/i.test(l.code); return { d: l.d, i: l.i, s: l.s, c: l.c, code: l.code, name: l.name, kind: svc ? 'Services' : '', unit: l.unit, q: l.q, x: l.x ? 1 : 0, kg: !svc && isGram(l.unit) ? l.q / 1000 : 0, a: l.a || 0, salt: !svc && isSaltLine(l) }; }
   function badSt(l) { return !OK_STATE[String(l.s).toLowerCase()]; }
   function sumFilter(lines, f) {
     var a = f.f || '', b = f.t || '', st = f.s || '';
@@ -2639,7 +2642,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var rowsH = Object.keys(WLAB).filter(function (k) { return g[k]; }).map(function (k) { return '<tr' + (k === 'ok' ? ' style="background:#e4f4e6;font-weight:700"' : '') + '><td class="qn" style="white-space:normal;min-width:230px">' + h(WLAB[k]) + '</td>' + cell(g[k]) + '</tr>'; }).join('');
     var all = E(); [inn, out].forEach(function (x) { for (var k in all) all[k] += x[k]; });
     var rg = g.ok || E(), sheetInfo = Q.pend ? h(Q.pend.sheet || '') : '';
-    var RG = {}; xr.forEach(function (r) { var k = r.s || '(بدون حالة)', o = RG[k] || (RG[k] = { s: k, rows: 0, ids: {}, test: {}, kept: {} }), key = r.i || (r.d + '|' + r.code); o.rows++; o.ids[key] = 1; if (r.t) o.test[key] = 1; else if (r.w === 'ok' || r.w === 'call' || r.w === 'chan' || r.w === 'state') o.kept[key] = 1; });
+    var RG = {}; xr.forEach(function (r) { var k = r.s || '(بدون حالة)', o = RG[k] || (RG[k] = { s: k, rows: 0, ids: {}, test: {}, kept: {} }), key = r.i || (r.d + '|' + r.code); o.rows++; o.ids[key] = 1; if (r.t) o.test[key] = 1; else if (r.w === 'ok' || r.w === 'call' || r.w === 'chan' || r.w === 'state' || r.w === 'code') o.kept[key] = 1; });
     var recQ = Object.keys(RG).map(function (k) { var o = RG[k]; return { s: o.s, rows: o.rows, raw: Object.keys(o.ids).length, test: Object.keys(o.test).length, kept: Object.keys(o.kept).length }; }), recH = recTable(recQ, ' (هنا كل الورقة بدون فلتر تاريخ؛ In Call وبدون قناة تُحسب كفواتير لكن لا تدخل الكميات اليومية.)');
     return recH + '<details class="card" style="margin-top:10px" open><summary><b>تدقيق المطابقة مع Excel (سطراً سطراً)</b></summary><p class="muted">الورقة المقروءة: <b>' + sheetInfo + '</b> (تأكد أنها نفس الورقة المفتوحة عندك في Excel). كل سطر في الورقة مصنّف حسب سبب احتسابه أو استبعاده' + (stSel ? '، وللحالة المختارة فقط' : '') + '. «سطور» = عدد صفوف الورقة، و«كمية» = مجموع عمود Quantity لها. الرقمان يتساويان غالباً لأن كمية سطر التوصيل 1.</p>' +
       '<div class="tw"><table class="qt"><thead><tr><th class="qn" rowspan="2">السبب</th><th colspan="2">كل الأصناف</th><th colspan="2">التوصيل S-10004</th><th colspan="2">الإشراف S-10005</th></tr><tr><th>سطور</th><th>كمية</th><th>سطور</th><th>كمية</th><th>سطور</th><th>كمية</th></tr></thead><tbody>' + rowsH +
