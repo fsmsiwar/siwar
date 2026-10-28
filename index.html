@@ -4509,7 +4509,21 @@ var FX = (function () {
     });
   }
   var cvT = null, mo = null;
-  function schedConv() { clearTimeout(cvT); cvT = setTimeout(function () { if (mo) mo.disconnect(); try { conv(document.getElementById('app') || document.body); } finally { if (mo) mo.observe(document.body, { childList: true, subtree: true, characterData: true }); } }, 150); }
+  var pend = [], CLK = '#rclk,#clock,#nbstamp,#tdp .no12';
+  function schedConv(muts) {
+    for (var q = 0; q < muts.length; q++) {
+      var m = muts[q], tg = m.target, el = tg && (tg.nodeType === 1 ? tg : tg.parentElement);
+      if (el && el.closest && el.closest(CLK)) continue;
+      if (m.type === 'characterData') pend.push(tg);
+      else for (var z = 0; z < m.addedNodes.length; z++) pend.push(m.addedNodes[z]);
+    }
+    if (!pend.length) return;
+    clearTimeout(cvT); cvT = setTimeout(function () {
+      var list = pend; pend = []; if (mo) mo.disconnect();
+      try { list.forEach(function (n) { if (!n || !n.isConnected) return; conv(n.nodeType === 3 ? n.parentNode : n); }); } finally { if (mo) mo.observe(document.body, { childList: true, subtree: true, characterData: true }); }
+    }, 120);
+  }
+  setTimeout(function () { conv(document.getElementById('app') || document.body); }, 300);
   if (window.MutationObserver) { mo = new MutationObserver(schedConv); mo.observe(document.body, { childList: true, subtree: true, characterData: true }); }
 
   /* ---------- تقويم مصغر ---------- */
@@ -4560,7 +4574,7 @@ var FX = (function () {
       t.setAttribute('aria-pressed', lsG('sw_tr', '1') === '1'); t.onclick = function () { lsS('sw_tr', lsG('sw_tr', '1') === '1' ? '0' : '1'); t.setAttribute('aria-pressed', lsG('sw_tr', '1') === '1'); hideTr(); toast(lsG('sw_tr', '1') === '1' ? 'الترجمة التلقائية مفعّلة' : 'الترجمة التلقائية متوقفة'); };
       tgs.appendChild(t);
     }
-    tick2(); schedConv();
+    tick2(); conv(document.getElementById("app") || document.body);
   };
 
   /* ---------- الترجمة التلقائية ---------- */
@@ -5241,11 +5255,11 @@ var FX = (function () {
   }
   function load() {
     var el = document.getElementById('tdg'); if (!el) return Promise.resolve();
-    return rpc('dash.tiles', { date: TD.date || '' }).then(fill).catch(function (e) { if (el) el.innerHTML = '<p class="muted">تعذر تحميل اللوحات: ' + h(e.message) + '</p>'; });
+    return rpc('dash.tiles', { date: TD.date || '', fresh: TD.fresh ? 1 : '' }).then(fill).catch(function (e) { if (el) el.innerHTML = '<p class="muted">تعذر تحميل اللوحات: ' + h(e.message) + '</p>'; });
   }
   window.tdSet = function (v) { if (v) { TD.date = v; load(); } };
   window.tdShift = function (n) { var d = document.getElementById('tdd'), cur = (d && d.value) || S.boot.today, p = cur.split('-'), x = new Date(+p[0], +p[1] - 1, +p[2] + n, 12); TD.date = x.getFullYear() + '-' + ('0' + (x.getMonth() + 1)).slice(-2) + '-' + ('0' + x.getDate()).slice(-2); load(); };
-  window.tdReload = load;
+  window.tdReload = function () { TD.fresh = 1; load().then(function () { TD.fresh = 0; }); };
   var prev = R.home;
   R.home = function (m) {
     return Promise.resolve(prev(m)).then(function () {
