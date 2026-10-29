@@ -2529,7 +2529,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
 
   /* ---------- v2.5: لوحة الأيام (ملخص كل يوم + تفاصيل عند الضغط) ---------- */
   var PETIT = /petit|بيتي ?(ت|جاتو|كاتو)|بتيت ?(كاتو|جاتو)/i;
-  function isPetit(o) { if (isGram(o.unit)) return false; var pc = String(o.code || '').toUpperCase().replace(/\s/g, ''), pr = (S.boot.products || []).filter(function (p) { return String(p.code).toUpperCase().replace(/\s/g, '') === pc; })[0]; if (pr) return /بيتي/.test(String(pr.cat || '')); return PETIT.test(String(o.kind || '') + ' ' + String(o.name || '')); }
+  function isPetit(o) { if (isGram(o.unit)) return false; if (PETIT.test(String(o.name || ''))) return true; var pc = String(o.code || '').toUpperCase().replace(/\s/g, ''), pr = (S.boot.products || []).filter(function (p) { return String(p.code).toUpperCase().replace(/\s/g, '') === pc; })[0]; if (pr) return /بيتي/.test(String(pr.cat || '')); return PETIT.test(String(o.kind || '') + ' ' + String(o.name || '')); }
   function isGram(u) { return /^(g|gram|جم|جرام)$/i.test(String(u || '')); }
   function qtyTxt(o) { var q = Number(o.qty); return isGram(o.unit) ? q.toLocaleString('en-US', { maximumFractionDigits: 0 }) + ' جم' : q.toLocaleString('en-US', { maximumFractionDigits: 2 }) + ' حبة'; }
   /* list: [{date, code, name, kind, unit, qty, kg, salt}] */
