@@ -3019,11 +3019,15 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       return go1.then(function (ok) { if (!ok) throw new Error('أُلغي الرفع ولم يتغير شيء'); return rpc('so.import', { phase: 'begin', from: a.from, to: a.to, ids: ids }); });
     }).then(function (b) { sid = b.sid; });
     var newEmps = [];
-    for (var i = 0; i < a.orders.length; i += 1000) (function (i) { chain = chain.then(function () { prog('الطلبات ' + Math.min(i + 1000, a.orders.length) + ' من ' + a.orders.length); return rpc('so.import', { phase: 'orders', sid: sid, rows: a.orders.slice(i, i + 1000) }).then(function (r) { newEmps = newEmps.concat(r.newEmployees || []); }); }); })(i);
-    for (var j = 0; j < a.items.length; j += 1500) (function (j) { chain = chain.then(function () { prog('الأصناف ' + Math.min(j + 1500, a.items.length) + ' من ' + a.items.length); return rpc('so.import', { phase: 'items', sid: sid, rows: a.items.slice(j, j + 1500) }); }); })(j);
-    chain.then(function () { return rpc('so.import', { phase: 'end', sid: sid, from: a.from, to: a.to, orders: a.orders.length, items: a.items.length, test: a.stats.test, file: P.file }); }).then(function () {
-      SO.pend = null; SO.stAt = 0; msg('<div class="msg ok"><b>تم الرفع.</b> ' + n0(a.orders.length) + ' طلب' + (newEmps.length ? '. موظفون جدد أُضيفوا للقائمة: ' + h(newEmps.join('، ')) + ' (راجع أسماءهم من الإعدادات)' : '') + '.</div>');
-      toast('تم رفع الطلبات'); setTimeout(function () { go('sales'); }, 1200);
+    function tryRpc(payload, k) { return rpc('so.import', payload).catch(function (e) { if (k >= 3) throw e; return new Promise(function (r) { setTimeout(r, 1500 * (k + 1)); }).then(function () { return tryRpc(payload, k + 1); }); }); }
+    var BO = 500;
+    for (var i = 0; i < a.orders.length; i += BO) (function (i) { chain = chain.then(function () { prog('الطلبات ' + Math.min(i + BO, a.orders.length) + ' من ' + a.orders.length); var rows = a.orders.slice(i, i + BO); return tryRpc({ phase: 'orders', sid: sid, rows: rows, off: i, n: rows.length }, 0).then(function (r) { newEmps = newEmps.concat(r.newEmployees || []); }); }); })(i);
+    for (var j = 0; j < a.items.length; j += BO) (function (j) { chain = chain.then(function () { prog('الأصناف ' + Math.min(j + BO, a.items.length) + ' من ' + a.items.length); var rows = a.items.slice(j, j + BO); return tryRpc({ phase: 'items', sid: sid, rows: rows, off: j, n: rows.length }, 0); }); })(j);
+    chain.then(function () { return rpc('so.import', { phase: 'end', sid: sid, from: a.from, to: a.to, orders: a.orders.length, items: a.items.length, test: a.stats.test, file: P.file }); }).then(function (m) {
+      var v = m && m.verify; SO.pend = null; SO.stAt = 0;
+      if (v && !v.ok) { msg('<div class="msg bad"><b>الرفع لم يكتمل.</b> المتوقع من الملف: ' + n0(v.expO) + ' طلب و' + n0(v.expI) + ' سطر صنف. المحفوظ فعلاً: ' + n0(v.orders) + ' طلب و' + n0(v.items) + ' سطر. أعد رفع نفس الملف.</div>'); return; }
+      msg('<div class="msg ok"><b>تم الرفع والتحقق.</b> ' + n0(a.orders.length) + ' طلب و' + n0(a.items.length) + ' سطر صنف محفوظة بالكامل' + (newEmps.length ? '. موظفون جدد أُضيفوا للقائمة: ' + h(newEmps.join('، ')) + ' (راجع أسماءهم من الإعدادات)' : '') + '.</div>');
+      toast('تم رفع الطلبات'); setTimeout(function () { go('sales'); }, 1800);
     }).catch(function (e) { msg('<div class="msg bad">توقف الرفع: ' + h(e.message) + '. أعد رفع نفس الملف؛ الرفع يعوّض الفترة ولا يكرر.</div>'); });
   };
 
