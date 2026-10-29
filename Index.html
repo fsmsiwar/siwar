@@ -2760,11 +2760,14 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   var TABS = [['ov', 'النظرة العامة'], ['it', 'الأصناف'], ['em', 'الموظفون'], ['cx', 'الطلبات الملغاة'], ['mr', 'التقرير الشهري'], ['cr', 'الفواتير المنشأة']];
 
   R.sales = function (m) {
-    return rpc('so.status', {}).then(function (st) { SO.st = st; return loadTab().then(function () { draw(m); }); });
+    /* v4.10.2: الحالة والتبويب يُطلبان بالتوازي، والحالة تُحفظ 3 دقائق ولا تُعاد عند كل فلتر */
+    var fresh = SO.st && SO.st.orders && SO.stAt && Date.now() - SO.stAt < 180000;
+    var a = fresh ? Promise.resolve(SO.st) : rpc('so.status', {}), b = loadTab(true); b.catch(function () { });
+    return a.then(function (st) { SO.st = st; SO.stAt = Date.now(); if (!st || !st.orders) { draw(m); return; } return b.then(function () { draw(m); }); });
   };
-  function loadTab() {
+  function loadTab(force) {
     var r = range(), base = { from: r.from, to: r.to, gran: SO.gran };
-    if (!SO.st || !SO.st.orders) return Promise.resolve();
+    if (!force && (!SO.st || !SO.st.orders)) return Promise.resolve();
     if (SO.tab === 'ov') return rpc('so.dash', base).then(function (d) { SO.d.ov = d; });
     if (SO.tab === 'it') return rpc('so.items', { from: r.from, to: r.to, gran: SO.gran, kind: SO.kind, q: SO.q, by: SO.by, top: 25 }).then(function (d) { SO.d.it = d; });
     if (SO.tab === 'em') return rpc('so.emps', { from: r.from, to: r.to, withExcluded: SO.ex }).then(function (d) { SO.d.em = d; });
@@ -2984,7 +2987,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     for (var i = 0; i < a.orders.length; i += 1000) (function (i) { chain = chain.then(function () { prog('الطلبات ' + Math.min(i + 1000, a.orders.length) + ' من ' + a.orders.length); return rpc('so.import', { phase: 'orders', sid: sid, rows: a.orders.slice(i, i + 1000) }).then(function (r) { newEmps = newEmps.concat(r.newEmployees || []); }); }); })(i);
     for (var j = 0; j < a.items.length; j += 1500) (function (j) { chain = chain.then(function () { prog('الأصناف ' + Math.min(j + 1500, a.items.length) + ' من ' + a.items.length); return rpc('so.import', { phase: 'items', sid: sid, rows: a.items.slice(j, j + 1500) }); }); })(j);
     chain.then(function () { return rpc('so.import', { phase: 'end', sid: sid, from: a.from, to: a.to, orders: a.orders.length, items: a.items.length, test: a.stats.test, file: P.file }); }).then(function () {
-      SO.pend = null; msg('<div class="msg ok"><b>تم الرفع.</b> ' + n0(a.orders.length) + ' طلب' + (newEmps.length ? '. موظفون جدد أُضيفوا للقائمة: ' + h(newEmps.join('، ')) + ' (راجع أسماءهم من الإعدادات)' : '') + '.</div>');
+      SO.pend = null; SO.stAt = 0; msg('<div class="msg ok"><b>تم الرفع.</b> ' + n0(a.orders.length) + ' طلب' + (newEmps.length ? '. موظفون جدد أُضيفوا للقائمة: ' + h(newEmps.join('، ')) + ' (راجع أسماءهم من الإعدادات)' : '') + '.</div>');
       toast('تم رفع الطلبات'); setTimeout(function () { go('sales'); }, 1200);
     }).catch(function (e) { msg('<div class="msg bad">توقف الرفع: ' + h(e.message) + '. أعد رفع نفس الملف؛ الرفع يعوّض الفترة ولا يكرر.</div>'); });
   };
