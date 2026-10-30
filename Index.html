@@ -2479,6 +2479,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     if (/بيتيت|بتيت|كاتو|petit/i.test(s) || /^len/i.test(u.code)) return 'بيتيت كاتو';
     if (/مشروب|لاتيه|سحلب|موهيتو|كركديه|آيس|ايس ?كريم|عصير|فوار/.test(s) || /^DRI/i.test(u.code)) return 'مشروبات';
     if (!g) return 'بيتيت كاتو';
+    if (/ذر[ةه] ?مال?ح|روي ?(ال)?سمسم/.test(s)) return 'شوكولاتة'; /* ذرة مالح وروي سمسم شوكولاتة وليست موالح */
     return /معجنات|مالح|موالح|بسكويت|كراكرز|كراركرز|أصابع|اصابع|ماشروم|زيتون|جبن/.test(s) ? 'معجنات' : 'شوكولاتة';
   }
   window.qtyAddMissing = function (btn) {
@@ -2541,7 +2542,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       if (c === 'S-10004') { d.deliv += o.qty; d.lines.push(o); return; }
       if (c === 'S-10005') { d.sup += o.qty; d.lines.push(o); return; }
       if (/^S-/i.test(c) || /services|خدمات/i.test(String(o.kind || ''))) { d.lines.push(o); return; }
-      d.kg += o.kg || 0; if (o.salt) d.salt += o.kg || 0; if (isPetit(o)) d.petit += o.qty; d.nItems++; d.lines.push(o);
+      d.kg += o.kg || 0; if (o.salt && !CORNRX.test(String(o.name || ''))) d.salt += o.kg || 0; if (isPetit(o)) d.petit += o.qty; d.nItems++; d.lines.push(o);
     });
     return m;
   }
@@ -2579,9 +2580,11 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   function prodCatOf(code) { var P = S.boot.products || []; if (PCM.n !== P.length) { PCM.n = P.length; PCM.m = {}; P.forEach(function (p) { PCM.m[String(p.code).toUpperCase().replace(/\s/g, '')] = String(p.cat || ''); }); } var k = String(code || '').toUpperCase().replace(/\s/g, ''); return Object.prototype.hasOwnProperty.call(PCM.m, k) ? PCM.m[k] : null; }
   function isSaltLine(l) { var c = prodCatOf(l.code); if (c !== null && c !== '') return /معجنات|مالح|موالح/.test(c); return saltName(l.name); }
   function saltName(n) { n = String(n || ''); if (/ذر[ةه] ?مال?ح|روي ?(ال)?سمسم/.test(n)) return false; return SALTRX.test(n); }
+  var CORNRX = /ذر[ةه] ?مال?ح|روي ?(ال)?سمسم/;
   function kcls(o) {
     var c = String(o.code || ''), n = String(o.name || '');
     if (/^S-/i.test(c) || /services|خدمات/i.test(String(o.kind || ''))) return 'sv'; if (isPetit(o)) return 'pt'; if (/^box|^بوكس/i.test(c + ' ' + n.trim()) || /boxes|بوكسات/i.test(String(o.kind || ''))) return 'bx';
+    if (CORNRX.test(n)) return 'ch';
     return o.salt || saltName(n) ? 'sl' : 'ch';
   }
   var KRGB = { ch: '120,72,40', sl: '46,125,50', pt: '240,170,0', sv: '21,101,192', bx: '110,110,110' };
