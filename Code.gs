@@ -3565,7 +3565,10 @@ function soKind_(code, name, unit, prod) {
   var c = String(code || '').toUpperCase().replace(/\s/g, ''), n = String(name || '');
   if (unit === 'pc' && PETIT_CODES_[c]) return 'بيتيت كاتو'; /* قائمة أكواد البيتيت المعتمدة */
   if (/^S-/.test(c)) return 'خدمات';
-  if ((/^TEMP/.test(c) || /حجز مؤقت/.test(n)) && !(unit === 'pc' && /بيتيت|بتيت/.test(n))) return 'حجز مؤقت'; /* حجز مؤقت بتيت كاتو يُحسب بيتيت كاتو */
+  if (/^TEMP/.test(c) || /حجز مؤقت/.test(n)) { /* الحجز المؤقت يُحسب حسب نوعه: بيتيت كاتو (حبة) أو مالح أو حالي بالكيلو */
+    if (unit === 'pc') return /بيتيت|بتيت/.test(n) ? 'بيتيت كاتو' : 'حجز مؤقت';
+    return (/^TEMP002/.test(c) || /مال?ح|موالح/.test(n)) ? 'المالح' : 'الحالي';
+  }
   if (/^ديكور|ديكور /.test(n)) return 'أخرى';
   if (unit === 'pc' && (/بيتيت|بتيت/.test(n) || (prod && /بيتي/.test(String(prod['الفئة'] || ''))))) return 'بيتيت كاتو';
   if (/^BOX/.test(c) || /^بوكس/.test(n.trim())) return 'بوكسات';
