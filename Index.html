@@ -2588,13 +2588,13 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   window.qtyFull = function (id) { var e = $(id); if (!e) return; e.classList.toggle('full'); }
   Q.kf = {}; Q.pvd = {};
   function pivotHtml(rows, dates, id) { Q.pvd[id] = { rows: rows, dates: dates }; return '<div id="' + id + '_w">' + pivotInner(rows, dates, id) + '</div>'; }
-  window.qtyPF = function (id, v) { (Q.pf = Q.pf || {})[id] = v; var d = Q.pvd[id], w = $(id + '_w'); if (d && w) w.innerHTML = pivotInner(d.rows, d.dates, id); };
+  window.qtyPV = function (id, v) { (Q.pvf = Q.pvf || {})[id] = v; var d = Q.pvd[id], w = $(id + '_w'); if (d && w) w.innerHTML = pivotInner(d.rows, d.dates, id); };
   window.qtyKF = function (id, k) { Q.kf[id] = Q.kf[id] === k ? '' : k; var d = Q.pvd[id], w = $(id + '_w'); if (d && w) w.innerHTML = pivotInner(d.rows, d.dates, id); };
   function pivotInner(rows, dates, id) {
     var items = {}, order = [], kf = Q.kf[id] || '';
     rows.forEach(function (r) { var k = String(r.code).toUpperCase(); var it = items[k]; if (!it) { it = items[k] = { code: r.code, name: r.name, unit: r.unit, kind: r.kind, q: {}, tot: 0, mx: 0 }; order.push(k); } it.q[r.date] = (it.q[r.date] || 0) + r.qty; it.tot += r.qty; if (!it.name) it.name = r.name; });
     order.sort(function (a, b) { return String(items[a].code).localeCompare(String(items[b].code)); });
-    var pf = (Q.pf = Q.pf || {})[id] || '';
+    var pf = (Q.pvf = Q.pvf || {})[id] || '';
     var allOrder = order.slice();
     if (kf) order = order.filter(function (k) { return kcls(items[k]) === kf; });
     if (pf) order = order.filter(function (k) { return k === pf; });
@@ -2608,7 +2608,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       return '<tr class="k-' + kc + '"><td class="s1"><b>' + h(it.code) + '</b></td><td class="s2 qn">' + h(it.name) + '</td><td class="s3">' + h(isGram(it.unit) ? 'جرام' : 'حبة') + '</td><td class="s4"><b>' + n0q(it.tot) + '</b></td>' + dates.map(function (x) { var q = it.q[x]; return '<td class="qc"' + (q && rgb ? ' style="background:rgba(' + rgb + ',' + (.14 + .6 * q / (it.mx || 1)).toFixed(2) + ')"' : '') + '>' + (q ? n0q(q) : '') + '</td>'; }).join('') + '</tr>';
     }).join('');
     var lg = [['ch', 'شوكولاتة'], ['sl', 'مالح'], ['pt', 'بيتيت كاتو'], ['sv', 'خدمات'], ['bx', 'بوكسات']].map(function (x) { return '<button type="button" class="k-' + x[0] + (kf === x[0] ? ' on' : '') + '" onclick="qtyKF(\'' + id + '\',\'' + x[0] + '\')">' + (kf === x[0] ? '✔ ' : '') + x[1] + '</button>'; }).join('');
-    var isel = '<select style="max-width:230px;margin-inline-start:6px" title="عرض صنف واحد فقط" onchange="qtyPF(\'' + id + '\',this.value)"><option value="">كل الأصناف</option>' + allOrder.slice().sort(function (a, b) { return String(items[a].name).localeCompare(String(items[b].name), 'ar'); }).map(function (k) { return '<option value="' + h(k) + '"' + (pf === k ? ' selected' : '') + '>' + h(items[k].name) + ' (' + h(items[k].code) + ')</option>'; }).join('') + '</select>';
+    var isel = '<select style="max-width:230px;margin-inline-start:6px" title="عرض صنف واحد فقط" onchange="qtyPV(\'' + id + '\',this.value)"><option value="">كل الأصناف</option>' + allOrder.slice().sort(function (a, b) { return String(items[a].name).localeCompare(String(items[b].name), 'ar'); }).map(function (k) { return '<option value="' + h(k) + '"' + (pf === k ? ' selected' : '') + '>' + h(items[k].name) + ' (' + h(items[k].code) + ')</option>'; }).join('') + '</select>';
     return '<div class="qlg">' + lg + isel + (kf ? '<button type="button" class="qall" onclick="qtyKF(\'' + id + '\',\'' + kf + '\')">عرض الكل</button>' : '') + '<span class="muted" style="font-size:12px">اضغط على نوع لعرضه وحده وإجماليه</span></div>' +
       '<div class="qpv" id="' + id + '"><button type="button" class="s qfb" onclick="qtyFull(\'' + id + '\')">تكبير / تصغير</button><table class="qt stk"><thead>' + head + '</thead><tbody>' + body + '</tbody></table></div>';
   }
