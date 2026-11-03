@@ -2803,7 +2803,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   function addD(s, n) { var d = parseIso(s); d.setDate(d.getDate() + n); return isoOf(d); }
   var ST_CLS = { 'Delivered': 'ok', 'Submit': 'in', 'Ready to deliver': 'warn', 'Under preparation': 'in', 'Draft': 'gr', 'Cancel': 'bad' };
   var ST_COL = { 'Delivered': '#2e7d32', 'Submit': '#1565c0', 'Ready to deliver': '#e65100', 'Under preparation': '#6a1b9a', 'Draft': '#8d8d8d', 'Cancel': '#c62828' };
-  var SO = { tab: 'ov', p: '30', from: '', to: '', gran: 'day', kind: '', q: '', by: 'amt', ex: false, emp: '', st: null, d: {}, prog: '' };
+  var SO = { tab: 'sm', p: '30', from: '', to: '', gran: 'day', kind: '', q: '', by: 'amt', ex: false, emp: '', st: null, d: {}, prog: '' };
   window.SO = SO;
   function n0(x) { return Number(x || 0).toLocaleString('en-US', { maximumFractionDigits: 0 }); }
   function n1(x) { return Number(x || 0).toLocaleString('en-US', { maximumFractionDigits: 1 }); }
@@ -2822,7 +2822,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     return { from: f, to: e };
   }
   var PERS = [['day', 'اليوم'], ['7', 'آخر 7 أيام'], ['30', 'آخر 30 يوم'], ['month', 'هذا الشهر'], ['pm', 'الشهر الماضي'], ['year', 'هذه السنة'], ['all', 'كل البيانات']];
-  var TABS = [['ov', 'النظرة العامة'], ['it', 'الأصناف'], ['em', 'الموظفون'], ['cx', 'الطلبات الملغاة'], ['mr', 'التقرير الشهري'], ['cr', 'الفواتير المنشأة']];
+  var TABS = [['sm', 'ملخص المبيعات'], ['ov', 'النظرة العامة'], ['it', 'الأصناف'], ['em', 'الموظفون'], ['cx', 'الطلبات الملغاة'], ['mr', 'التقرير الشهري'], ['cr', 'الفواتير المنشأة']];
 
   R.sales = function (m) {
     /* v4.10.2: الحالة والتبويب يُطلبان بالتوازي، والحالة تُحفظ 3 دقائق ولا تُعاد عند كل فلتر */
@@ -2833,6 +2833,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   function loadTab(force) {
     var r = range(), base = { from: r.from, to: r.to, gran: SO.gran };
     if (!force && (!SO.st || !SO.st.orders)) return Promise.resolve();
+    if (SO.tab === 'sm') return rpc('so.summary', { from: r.from, to: r.to }).then(function (d) { SO.d.sm = d; });
     if (SO.tab === 'ov') return rpc('so.dash', base).then(function (d) { SO.d.ov = d; });
     if (SO.tab === 'it') return rpc('so.items', { from: r.from, to: r.to, gran: SO.gran, kind: SO.kind, q: SO.q, by: SO.by, top: 25 }).then(function (d) { SO.d.it = d; });
     if (SO.tab === 'em') return rpc('so.emps', { from: r.from, to: r.to, withExcluded: SO.ex }).then(function (d) { SO.d.em = d; });
@@ -2854,13 +2855,33 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   function soKeepUp() { if (SO.pend && SO.pmsg) { var e = $('so_msg'); if (e) e.innerHTML = SO.pmsg; var d = $('so_up'); if (d) d.open = true; } }
   function draw(m) {
     if (!SO.st || !SO.st.orders) { m.innerHTML = head(); soKeepUp(); return; }
-    m.innerHTML = head() + '<div id="so_body">' + ({ ov: ovHtml, it: itHtml, em: emHtml, cx: cxHtml, mr: mrHtml, cr: crHtml }[SO.tab])() + '</div>'; soKeepUp();
+    m.innerHTML = head() + '<div id="so_body">' + ({ sm: smHtml, ov: ovHtml, it: itHtml, em: emHtml, cx: cxHtml, mr: mrHtml, cr: crHtml }[SO.tab])() + '</div>'; soKeepUp();
   }
   window.soPer = function (p) { SO.p = p; go('sales'); };
   window.soCustom = function () { SO.p = 'c'; SO.from = val('so_from'); SO.to = val('so_to'); if (SO.from && SO.to) go('sales'); };
   window.soGran = function (g) { SO.gran = g; go('sales'); };
   window.soTab = function (t) { SO.tab = t; go('sales'); };
   window.soUploadOpen = function () { var e = $('so_up'); if (e) { e.open = true; e.scrollIntoView({ block: 'center' }); } };
+
+  /* ---- v4.12: ملخص المبيعات ---- */
+  function smRows(d) { var c = d.cur, b = d.before; return [['الطلبات', c.orders, b.orders], ['شوكولاتة (كجم)', c.choc, b.choc], ['مالح (كجم)', c.salt, b.salt], ['بيتيت كاتو (قطعة)', c.petit, b.petit], ['بوكس', c.boxes, b.boxes], ['متوسط كيلو الطلب', c.avgKg, b.avgKg], ['مبيعات الفاتورة (ريال)', c.amt, b.amt], ['حجوزات قادمة', d.upcoming, '']]; }
+  function smDelta(cur, prev) { var p = Math.round((cur - prev) / prev * 100); return '<small class="' + (p >= 0 ? 'so-up' : 'so-dn') + '">' + (p >= 0 ? '▲ ' : '▼ ') + Math.abs(p) + '% عن الفترة السابقة</small>'; }
+  function smHtml() {
+    var d = SO.d.sm; if (!d) return '<div class="card"><p class="muted">جارٍ التحميل…</p></div>';
+    var c = d.cur, b = d.before, none = '<small class="muted">لا بيانات في الفترة السابقة</small>';
+    function card(t, v, unit, pv, cv, tip) { return '<div class="kpi"><small>' + h(t) + (tip ? ' <span title="' + h(tip) + '" style="cursor:help">ⓘ</span>' : '') + '</small><b>' + n1(v) + (unit ? ' <small>' + h(unit) + '</small>' : '') + '</b>' + (pv ? smDelta(cv, pv) : none) + '</div>'; }
+    var cards = '<div class="grid">' +
+      card('الطلبات', c.orders, '', b.orders, c.orders, 'طلبات Delivered وSubmit وReady to deliver وUnder preparation حسب تاريخ التسليم، بدون الملغاة والمسودة وحسابات test') +
+      card('شوكولاتة', c.choc, 'كجم', b.choc, c.choc, 'أصناف الجرام غير المالح (شاملة الحجز المؤقت بالجرام)') +
+      card('مالح', c.salt, 'كجم', b.salt, c.salt, 'أصناف الموالح والمعجنات بالجرام وحجز TEMP002') +
+      card('بتيت كاتو', c.petit, 'قطعة', b.petit, c.petit, 'مجموع الحبات لأكواد البيتيت المعتمدة وكل حجز مؤقت بيتيت') +
+      card('بوكس', c.boxes, 'بوكس', b.boxes, c.boxes, 'أصناف BOX بالحبة') +
+      card('متوسط كيلو الطلب', c.avgKg, 'كجم', b.avgKg, c.avgKg, '(شوكولاتة + مالح) ÷ عدد الطلبات') +
+      card('مبيعات الفاتورة', c.amt, 'ريال', b.amt, c.amt, 'إجمالي الفواتير المعتمدة كاملة بالتوصيل والإشراف') +
+      '<div class="kpi"><small>حجوزات قادمة <span title="طلبات معتمدة تاريخ تسليمها اليوم أو بعده، بغض النظر عن الفترة المختارة" style="cursor:help">ⓘ</span></small><b>' + n0(d.upcoming) + '</b><small class="muted">من ' + h(d.today) + ' فصاعداً</small></div>' +
+      (c.temp ? '<div class="kpi"><small>حجز مؤقت (قطعة)</small><b>' + n0(c.temp) + '</b><small class="muted">حجز مؤقت غير بيتيت</small></div>' : '') + '</div>';
+    return '<div class="card"><h3>ملخص المبيعات</h3><p class="muted">كم بعنا ومقارنة بالفترة السابقة. الفترة من ' + h(d.from) + ' إلى ' + h(d.to) + '، والمقارنة مع ' + h(d.prev.from) + ' إلى ' + h(d.prev.to) + '. التاريخ حسب تاريخ التسليم.</p></div>' + cards;
+  }
 
   /* ---- النظرة العامة ---- */
   function lblP(k) { return SO.gran === 'month' ? k : SO.gran === 'week' ? 'أسبوع ' + k.slice(5) : k.slice(5); }
@@ -3069,6 +3090,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   window.SEC_TB.sales = { x: ['sales'], f: 0, custom: 'soUploadOpen', imp: 1 };
   window.EXP_HOOK.sales = function () {
     var d = SO.d[SO.tab]; if (!d) return null;
+    if (SO.tab === 'sm') return { sheets: [{ name: 'ملخص المبيعات', head: ['المؤشر', 'الفترة', 'الفترة السابقة'], rows: smRows(d) }] };
     if (SO.tab === 'ov') return { sheets: [{ name: 'الطلبات', head: ['الفترة', 'الطلبات', 'مبلغ الأصناف', 'الفاتورة كاملة', 'عدد التوصيل', 'مبلغ التوصيل', 'عدد الإشراف', 'مبلغ الإشراف', 'عدد الإيجار', 'مبلغ الإيجار', 'حبات بيتيت', 'كجم', 'ملغاة', 'مبلغ الملغاة'], rows: d.rows.map(function (r) { return [r.k, r.orders, r.itemsAmt, r.total, r.delivN, r.delivAmt, r.supN, r.supAmt, r.rentN, r.rentAmt, r.petit, r.kg, r.cancelN, r.cancelAmt]; }).concat([['الإجمالي', d.totals.orders, d.totals.itemsAmt, d.totals.total, d.totals.delivN, d.totals.delivAmt, d.totals.supN, d.totals.supAmt, d.totals.rentN, d.totals.rentAmt, d.totals.petit, d.totals.kg, d.totals.cancelN, d.totals.cancelAmt]]) }] };
     if (SO.tab === 'it') return { sheets: [{ name: 'الأصناف', head: ['#', 'الكود', 'الصنف', 'النوع', 'الوحدة', 'الكمية', 'كجم', 'حبات', 'المبلغ', 'النسبة %', 'مرات الطلب'], rows: d.rows.map(function (r) { return [r.rank, r.code, r.name, r.kind, r.unit, r.qty, r.kg, r.pcs, r.amt, r.share, r.orders]; }) }] };
     if (SO.tab === 'em') return { sheets: [{ name: 'الموظفون', head: ['#', 'الموظف', 'إجمالي', 'معتمدة', 'المبيعات', 'النسبة %', 'متوسط الفاتورة', 'ملغاة', 'قيمة الملغاة', 'نسبة الإلغاء %', 'ترتيب الإلغاء'], rows: d.rows.map(function (r) { return [r.rank, r.name, r.orders, r.valid, r.sales, r.share, r.avg, r.cancelN, r.cancelAmt, r.cancelPct, r.cancelRank]; }) }, { name: 'مبيعات شهرية', head: ['الموظف'].concat(d.months), rows: d.rows.map(function (r) { return [r.name].concat(r.mv); }) }, { name: 'إلغاء شهري', head: ['الموظف'].concat(d.months), rows: d.rows.map(function (r) { return [r.name].concat(r.mcv); }) }] };
