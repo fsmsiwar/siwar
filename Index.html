@@ -223,6 +223,14 @@ body.printing #prt{display:block;--ink:#111;--card:#fff;--line:#bbb;--soft:#f3f3
 .qtw{max-height:70vh}.qt{border-collapse:separate;border-spacing:0;font-size:12px;font-variant-numeric:tabular-nums}.qt th,.qt td{padding:5px 8px;border-bottom:1px solid var(--line,#e6e6e6);white-space:nowrap;text-align:center}
 .qt thead th{position:sticky;top:0;background:var(--card,#fff);z-index:2}.qt thead tr:nth-child(2) th{top:30px}.qt thead tr:nth-child(3) th{top:60px}.qt .qtl{text-align:right}.qt .qn{text-align:right;min-width:140px}
 .qt .qd{font-weight:700;color:#0a7a8a}.qt .qd.hi{background:#d40000;color:#fff}.qt .qc{min-width:52px}
+.qcal{overflow-x:auto;margin-top:8px}.qcal-h,.qcal-g{display:grid;grid-template-columns:repeat(7,minmax(118px,1fr));gap:8px;min-width:860px}.qcal-h b{text-align:center;font-size:12px;color:var(--mut,#777);padding:4px 0}.qcal-g{margin-top:2px}.qcal-e{min-height:10px}
+.qcal-c{text-align:right;font:inherit;color:inherit;border-radius:14px;border:1.5px solid rgba(0,0,0,.1);padding:8px 10px;background:var(--card,#fff);min-height:132px;display:flex;flex-direction:column;gap:5px;cursor:pointer;box-shadow:0 2px 8px rgba(80,50,20,.07)}.qcal-c:hover{transform:translateY(-1px)}
+.qcal-c.st-ok{background:#e6f6ee;border-color:#58b98a}.qcal-c.st-warn{background:#fff4dc;border-color:#e0a21a}.qcal-c.st-full{background:#fde6e6;border-color:#d44}.qcal-c.qcal-n{background:#f3ede6;border:1.5px dashed rgba(0,0,0,.18);cursor:default;box-shadow:none;opacity:.8}.qcx{font-size:12px;color:var(--mut,#777);margin:auto 0;text-align:center}
+.qch{display:flex;align-items:baseline;gap:6px}.qcn{font-size:22px;font-weight:700}.qcm{font-size:11px;color:var(--mut,#777);flex:1}.qcp{font-size:12px;font-weight:700;padding:1px 8px;border-radius:99px;background:rgba(0,0,0,.07)}
+.st-ok .qcp{color:#1b7a50}.st-warn .qcp{color:#a56a00}.st-full .qcp{color:#b00}.qcb{height:5px;border-radius:9px;background:rgba(0,0,0,.09);overflow:hidden}.qcb i{display:block;height:100%;border-radius:9px;background:#58b98a}.st-warn .qcb i{background:#e0a21a}.st-full .qcb i{background:#d44}
+.qcr{display:flex;justify-content:space-between;gap:4px;font-size:12px;font-weight:600}.qcv.c-kg{color:#b06a00}.qcv.c-pt{color:#c0407f}.qcv.c-dl{color:#4a63b8}.qcv.c-sp{color:#7a52b8}.qcv.wr{background:rgba(230,81,0,.15);border-radius:4px;padding:0 4px}.qcf{font-size:11px;color:var(--mut,#666);margin-top:auto;border-top:1px solid rgba(0,0,0,.08);padding-top:4px}
+.qcal-lg{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.qcal-lg span{padding:2px 12px;border-radius:99px;font-size:11px;border:1px solid rgba(0,0,0,.12)}.qcal-lg .st-ok{background:#e6f6ee}.qcal-lg .st-warn{background:#fff4dc}.qcal-lg .st-full{background:#fde6e6}.qcal-lg .st-n{background:#f3ede6}
+@media(max-width:700px){.qcal-h,.qcal-g{min-width:760px}}
 .qdg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}.qdc{text-align:right;background:var(--card,#fff);border:1px solid var(--bd,#d9d9d9);border-radius:10px;padding:10px;cursor:pointer;font:inherit;color:inherit}.qdc:hover{border-color:#3b6fc8}.qdc.hi{border-color:#d40000;background:rgba(212,0,0,.06)}.qdh{display:flex;justify-content:space-between;align-items:baseline}.qdh span{font-size:11px;color:var(--mut,#777)}.qdk{font-size:22px;font-weight:700;margin:4px 0}.qdk small{font-size:11px;font-weight:400}.qdr{display:flex;justify-content:space-between;font-size:12px;padding:1px 0}.qdr span{color:var(--mut,#777)}.qdf{font-size:10px;color:var(--mut,#777);margin-top:4px}
 .qpv{position:relative;overflow:auto;height:68vh;min-height:260px;max-width:100%;resize:both;border:1px solid var(--line,#ddd);border-radius:8px;background:var(--card,#fff)}.qpv.full{position:fixed;inset:0;z-index:70;width:100vw!important;height:100vh!important;max-height:none;border-radius:0;resize:none}.qfb{position:sticky;top:0;left:0;z-index:9;float:left;margin:4px}.qtw.qpv{max-height:none}
 .qt.stk thead th{position:sticky;top:0;z-index:5;background:#efe6dc}.qt.stk .s1,.qt.stk .s2,.qt.stk .s3,.qt.stk .s4,.qt.stk .s0{position:sticky;z-index:4}.qt.stk thead .s1,.qt.stk thead .s2,.qt.stk thead .s3,.qt.stk thead .s4,.qt.stk thead .s0{z-index:8}.qt.stk .s0{right:0}.qt.stk .s1{right:0;min-width:100px;max-width:100px}.qt.stk .s2{right:100px;min-width:190px;max-width:190px;overflow:hidden;text-overflow:ellipsis;text-align:right}.qt.stk .s3{right:290px;min-width:62px}.qt.stk .s4{right:352px;min-width:84px;box-shadow:-4px 0 5px rgba(0,0,0,.13)}
@@ -2554,14 +2562,32 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
   function modelFromRows(rows) { return dayModel(rows.map(function (r) { return { date: r.date, code: r.code, name: r.name, kind: r.kind, unit: r.unit, qty: r.qty, kg: isGram(r.unit) ? r.qty / 1000 : 0, salt: false }; })); }
   var WD = ['الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
   function wdOf(iso) { var p = iso.split('-'); return WD[new Date(+p[0], +p[1] - 1, +p[2], 12).getDay()]; }
+  var MON_AR = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+  function isoPlus(iso, n) { var p = iso.split('-'), d = new Date(+p[0], +p[1] - 1, +p[2] + n, 12); return d.getFullYear() + '-' + ('0' + (d.getMonth() + 1)).slice(-2) + '-' + ('0' + d.getDate()).slice(-2); }
+  /* v4.11: التقويم الأسبوعي (السبت إلى الجمعة): كل يوم بطاقة بنسبة الامتلاء وحالته */
   function dayCards(model, dates, src, limit, supMax) {
-    return '<div class="qdg">' + dates.map(function (x) {
-      var d = model[x] || { kg: 0, petit: 0, deliv: 0, sup: 0, nItems: 0 }, hi = limit && d.kg >= limit, sp = supMax ? d.sup / supMax * 100 : 0, supW = supMax && d.sup > 0 && sp >= 70;
-      return '<button type="button" class="qdc' + (hi ? ' hi' : '') + '" onclick="qtyDay(\'' + x + '\',\'' + src + '\')"><div class="qdh"><b>' + h(dayLbl(x)) + '</b><span>' + h(wdOf(x)) + '</span></div>' +
-        '<div class="qdk c-red">' + fmtKg(d.kg) + ' <small>كجم' + (hi ? ' ⚠' : '') + '</small></div>' +
-        '<div class="qdr c-blue"><span>توصيل</span><b>' + n0q(d.deliv) + '</b></div><div class="qdr c-orange' + (supW ? ' warn' : '') + '"><span>إشراف' + (supMax ? ' (من ' + supMax + ')' : '') + '</span><b>' + n0q(d.sup) + (supW ? (sp >= 100 ? ' ⚠ وصل الحد' : ' ⚠ متبقي ' + (supMax - d.sup)) : '') + '</b></div><div class="qdr c-yellow"><span>بيتيت كاتو</span><b>' + n0q(d.petit) + '</b></div>' +
-        '<div class="qdf">' + d.nItems + ' صنف · اضغط للتفاصيل</div></button>';
-    }).join('') + '</div>';
+    if (!dates || !dates.length) return '';
+    var first = dates[0], last = dates[dates.length - 1];
+    dates.forEach(function (x) { if (x < first) first = x; if (x > last) last = x; });
+    var has = {}; dates.forEach(function (x) { has[x] = 1; });
+    var p0 = first.split('-'), wd0 = new Date(+p0[0], +p0[1] - 1, +p0[2], 12).getDay(), pad = (wd0 + 1) % 7, start = isoPlus(first, -pad);
+    var p1 = last.split('-'), wd1 = new Date(+p1[0], +p1[1] - 1, +p1[2], 12).getDay(), end = isoPlus(last, (5 - wd1 + 7) % 7);
+    var heads = ['السبت', 'الأحد', 'الاثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'], cells = [], x = start, guard = 0;
+    while (x <= end && guard++ < 400) {
+      var pp = x.split('-'), dn = +pp[2], mn = MON_AR[+pp[1] - 1] + ' ' + pp[0];
+      if (x < first || x > last) { cells.push('<div class="qcal-e"></div>'); x = isoPlus(x, 1); continue; }
+      if (!has[x]) { cells.push('<div class="qcal-c qcal-n"><div class="qch"><span class="qcn">' + dn + '</span><span class="qcm">' + h(mn) + '</span></div><div class="qcx">لم يبدأ استلام الطلبات</div></div>'); x = isoPlus(x, 1); continue; }
+      var d = model[x] || { kg: 0, petit: 0, deliv: 0, sup: 0, nItems: 0 }, pc = limit ? d.kg / limit * 100 : 0, st = !limit ? 'ok' : pc >= 100 ? 'full' : pc >= 70 ? 'warn' : 'ok', left = limit ? Math.max(0, limit - d.kg) : 0, sp = supMax ? d.sup / supMax * 100 : 0, supW = supMax && d.sup > 0 && sp >= 70;
+      cells.push('<button type="button" class="qcal-c st-' + st + '" onclick="qtyDay(\'' + x + '\',\'' + src + '\')">' +
+        '<div class="qch"><span class="qcn">' + dn + '</span><span class="qcm">' + h(mn) + '</span>' + (limit ? '<span class="qcp">' + Math.round(pc) + '%</span>' : '') + '</div>' +
+        '<div class="qcb"><i style="width:' + Math.min(100, pc).toFixed(0) + '%"></i></div>' +
+        '<div class="qcr"><span class="qcv c-kg">' + fmtKg(d.kg) + ' كجم</span><span class="qcv c-pt">' + n0q(d.petit) + ' بتيت</span></div>' +
+        '<div class="qcr"><span class="qcv c-dl">' + n0q(d.deliv) + ' توصيل</span><span class="qcv c-sp' + (supW ? ' wr' : '') + '">' + n0q(d.sup) + ' إشراف' + (supW ? (sp >= 100 ? ' ⚠' : '') : '') + '</span></div>' +
+        (limit ? '<div class="qcf">' + (st === 'full' ? 'وصل الحد (' + h(String(limit)) + ' كجم)' : 'متاح ' + fmtKg(left) + ' كجم') + '</div>' : '') + '</button>');
+      x = isoPlus(x, 1);
+    }
+    return '<div class="qcal-lg"><span class="st-ok">متاح</span><span class="st-warn">تحذير (70% فأكثر)</span><span class="st-full">وصل الحد</span><span class="st-n">لم يبدأ الاستقبال</span></div>' +
+      '<div class="qcal"><div class="qcal-h">' + heads.map(function (n) { return '<b>' + n + '</b>'; }).join('') + '</div><div class="qcal-g">' + cells.join('') + '</div></div>';
   }
   function n0q(x) { return Number(x || 0).toLocaleString('en-US', { maximumFractionDigits: 1 }); }
   window.qtyDay = function (date, src) {
