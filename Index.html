@@ -2763,14 +2763,34 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var s = String(v).trim(), m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); if (m) return m[1] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[3]).slice(-2);
     m = s.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/); return m ? m[3] + '-' + ('0' + m[2]).slice(-2) + '-' + ('0' + m[1]).slice(-2) : '';
   }
+  /* v4.13: قراءة موحّدة لأعمدة تصدير ERP (Sales Order أو Client Request): نفس الأسماء البديلة تُستعمل في شاشة الكميات ولوحة المبيعات */
+  function nk(v) { return String(v === null || v === undefined ? '' : v).trim().toLowerCase().replace(/[ً-ٟـ]/g, '').replace(/[أإآ]/g, 'ا').replace(/[^a-z0-9ء-ي]/g, ''); }
+  function numOf(v) { var n = typeof v === 'number' ? v : parseFloat(String(v === null || v === undefined ? '' : v).replace(/,/g, '').trim()); return isNaN(n) ? 0 : n; }
+  var NONPROD = /^(s-10001|test|ser)/i;
+  function erpCols(Hr) {
+    var N = Hr.map(nk), c = {};
+    function f(list, rxs) { var i, k; for (k = 0; k < list.length; k++) { i = N.indexOf(list[k]); if (i >= 0) return i; } for (k = 0; k < (rxs || []).length; k++) for (i = 0; i < N.length; i++) if (rxs[k].test(N[i])) return i; return -1; }
+    c.st = f(['workflowstate', 'status', 'state', 'حالهالطلب', 'الحاله'], [/^workflowstate/]);
+    c.id = f(['id', 'clientrequest', 'clientrequestid', 'salesorder', 'رقمالطلب', 'رقمالفاتوره'], [/^clientrequest/]);
+    c.dt = f(['deliverydateorder', 'deliverydate', 'تاريخالتسليم', 'تاريخالاستلام'], [/^deliverydate/]);
+    c.cu = f(['customername', 'customer', 'اسمالعميل', 'العميل'], [/^customername/]);
+    c.lo = f(['location', 'المنطقه', 'الموقع', 'الحي']); c.dep = f(['deposit', 'العربون']); c.sup = f(['supervision', 'الاشراف', 'اشراف']);
+    c.code = f(['itemcodesalesorderitem', 'itemcode', 'كودالصنف', 'الكود', 'code'], [/^itemcode/]);
+    c.name = f(['itemnamesalesorderitem', 'itemname', 'اسمالصنف'], [/^itemname/]);
+    c.q = f(['quantitysalesorderitem', 'quantity', 'qty', 'الكميه'], [/^(quantity|qty)/]);
+    c.a = f(['amountsalesorderitem', 'amount', 'المبلغ'], [/^amount/]);
+    c.cr = f(['crdate', 'creation', 'creationdate', 'created', 'createdon', 'تاريخالانشاء']); c.ow = f(['owner', 'المنشئ']); c.ic = f(['incall'], [/^incall/]);
+    c.ch = [f(['occasionsection']), f(['cservice', 'cs']), f(['showroom'])].filter(function (x) { return x >= 0; });
+    return c;
+  }
   function soAgg(aoa) {
-    var H = (aoa[0] || []).map(function (x) { return String(x === null || x === undefined ? '' : x).trim(); });
-    function ix(n) { return H.indexOf(n); }
-    var c = { st: ix('Workflow State'), id: ix('ID'), dt: ix('Delivery Date Order'), cu: ix('Customer Name'), lo: ix('location'), dep: ix('Deposit'), sup: ix('Supervision'), code: ix('Item Code (Sales Order Item)'), name: ix('Item Name (Sales Order Item)'), q: ix('Quantity (Sales Order Item)'), a: ix('Amount (Sales Order Item)'), cr: (function () { for (var i = 0; i < H.length; i++) { var k = H[i].toLowerCase().replace(/[^a-z0-9]/g, ''); if (k === 'crdate' || k === 'creation' || k === 'creationdate' || k === 'created' || k === 'createdon') return i; } return -1; })(), ow: ix('owner') };
-    var miss = []; ['st', 'id', 'dt', 'code', 'q', 'a', 'ow'].forEach(function (k) { if (c[k] < 0) miss.push(k); });
-    if (miss.length) throw new Error('الملف ليس تصدير Sales Order من ERPNext: أعمدة ناقصة (' + miss.join('، ') + ')');
+    var hi0 = -1, c = null, H = [];
+    for (var hr = 0; hr < Math.min(aoa.length, 40) && hi0 < 0; hr++) { var Hr = (aoa[hr] || []).map(function (x) { return String(x === null || x === undefined ? '' : x).trim(); }), cc = erpCols(Hr); if (cc.st >= 0 && cc.id >= 0 && cc.dt >= 0 && cc.code >= 0 && cc.q >= 0) { hi0 = hr; c = cc; H = Hr; } }
+    if (hi0 < 0) { H = (aoa[0] || []).map(function (x) { return String(x === null || x === undefined ? '' : x).trim(); }); c = erpCols(H); }
+    var miss = []; ['st', 'id', 'dt', 'code', 'q', 'a'].forEach(function (k) { if (c[k] < 0) miss.push(k); });
+    if (miss.length) throw new Error('الملف ليس تصدير Sales Order أو Client Request من ERPNext: أعمدة ناقصة (' + miss.join('، ') + ')');
     var orders = {}, order = [], items = {}, ratio = {}, res = { rows: 0, test: 0, bad: 0, skipped: 0, states: {} }, testIds = {};
-    for (var r = 1; r < aoa.length; r++) {
+    for (var r = Math.max(hi0, 0) + 1; r < aoa.length; r++) {
       var row = aoa[r]; if (!row) continue; var id = String(row[c.id] === undefined ? '' : row[c.id]).trim(), st = String(row[c.st] === undefined ? '' : row[c.st]).trim();
       var RC = null; if (id && st) { RC = (res.rc = res.rc || {})[st] || (res.rc[st] = { rows: 0, ids: {}, test: {}, bad: 0 }); RC.rows++; RC.ids[id] = 1; } if (id && st) { var IX = (res.idx = res.idx || {}); if (!IX[id]) IX[id] = { s: st, t: 0, x: '' }; }
       if (!id || SO_ALL.indexOf(st) < 0) { if (id || st) res.skipped++; continue; }
@@ -2783,6 +2803,8 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       o.lines++; o.total += amt;
       if (up === 'S-10004') o.deliv += amt; else if (up === 'S-10005') o.superv += amt; else if (up === 'S-10001') o.rent += amt;
       if (SO_VALID.indexOf(o.state) < 0) continue;
+      /* نفس قواعد شاشة الكميات: In Call وأكواد الخدمات/الاختبار والسطر بلا قناة لا تدخل الكميات */
+      if (c.ic >= 0 && numOf(row[c.ic]) === 1) continue; if (NONPROD.test(code)) continue; if (c.ch.length && !c.ch.some(function (x) { return numOf(row[x]) === 1; })) continue; if (qty <= 0) continue;
       var rt = ratio[up] || (ratio[up] = { q: 0, a: 0 }); rt.q += qty; rt.a += amt;
       var k = date + '|' + up, it = items[k]; if (!it) it = items[k] = { date: date, code: code, name: String(row[c.name] || '').trim(), qty: 0, amt: 0, ids: {}, orders: 0 };
       it.qty += qty; it.amt += amt; if (!it.ids[id]) { it.ids[id] = 1; it.orders++; }
