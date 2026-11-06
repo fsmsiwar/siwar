@@ -231,6 +231,12 @@ body.printing #prt{display:block;--ink:#111;--card:#fff;--line:#bbb;--soft:#f3f3
 .qcr{display:flex;justify-content:space-between;gap:4px;font-size:12px;font-weight:600}.qcv.c-kg{color:#b06a00}.qcv.c-pt{color:#c0407f}.qcv.c-dl{color:#4a63b8}.qcv.c-sp{color:#7a52b8}.qcv.wr{background:rgba(230,81,0,.15);border-radius:4px;padding:0 4px}.qcf{font-size:11px;color:var(--mut,#666);margin-top:auto;border-top:1px solid rgba(0,0,0,.08);padding-top:4px}
 .qcal-lg{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0}.qcal-lg span{padding:2px 12px;border-radius:99px;font-size:11px;border:1px solid rgba(0,0,0,.12)}.qcal-lg .st-ok{background:#e6f6ee}.qcal-lg .st-warn{background:#fff4dc}.qcal-lg .st-full{background:#fde6e6}.qcal-lg .st-n{background:#f3ede6}
 @media(max-width:700px){.qcal-h,.qcal-g{min-width:760px}}
+.qs-drop{display:flex;flex-direction:column;align-items:center;gap:6px;padding:26px 14px;border:2px dashed #b9a58f;border-radius:16px;background:linear-gradient(180deg,#fffaf3,#f7efe4);cursor:pointer;text-align:center;transition:.15s;margin:8px 0}.qs-drop:hover,.qs-drop.over{border-color:#b06a00;background:#fff3de;transform:translateY(-1px)}.qs-drop b{font-size:15px}.qs-drop small{color:var(--mut,#777)}.qs-di{font-size:26px;width:46px;height:46px;border-radius:50%;background:#f0dcc0;display:flex;align-items:center;justify-content:center;color:#8a5200}
+.qs-file{margin:8px 0;padding:8px 12px;border-radius:10px;background:#eef6ee;border:1px solid #b9dcbc;font-size:13px}.qs-sec{margin:10px 0;border:1px solid rgba(0,0,0,.09);border-radius:14px;padding:10px 12px;background:var(--card,#fff);box-shadow:0 2px 8px rgba(80,50,20,.05)}.qs-t{font-weight:700;display:flex;align-items:center;gap:8px;margin-bottom:8px}.qs-t small{font-weight:400;color:var(--mut,#777);font-size:11px}.qs-ic{width:24px;height:24px;border-radius:50%;background:var(--cc);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:13px}
+.qs-chips{display:flex;flex-wrap:wrap;gap:8px}.qs-chip{border:1.5px solid var(--cc);color:var(--cc);background:#fff;border-radius:99px;padding:5px 14px;font:inherit;font-size:13px;font-weight:600;cursor:pointer;opacity:.75}.qs-chip.on{background:var(--cc);color:#fff;opacity:1;box-shadow:0 2px 6px rgba(0,0,0,.18)}
+.qs-note{margin-top:8px;padding:7px 10px;border-radius:10px;font-size:12px}.qs-note.ok{background:#e8f6ec;border:1px solid #b9dcbc}
+.qs-map{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px}.qs-f label{display:block;font-size:11px;color:var(--mut,#666);margin-bottom:2px}.qs-f.req label{color:#1565c0;font-weight:700}.qs-f select,.qs-f input{width:100%}.qs-act{margin-top:10px}
+.qs-tw{overflow:auto;max-height:300px;border:1px solid rgba(0,0,0,.1);border-radius:10px}.qs-tb{border-collapse:collapse;font-size:12px;width:max-content;min-width:100%}.qs-tb th,.qs-tb td{padding:5px 9px;border-bottom:1px solid rgba(0,0,0,.07);white-space:nowrap;text-align:right}.qs-tb thead th{background:#e8eef8;position:sticky;top:0;z-index:2;color:#1c3d6e}.qs-tb th.hl{background:#f5d98a;color:#5a3d00}.qs-tb th em{display:block;font-style:normal;font-size:10px;color:#7a5200;font-weight:700}.qs-tb td.hl{background:#fff4d0}.qs-tb td.n,.qs-tb th.n{background:#f1f1f1;color:#888;position:sticky;right:0}.qs-tb tbody tr:nth-child(even) td:not(.hl):not(.n){background:#fafafa}
 .qdg{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px;margin-top:8px}.qdc{text-align:right;background:var(--card,#fff);border:1px solid var(--bd,#d9d9d9);border-radius:10px;padding:10px;cursor:pointer;font:inherit;color:inherit}.qdc:hover{border-color:#3b6fc8}.qdc.hi{border-color:#d40000;background:rgba(212,0,0,.06)}.qdh{display:flex;justify-content:space-between;align-items:baseline}.qdh span{font-size:11px;color:var(--mut,#777)}.qdk{font-size:22px;font-weight:700;margin:4px 0}.qdk small{font-size:11px;font-weight:400}.qdr{display:flex;justify-content:space-between;font-size:12px;padding:1px 0}.qdr span{color:var(--mut,#777)}.qdf{font-size:10px;color:var(--mut,#777);margin-top:4px}
 .qpv{position:relative;overflow:auto;height:68vh;min-height:260px;max-width:100%;resize:both;border:1px solid var(--line,#ddd);border-radius:8px;background:var(--card,#fff)}.qpv.full{position:fixed;inset:0;z-index:70;width:100vw!important;height:100vh!important;max-height:none;border-radius:0;resize:none}.qfb{position:sticky;top:0;left:0;z-index:9;float:left;margin:4px}.qtw.qpv{max-height:none}
 .qt.stk thead th{position:sticky;top:0;z-index:5;background:#efe6dc}.qt.stk .s1,.qt.stk .s2,.qt.stk .s3,.qt.stk .s4,.qt.stk .s0{position:sticky;z-index:4}.qt.stk thead .s1,.qt.stk thead .s2,.qt.stk thead .s3,.qt.stk thead .s4,.qt.stk thead .s0{z-index:8}.qt.stk .s0{right:0}.qt.stk .s1{right:0;min-width:100px;max-width:100px}.qt.stk .s2{right:100px;min-width:190px;max-width:190px;overflow:hidden;text-overflow:ellipsis;text-align:right}.qt.stk .s3{right:290px;min-width:62px}.qt.stk .s4{right:352px;min-width:84px;box-shadow:-4px 0 5px rgba(0,0,0,.13)}
@@ -2221,11 +2227,11 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       var q = numOf(r[H.q]), s0 = '';
       if (H.st !== undefined && !(H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim()))) { var sx = String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' ');
         /* v4.9.2: الملغاة/المسودة تُسجَّل دائماً (حتى لو كميتها صفر أو In Call أو كود خدمة) ليطابق عدد الفواتير Excel */
-        if (sx && !OK_STATE[sx.toLowerCase()]) { var kk0 = sx; st.exState[kk0] = (st.exState[kk0] || 0) + 1; st.exStateN++; XP('state');
+        if (sx && !(Q.okSt || OK_STATE)[sx.toLowerCase()]) { var kk0 = sx; st.exState[kk0] = (st.exState[kk0] || 0) + 1; st.exStateN++; XP('state');
           lines.push({ d: d, i: xi, s: sx, c: (H.ic !== undefined && numOf(r[H.ic]) === 1) ? 1 : 0, code: code, name: H.nm !== undefined ? String(r[H.nm] || '').trim() : '', q: (NONPROD.test(code) || q <= 0) ? 0 : q, a: (NONPROD.test(code) || q <= 0) ? 0 : (H.amt !== undefined ? numOf(r[H.amt]) : 0) });
           continue; } }
       if (q <= 0) { XP('qty0'); continue; }
-      if (H.st !== undefined) { s0 = String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' '); if (!OK_STATE[s0.toLowerCase()]) { var kk = s0 || '(بدون حالة)'; st.exState[kk] = (st.exState[kk] || 0) + 1; st.exStateN++; XP('state');
+      if (H.st !== undefined) { s0 = String(r[H.st] === undefined ? '' : r[H.st]).trim().replace(/\s+/g, ' '); if (!(Q.okSt || OK_STATE)[s0.toLowerCase()]) { var kk = s0 || '(بدون حالة)'; st.exState[kk] = (st.exState[kk] || 0) + 1; st.exStateN++; XP('state');
         /* v3.7: الأسطر الملغاة/المسودة تُحفظ للعرض بفلتر مستقل ولا تدخل الكميات */
         if (!NONPROD.test(code) && !(H.cu !== undefined && /^test/i.test(String(r[H.cu] === undefined ? '' : r[H.cu]).trim()))) lines.push({ d: d, i: xi, s: s0, c: (H.ic !== undefined && numOf(r[H.ic]) === 1) ? 1 : 0, code: code, name: H.nm !== undefined ? String(r[H.nm] || '').trim() : '', q: q, a: H.amt !== undefined ? numOf(r[H.amt]) : 0 });
         continue; } }
@@ -2242,7 +2248,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
       lines.push({ d: d, i: H.inv !== undefined ? String(r[H.inv] === undefined ? '' : r[H.inv]).trim() : '', s: s0, c: call ? 1 : 0, code: code, name: lnm, q: q, a: lam });
       var cKey = code.toUpperCase().replace(/\s/g, ''), ta = totAll[cKey] || (totAll[cKey] = { q: 0, a: 0 }); ta.q += q; ta.a += lam;
       XP(call ? 'call' : 'ok');
-      if (call) { st.exCall++; st.exCallQty += q; continue; }
+      if (call && !Q.callIn) { st.exCall++; st.exCallQty += q; continue; }
       var key = d + '|' + code.toUpperCase().replace(/\s/g, ''), a = agg[key] || (agg[key] = { date: d, code: code, name: '', qty: 0 });
       a.qty += q; if (!a.name && H.nm !== undefined) a.name = String(r[H.nm] || '').trim(); st.used++;
       var t2 = tot[cKey] || (tot[cKey] = { q: 0, a: 0 }); t2.q += q; if (H.amt !== undefined) t2.a += numOf(r[H.amt]);
@@ -2263,7 +2269,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     CM('تاريخ التسليم', H.d, 'يُجمَّع كل يوم لحاله. أي سطر تاريخه غير مفهوم يُعدّ ويظهر تنبيهاً'); CM('كود الصنف', H.c, 'مفتاح التجميع (لا فرق بين الحروف الكبيرة والصغيرة ولا المسافات)'); CM('الكمية', H.q, 'تُجمع لكل (كود + يوم). الصفر والسالب يُهمل. الجرام يتحول لكيلو والحبة تبقى حبة');
     CM('حالة الطلب', H.st, 'يُحسب فقط Submit وReady to deliver وDelivered وUnder preparation. غيرها (Cancel وDraft…) يُستبعد'); (H.ch || []).forEach(function (x) { CM('قناة الطلب', x, 'يُحسب السطر إذا واحدة من القنوات الثلاث = 1 (Occasion Section أو C Service أو Showroom)'); });
     CM('In Call', H.ic, 'السطر يظهر في الملخص لكنه لا يدخل الكميات اليومية'); CM('رقم الطلب', H.inv, 'لعدّ الفواتير وعرض الطلبات'); CM('المبلغ', H.amt, 'لحساب قيمة المنتجات ولتحديد الوحدة (سعر الوحدة أقل من 5 = جرام، غير ذلك = حبة)'); CM('العميل', H.cu, 'العملاء الذين اسمهم يبدأ بـ test يُستبعدون'); CM('اسم الصنف', H.nm, 'للعرض فقط');
-    return { rows: rows, dates: ds, nItems: Object.keys(items).length, nCols: ds.length, hasKind: false, hasUm: true, headRow: hi + 1, mode: 'orders', stats: st, lines: lines, xr: xr, cmap: cm };
+    return { rows: rows, dates: ds, nItems: Object.keys(items).length, nCols: ds.length, hasKind: false, hasUm: true, headRow: hi + 1, mode: 'orders', H: H, hi: hi, stats: st, lines: lines, xr: xr, cmap: cm };
   }
   function qtyParse(aoa, year) {
     var od = ordersParse(aoa, year); if (od) return od;
@@ -2350,7 +2356,7 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     H.ch = [];
     return { hi: hi, H: H, ok: H.d !== undefined && H.c !== undefined && H.q !== undefined, hdrOk: hdrOk, ncol: ncol, hd: hd };
   }
-  var ROLES = [['d', 'عمود التاريخ (تاريخ التسليم)', 1], ['c', 'عمود الكود', 1], ['q', 'عمود الكمية', 1], ['nm', 'اسم الصنف', 0], ['st', 'حالة الطلب (Submit/Cancel…)', 0], ['inv', 'رقم الفاتورة/الطلب', 0], ['ic', 'In Call', 0], ['amt', 'المبلغ', 0]];
+  var ROLES = [['d', 'عمود التاريخ (تاريخ التسليم)', 1], ['c', 'عمود الكود', 1], ['q', 'عمود الكمية', 1], ['nm', 'اسم الصنف', 0], ['st', 'حالة الطلب (Submit/Cancel…)', 0], ['inv', 'رقم الفاتورة/الطلب', 0], ['ic', 'In Call', 0], ['amt', 'المبلغ', 0], ['cu', 'العميل (يُستبعد test)', 0]];
   function mapUi(aoa, g, sheet, why) {
     var ncol = g ? g.ncol : 0, hi = g ? g.hi : 0, i, j, hd = g ? g.hd : [];
     var colOpt = function (sel, req) { var o = req ? '' : '<option value="">— بدون —</option>'; if (req && (sel === undefined)) o = '<option value="">اختر العمود…</option>'; for (j = 0; j < ncol; j++) o += '<option value="' + j + '"' + (sel === j ? ' selected' : '') + '>' + h((j + 1) + '. ' + (hdrText(hd[j]) || 'عمود') + ' — ' + colSample(aoa, hi, j, 2).join(' ، ')) + '</option>'; return o; };
@@ -2365,12 +2371,12 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     var m = qtyParse(aoa, year); if (m.err) { m.g = g; if (g && g.ok) m.why2 = 'خمّنت الأعمدة من محتواها لكن بدون عناوين واضحة، راجعها قبل التحليل.'; } return m;
   }
   window.qtyMapGo = function () {
-    var aoa = Q.mapAoa; if (!aoa) return; var hi = (+$('qm_hi').value || 1) - 1, H = { ch: [] }, miss = [];
+    var aoa = Q.mapAoa; if (!aoa || !$('qm_hi')) return; var hi = (+$('qm_hi').value || 1) - 1, H = { ch: [] }, miss = [];
     ROLES.forEach(function (r) { var v = $('qm_' + r[0]).value; if (v !== '') H[r[0]] = +v; else if (r[2]) miss.push(r[1]); });
     if (miss.length) return toast('اختر: ' + miss.join('، '), true);
     var p = ordersParse(aoa, +($('qy_year') || {}).value || 0, { hi: hi, H: H });
     if (!p || p.err) { $('qy_prev').insertAdjacentHTML('afterbegin', '<div class="msg bad">' + h((p && p.err) || 'تعذر التحليل') + (p && p.diag ? ' — ' + h(p.diag) : '') + '</div>'); return; }
-    p.sheet = Q.mapSheet; p.file = Q.mapFile || ''; Q.pend = p; qtyPreview();
+    p.sheet = Q.mapSheet; p.file = Q.mapFile || ''; p.aoa = aoa; Q.pend = p; Q.pf = Q.pt = ''; qtyPreview(); studioRender(p);
   };
 
   /* ---------- رفع الملف ---------- */
@@ -2381,9 +2387,9 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
         var wb = XLSX.read(new Uint8Array(fr.result), { type: 'array', cellDates: true }), names = wb.SheetNames.slice(), pick = null, last = '', diag = '', bestAoa = null;
         names.sort(function (a, b) { return (/qty|كمي/i.test(b) ? 1 : 0) - (/qty|كمي/i.test(a) ? 1 : 0); });
         var year = +($('qy_year') || {}).value || 0;
-        for (var k = 0; k < names.length && !pick; k++) { var aoa = XLSX.utils.sheet_to_json(wb.Sheets[names[k]], { header: 1, raw: true, defval: '' }), p = smartParse(aoa, year); if (p.err) { var g = p.g || guessMap(aoa); if (p.err) { var sz = aoa.filter(function (r) { return r && r.some(function (c) { return c !== '' && c !== null; }); }).length; if (!bestAoa || sz > bestAoa.n) bestAoa = { aoa: aoa, g: g, name: names[k], n: sz, why: p.why2 || p.err }; } } if (!p.err) { pick = p; pick.sheet = names[k]; } else { last = p.err; diag += '«' + names[k] + '»: ' + (p.diag || 'ورقة فاضية') + '\n'; } }
-        if (!pick) { Q.pend = null; Q.mapFile = f.name; if (bestAoa) { $('qy_prev').innerHTML = mapUi(bestAoa.aoa, bestAoa.g, bestAoa.name, bestAoa.why); return; } $('qy_prev').innerHTML = '<div class="msg bad">' + h(last) + '</div><p class="muted">الأوراق اللي فحصتها وأول ما فيها:</p><pre style="white-space:pre-wrap;font-size:12px">' + h(diag) + '</pre>'; return; }
-        pick.file = f.name; Q.pend = pick; Q.pf = Q.pt = ''; qtyPreview(); if (pick.guessed) $('qy_prev').insertAdjacentHTML('afterbegin', '<div class="msg ok">تعرّفت على أعمدة الملف تلقائياً (التاريخ والكود والكمية). راجع الأرقام في المعاينة قبل الاعتماد.</div>');
+        for (var k = 0; k < names.length && !pick; k++) { var aoa = XLSX.utils.sheet_to_json(wb.Sheets[names[k]], { header: 1, raw: true, defval: '' }), p = smartParse(aoa, year); if (p.err) { var g = p.g || guessMap(aoa); if (p.err) { var sz = aoa.filter(function (r) { return r && r.some(function (c) { return c !== '' && c !== null; }); }).length; if (!bestAoa || sz > bestAoa.n) bestAoa = { aoa: aoa, g: g, name: names[k], n: sz, why: p.why2 || p.err }; } } if (!p.err) { pick = p; pick.sheet = names[k]; pick.aoa = aoa; } else { last = p.err; diag += '«' + names[k] + '»: ' + (p.diag || 'ورقة فاضية') + '\n'; } }
+        if (!pick) { Q.pend = null; Q.mapFile = f.name; if ($('qy_studio')) $('qy_studio').innerHTML = ''; if (bestAoa) { $('qy_prev').innerHTML = mapUi(bestAoa.aoa, bestAoa.g, bestAoa.name, bestAoa.why); return; } $('qy_prev').innerHTML = '<div class="msg bad">' + h(last) + '</div><p class="muted">الأوراق اللي فحصتها وأول ما فيها:</p><pre style="white-space:pre-wrap;font-size:12px">' + h(diag) + '</pre>'; return; }
+        pick.file = f.name; Q.pend = pick; Q.pf = Q.pt = ''; qtyPreview(); Q.mapAoa = pick.aoa; Q.mapSheet = pick.sheet; Q.mapFile = f.name; studioRender(pick, f);  if (pick.guessed) $('qy_prev').insertAdjacentHTML('afterbegin', '<div class="msg ok">تعرّفت على أعمدة الملف تلقائياً (التاريخ والكود والكمية). راجع الأرقام في المعاينة قبل الاعتماد.</div>');
       } catch (e) { $('qy_prev').innerHTML = '<div class="msg bad">تعذرت قراءة الملف: ' + h(e.message) + '</div>'; }
     }; fr.readAsArrayBuffer(f);
   };
@@ -2735,9 +2741,47 @@ document.addEventListener('click', function (e) { var b = $('gres'); if (b && !b
     confirmBox('حذف كل الكميات المعروضة من ' + f + ' إلى ' + t + '؟ ستنتقل إلى سلة المحذوفات 30 يوماً.', true, 'نعم، انقل للسلة').then(function (ok) { if (!ok) return; rpc('qty.clear', { from: f, to: t }).then(function (r) { toast('حُذف ' + r.removed + ' سطر'); Q.d = null; go('qty'); }).catch(function (e) { toast(e.message, true); }); });
   };
 
+
+  /* ---------- v4.14: استوديو رفع الكميات: منطقة سحب، اختيار الطلبات، تحديد الأعمدة، معاينة ملونة ---------- */
+  var QST_COL = { 'delivered': '#2e7d32', 'submit': '#1565c0', 'ready to deliver': '#e65100', 'under preparation': '#6a1b9a', 'incall': '#00838f', 'draft': '#8d8d8d', 'cancel': '#c62828' };
+  var ST_CHIPS = [['delivered', 'Delivered', 'تم التوصيل'], ['submit', 'Submit', 'مُعتمدة'], ['ready to deliver', 'Ready to deliver', 'جاهزة للتوصيل'], ['under preparation', 'Under preparation', 'قيد التحضير'], ['incall', 'In Call', 'بدون تاريخ محدد'], ['draft', 'Draft', 'مسودة'], ['cancel', 'Cancel', 'ملغاة']];
+  Q.okSt = { 'delivered': 1, 'submit': 1, 'ready to deliver': 1, 'under preparation': 1 }; Q.callIn = false;
+  function stOn(k) { return k === 'incall' ? !!Q.callIn : !!Q.okSt[k]; }
+  function stHtml() {
+    var on = ST_CHIPS.filter(function (c) { return stOn(c[0]); }), off = ST_CHIPS.filter(function (c) { return !stOn(c[0]); });
+    return '<div class="qs-sec"><div class="qs-t"><span class="qs-ic" style="--cc:#2e7d32">1</span>اختيار الطلبات <small>اضغط الحالة لتشغيلها أو إيقافها</small></div><div class="qs-chips">' +
+      ST_CHIPS.map(function (c) { var o = stOn(c[0]); return '<button type="button" class="qs-chip' + (o ? ' on' : '') + '" style="--cc:' + QST_COL[c[0]] + '" onclick="qtyStToggle(\'' + c[0] + '\')" title="' + h(c[2]) + '">' + (o ? '✔ ' : '') + h(c[1]) + '</button>'; }).join('') + '</div>' +
+      '<div class="qs-note ok"><b>تُحسب فقط:</b> ' + (on.length ? on.map(function (c) { return h(c[1]); }).join(' · ') : 'لا شيء') + (off.length ? ' &nbsp;|&nbsp; <span class="muted">تُخفى ولا تدخل في أي حساب: ' + off.map(function (c) { return h(c[1]); }).join(' · ') + '</span>' : '') + '</div></div>';
+  }
+  window.qtyStToggle = function (k) {
+    if (k === 'incall') Q.callIn = !Q.callIn; else if (Q.okSt[k]) delete Q.okSt[k]; else Q.okSt[k] = 1;
+    var e = $('qs_st'); if (e) e.innerHTML = stHtml(); if (Q.mapAoa && $('qm_hi')) qtyMapGo();
+  };
+  function cellTxt(v) { return v instanceof Date ? parseDay(v, 0) : (v === undefined || v === null ? '' : String(v)); }
+  function studioRender(p, f) {
+    var box = $('qy_studio'); if (!box) return; if (!p || p.mode !== 'orders' || !p.aoa) { box.innerHTML = ''; return; }
+    var aoa = p.aoa, H = p.H || {}, hi = p.hi || 0, hd = aoa[hi] || [], ncol = 0, i, j; for (i = hi; i < Math.min(aoa.length, hi + 40); i++) ncol = Math.max(ncol, (aoa[i] || []).length);
+    var hdrs = []; for (j = 0; j < ncol; j++) hdrs.push(cellTxt(hd[j]).trim());
+    var roleOf = {}; ROLES.forEach(function (r) { if (H[r[0]] !== undefined) roleOf[H[r[0]]] = r; });
+    function opt(sel, req) { var o = '<option value="">' + (req ? 'اختر العمود…' : '— بدون —') + '</option>'; for (var c = 0; c < ncol; c++) o += '<option value="' + c + '"' + (sel === c ? ' selected' : '') + '>' + h(hdrs[c] || ('عمود ' + (c + 1))) + '</option>'; return o; }
+    var map = '<div class="qs-map">' + ROLES.map(function (r) { return '<div class="qs-f' + (r[2] ? ' req' : '') + '"><label>' + h(r[1]) + (r[2] ? ' ★' : '') + '</label><select id="qm_' + r[0] + '">' + opt(H[r[0]], r[2]) + '</select></div>'; }).join('') + '<div class="qs-f"><label>رقم صف العناوين</label><input id="qm_hi" type="number" min="1" value="' + (hi + 1) + '"></div></div>';
+    var th = hdrs.map(function (t, c) { var r = roleOf[c]; return '<th class="' + (r ? 'hl' : '') + '">' + (r ? '<em>' + h(r[1].replace(/\s*\(.*\)/, '')) + '</em>' : '') + h(t || ('عمود ' + (c + 1))) + '</th>'; }).join('');
+    var tb = aoa.slice(hi + 1, hi + 9).map(function (r, ri) {
+      return '<tr><td class="n">' + (hi + 2 + ri) + '</td>' + hdrs.map(function (t, c) { var v = cellTxt((r || [])[c]), sc = H.st === c ? QST_COL[v.trim().toLowerCase().replace(/\s+/g, ' ')] : ''; return '<td class="' + (roleOf[c] ? 'hl' : '') + '"' + (sc ? ' style="color:' + sc + ';font-weight:700"' : '') + '>' + h(v) + '</td>'; }).join('') + '</tr>';
+    }).join('');
+    var nrows = Math.max(0, aoa.length - hi - 1), fn = (f && f.name) || p.file || Q.mapFile || '';
+    box.innerHTML = '<div class="qs-file"><span><b>' + h(fn) + '</b>' + (f && f.size ? ' <small>(' + (f.size / 1024).toFixed(1) + ' KB)</small>' : '') + ' — ورقة «' + h(p.sheet || '') + '» — ' + n0q(nrows) + ' صف</span></div>' +
+      '<div id="qs_st">' + stHtml() + '</div>' +
+      '<div class="qs-sec"><div class="qs-t"><span class="qs-ic" style="--cc:#1565c0">2</span>تحديد الأعمدة <small>تعرّفت عليها تلقائياً، عدّل ثم اضغط تحليل</small></div>' + map + '<div class="qs-act"><button class="p" onclick="qtyMapGo()">تحليل البيانات</button></div></div>' +
+      '<div class="qs-sec"><div class="qs-t"><span class="qs-ic" style="--cc:#d9a300">3</span>معاينة الملف <small>الأعمدة المحددة باللون الذهبي، وأول 8 صفوف</small></div><div class="qs-tw"><table class="qs-tb"><thead><tr><th class="n">#</th>' + th + '</tr></thead><tbody>' + tb + '</tbody></table></div></div>';
+  }
+  window.qtyDrag = function (e, on) { e.preventDefault(); var d = $('qy_drop'); if (d) d.classList.toggle('over', !!on); };
+  window.qtyDrop = function (e) { e.preventDefault(); qtyDrag(e, false); var inp = $('qy_file'); if (inp && e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files.length) { try { inp.files = e.dataTransfer.files; } catch (x) { } qtyPick(inp); } };
+
   R.qty = function (m) {
+    Q.mapAoa = null;
     var canUp = can('استيراد_البيانات'), yr = +S.boot.today.slice(0, 4);
-    m.innerHTML = (canUp ? '<details class="card" id="qy_up"><summary><b>رفع ملف الكميات اليومية (Excel)</b></summary><p class="muted">الملف بنفس شكل جدولكم: أعمدة Code واسم الصنف وU.M وKind، وبعدها عمود لكل تاريخ بالكمية (جرام أو كيلو حسب عمود الوحدة). صف إجمالي الأيام يُحسب تلقائياً ولا يُقرأ من الملف.</p><div class="grid"><div><label>ملف Excel</label><input id="qy_file" type="file" accept=".xlsx,.xls,.csv" onchange="qtyPick(this)"></div><div><label>السنة (إذا التواريخ بدون سنة مثل 20 October)</label><select id="qy_year" onchange="qtyYear()"><option value="0">حسب التاريخ الحالي</option>' + [yr + 1, yr, yr - 1].map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join('') + '</select></div></div><div id="qy_prev"></div></details>' : '') +
+    m.innerHTML = (canUp ? '<details class="card" id="qy_up"><summary><b>رفع وتحليل ملف الطلبات (Excel)</b></summary><p class="muted">الملف بنفس شكل جدولكم: أعمدة Code واسم الصنف وU.M وKind، وبعدها عمود لكل تاريخ بالكمية (جرام أو كيلو حسب عمود الوحدة). صف إجمالي الأيام يُحسب تلقائياً ولا يُقرأ من الملف.</p><label class="qs-drop" id="qy_drop" ondragover="qtyDrag(event,true)" ondragleave="qtyDrag(event,false)" ondrop="qtyDrop(event)"><input id="qy_file" type="file" accept=".xlsx,.xls,.csv" onchange="qtyPick(this)" hidden><span class="qs-di">⬆</span><b>اسحب ملف Excel هنا أو اضغط للاختيار</b><small>xlsx · xls · csv — تصدير Sales Order أو Client Request، والأرقام تُقرأ كما هي بدون تعديل</small></label><div id="qy_studio"></div><div class="grid"><div><label>السنة (إذا التواريخ بدون سنة مثل 20 October)</label><select id="qy_year" onchange="qtyYear()"><option value="0">حسب التاريخ الحالي</option>' + [yr + 1, yr, yr - 1].map(function (y) { return '<option value="' + y + '">' + y + '</option>'; }).join('') + '</select></div></div><div id="qy_prev"></div></details>' : '') +
       '<div class="card"><div class="bar-actions"><b>الفترة:</b>' + [14, 30, 60].map(function (n) { return '<button class="s" onclick="qtyAhead(' + n + ')">من اليوم ' + n + ' يوم</button>'; }).join('') + [7, 14, 30, 0].map(function (n) { return '<button class="s" onclick="qtyRange(' + n + ')">' + (n ? 'آخر ' + n + ' يوم' : 'كل الأيام') + '</button>'; }).join('') + '<input id="qy_from" type="date" style="max-width:150px"><input id="qy_to" type="date" style="max-width:150px"><button class="s" onclick="qtyCustom()">عرض</button>' + (can('إدارة_الإعدادات') ? '<button class="s" onclick="qtyClear()">حذف المعروض</button>' : '') + '</div></div><div id="qy_body"><div class="spinbox sm"><i class="spin"></i></div></div>';
     return load().then(function () { if (Q.d && Q.d.allCount && !Q.from && $('qy_up')) $('qy_up').open = false; else if ($('qy_up')) $('qy_up').open = true; draw(); });
   };
